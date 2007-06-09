@@ -15,8 +15,6 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
-<!DOCTYPE page>
-
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
       xmlns:flock="http://flock.com/rdf#"
@@ -27,8 +25,24 @@
 
   <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"/>
   <script type="application/x-javascript" src="chrome://global/content/nsTransferable.js"/>
-  <script type="application/x-javascript" src="chrome://s3/content/s3Sidebar.js"/>
   <script type="application/x-javascript" src="chrome://browser/content/utilityOverlay.js"/>
+  <script type="text/javascript"><![CDATA[ 
+
+    function loadJS() {
+      const loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+                               .getService(Components.interfaces.mozIJSSubScriptLoader);
+
+      var scripts = [
+        'chrome://s3bar/content/sidebar.js', 
+        ];
+
+      for (var i = 0; i < scripts.length; i++) {
+        loader.loadSubScript(scripts[i], window);
+      }
+    }
+
+    window.addEventListener("load", loadJS, false);
+  ]]></script>
 
 
   <stack flex="1">
