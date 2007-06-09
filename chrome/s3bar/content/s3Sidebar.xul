@@ -87,7 +87,7 @@
       <spacer flex="1" />
       <hbox>
         <spacer flex="1" />
-        <image src="chrome://browser/skin/Throbber-small.gif" />
+        <image src="spinner.gif" />
         <spacer flex="1" />
       </hbox>
       <spacer flex="1" />
