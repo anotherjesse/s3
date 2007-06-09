@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!--
+     Copyright Flock Inc. 2005-2007
+     http://flock.com
+     
+     This file may be used under the terms of of the
+     GNU General Public License Version 2 or later (the "GPL"),
+     http://www.gnu.org/licenses/gpl.html
+     
+     Software distributed under the License is distributed on an "AS IS" basis,
+     WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+     for the specific language governing rights and limitations under the
+     License.
+-->
+
+<overlay id="s3Overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <keyset id="mainKeyset">
+    <key id="key_s3OpenSidebar" oncommand="toggleSidebar('flock_S3SidebarBroadcaster')" modifiers="accel shift" key="m" />
+  </keyset>
+
+  <broadcasterset id="mainBroadcasterSet">
+      <broadcaster id="flock_S3SidebarBroadcaster"
+                   autoCheck="false"
+                   label="S3 Storage"
+                   tooltiptext="Amazon S3 File Storage"
+                   type="checkbox"
+                   group="sidebar"
+                   sidebarurl="chrome://s3bar/content/sidebar.xul"
+                   sidebartitle="S3 Sidebar"
+                   oncommand="toggleSidebar('flock_S3SidebarBroadcaster')"/>
+  </broadcasterset>
+
+  <menupopup id="viewSidebarMenu">
+    <menuitem observes="flock_S3SidebarBroadcaster"/>
+  </menupopup>
+</overlay>
+

@@ -39,37 +39,37 @@ var s3DNDObserver = {
         dump("s3DNDObserver: onDragExit\n");
     },
 
-	onDragStart: function(event, transferData, action) {
+  onDragStart: function(event, transferData, action) {
         dump ("s3DNDObserver: onDragStart\n");
-	},
-	
-	onDrop: function(aEvent, aDropData, aSession) {
-		//dump("s3DNDObserver: onDrop: contentType: " + aDropData.flavour.contentType + " data: " + aDropData.data + "\n");
-		 for (var c = 0; c < aDropData.dataList.length; c++) {
+  },
+  
+  onDrop: function(aEvent, aDropData, aSession) {
+    //dump("s3DNDObserver: onDrop: contentType: " + aDropData.flavour.contentType + " data: " + aDropData.data + "\n");
+     for (var c = 0; c < aDropData.dataList.length; c++) {
             var supports = aDropData.dataList[c].dataList[0].supports;
             var contentType = aDropData.dataList[c].dataList[0].flavour.contentType;
             var url;
             
-			switch (contentType) {
-				case "application/x-moz-file":
+      switch (contentType) {
+        case "application/x-moz-file":
                     dump('!!!!!!>>>>>>>aDropData.data ' + aDropData.dataList[c].dataList[0].data.path + '\n');
                     var s3DropObj = gFlockS3SVC.create(aDropData.dataList[c].dataList[0].data);
                     s3DropObj.fileName = aDropData.dataList[c].dataList[0].data.path;
                     gFlockS3SVC.add(s3DropObj);
                 break;
-		        default:
+            default:
                 break;
             }
         }
-	},
-	
-	getSupportedFlavours: function() {
-		var flavors = new FlavourSet();
-		flavors.appendFlavour("application/x-moz-file", "nsIFile");
-		flavors.appendFlavour("text/x-moz-url");
-		return flavors;
-	}
-	
+  },
+  
+  getSupportedFlavours: function() {
+    var flavors = new FlavourSet();
+    flavors.appendFlavour("application/x-moz-file", "nsIFile");
+    flavors.appendFlavour("text/x-moz-url");
+    return flavors;
+  }
+  
 }
 
 var spinner_opacity = 0.5;
@@ -107,22 +107,22 @@ function close() {
 }
 
 function deleteItem() {
-	var index = $('s3-tree').view.selection.currentIndex;
-	var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
+  var index = $('s3-tree').view.selection.currentIndex;
+  var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
     gFlockS3SVC.remove(url);
 }
 
 
 function copyLink() {
-	var index = $('s3-tree').view.selection.currentIndex;
+  var index = $('s3-tree').view.selection.currentIndex;
     var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
-	copyUrl(url)
+  copyUrl(url)
 }
 
 function copyTorrent() {
-	var index = $('s3-tree').view.selection.currentIndex;
+  var index = $('s3-tree').view.selection.currentIndex;
     var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
-	copyUrl(url+"?torrent");
+  copyUrl(url+"?torrent");
 }
 
 function copyUrl(url) {
@@ -144,11 +144,11 @@ function copyUrl(url) {
 }
 
 function onClick(aEvent) {
-	dump("onClick\n");
-	if (aEvent.button == 2 || aEvent.originalTarget.localName != "treechildren")
+  dump("onClick\n");
+  if (aEvent.button == 2 || aEvent.originalTarget.localName != "treechildren")
       return;
     
-	var index = $('s3-tree').view.selection.currentIndex;
+  var index = $('s3-tree').view.selection.currentIndex;
     var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
 
     openUILinkIn(url, whereToOpenLink(aEvent));

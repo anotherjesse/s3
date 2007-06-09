@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RDF:RDF xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:chrome="http://www.mozilla.org/rdf/chrome#">
+  <RDF:Seq RDF:about="urn:mozilla:package:root">
+    <RDF:li RDF:resource="urn:mozilla:package:s3bar"></RDF:li>
+  </RDF:Seq>
+  <RDF:Description chrome:extension="true" chrome:author="Obvious Inc." chrome:displayName="Twitter" chrome:name="s3bar" chrome:description="Trac Browser" chrome:authorURL="http://overstimulate.com" RDF:about="urn:mozilla:package:s3bar">
+  </RDF:Description>
+  <RDF:Seq RDF:about="urn:mozilla:overlays">
+    <RDF:li RDF:resource="chrome://browser/content/browser.xul"></RDF:li>
+  </RDF:Seq>
+  <RDF:Seq RDF:about="chrome://browser/content/browser.xul">
+    <RDF:li>chrome://s3bar/content/overlay.xul</RDF:li>
+  </RDF:Seq>
+</RDF:RDF>

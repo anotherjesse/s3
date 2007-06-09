@@ -178,9 +178,9 @@ flockS3Service.prototype.notifyListeners = function(aMode, aFriend) {
 }
 
 flockS3Service.prototype.remove = function(aUrl) {
-	var key = aUrl.match(/^http:\/\/[^\/]*s3\.amazonaws\.com\/(.*)$/)[1];
-	var inst=this;
-	S3.deleteKey('flock', key, function() {
+  var key = aUrl.match(/^http:\/\/[^\/]*s3\.amazonaws\.com\/(.*)$/)[1];
+  var inst=this;
+  S3.deleteKey('flock', key, function() {
       inst.refresh();
     }, function(a,b) { dump('error deleting - ' + a.responseText + '\n\n' +  b + '\n\n');}    );
 
@@ -236,19 +236,19 @@ flockS3Service.prototype.refresh = function(){
   // add all entries from S3
    var inst = this;
    S3.listKeys( 'flock', '', function(a,b) {
-	 /*
-	  <Contents>
-	    <Key>test</Key>
-	    <LastModified>2006-06-16T21:36:42.000Z</LastModified>
-	    <ETag>&quot;c38c53267465d7c77eebb4c036838ecd&quot;</ETag>
-	    <Size>7</Size>
-	    <Owner>
-	      <ID>1952c7b2d8a7b560236f6e3d4b3f9361dfdeb278146fc130878c2c29fc9b91f8</ID>
-	      <DisplayName>book_burro</DisplayName>
-	    </Owner>
-	    <StorageClass>STANDARD</StorageClass>
-	  </Contents>
-	*/
+   /*
+    <Contents>
+      <Key>test</Key>
+      <LastModified>2006-06-16T21:36:42.000Z</LastModified>
+      <ETag>&quot;c38c53267465d7c77eebb4c036838ecd&quot;</ETag>
+      <Size>7</Size>
+      <Owner>
+        <ID>1952c7b2d8a7b560236f6e3d4b3f9361dfdeb278146fc130878c2c29fc9b91f8</ID>
+        <DisplayName>book_burro</DisplayName>
+      </Owner>
+      <StorageClass>STANDARD</StorageClass>
+    </Contents>
+  */
 
      for (var i=0; i<b.ListBucketResult.Contents.length; i++) {
        var obj = new flockS3Object(0);
