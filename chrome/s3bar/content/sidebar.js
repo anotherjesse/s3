@@ -45,7 +45,31 @@ function S3() {
       inst.setup();
     }
   }
+
+	this.save = function() {
+		PREFS.setCharPref('key', $('s3-key').value);
+		PREFS.setCharPref('secret_key', $('s3-secret-key').value);
+    inst.load();
+	}
+	
+	this.load = function() {
+		$('s3-deck').selectedIndex = 1;
+	}
+	
+	this.setup = function() {
+		if (PREFS.getPrefType('key')) {
+      $('s3-key').value = PREFS.getCharPref('key');
+    }
+		if (PREFS.getPrefType('secret_key')) {
+      $('s3-secret-key').value = PREFS.getCharPref('secret_key');
+    }
+    
+    $('s3-deck').selectedIndex = 0;
+	}
 }
+
+var s3 = new S3();
+s3.init();
 
 var s3DNDObserver = {
   onDragOver: function(aEvent, aFlavor, aSession) { dump("s3DNDObserver: onDragOver\n"); },
@@ -100,10 +124,6 @@ function spinner_unfade() {
   spinner_opacity = 0.5;
   $('spinner').style.opacity = 0.5;
   $('spinner').setAttribute ('hidden', false);
-}
-
-function loaded () {
-	// spinner_fade ();
 }
 
 function s3refresh () {

@@ -18,8 +18,6 @@
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
       xmlns:flock="http://flock.com/rdf#"
-      onload="init();"
-      onunload="close();"
       ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver, true); event.preventBubble();"
       ondragover="nsDragAndDrop.dragOver(event, s3DNDObserver); event.preventBubble();">
 
@@ -44,55 +42,65 @@
     window.addEventListener("load", loadJS, false);
   ]]></script>
 
+  <toolbox class="plain">
+    <toolbar>
+      <toolbarbutton class="toolbarbutton-1" 
+                     label="Setup" oncommand="s3.setup()" 
+                     tooltiptext="Change S3 Key/Secret Key" />
+      <spacer flex="1"/>
+    </toolbar>
+  </toolbox>
 
   <stack flex="1">
-    <vbox flex="1">
-      <toolbox class="plain">
-        <toolbar>
-          <toolbarbutton id="s3refresh" class="toolbarbutton-1" 
-                         label="Refresh" oncommand="s3refresh()" 
-                         tooltiptext="Refresh" />
-          <spacer flex="1"/>
-        </toolbar>
-      </toolbox>
-      <tree id="s3-tree" 
-            flex="1" 
-            datasources="rdf:flock-s3" 
-            ref="urn:flock:s3:root" 
-            flags="dont-build-content"
-            hidecolumnpicker="true"
-            contextmenu="s3ContentMenu"
-            ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver);"
-            onclick="return onClick(event)">
-        <treecols>
-          <treecol id="Name" label="Name" sort="?fileName" primary="true" flex="3"/>
-          <splitter/>
-          <treecol id="Type" label="Size (KB)" sort="?size" flex="1"/>
-        </treecols>
+    <deck flex="1" id="s3-deck">
+      <vbox flex="1">
+        <label value="S3 Key" />
+        <textbox id="s3-key" />
+        <label value="S3 Secret Key" />
+        <textbox id="s3-secret-key" />
+        <button label="go" oncommand="s3.save()" />
+      </vbox>
+      <vbox flex="1">
+        <tree id="s3-tree" 
+              flex="1" 
+              datasources="rdf:flock-s3" 
+              ref="urn:flock:s3:root" 
+              flags="dont-build-content"
+              hidecolumnpicker="true"
+              contextmenu="s3ContentMenu"
+              ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver);"
+              onclick="return onClick(event)">
+          <treecols>
+            <treecol id="Name" label="Name" sort="?fileName" primary="true" flex="3"/>
+            <splitter/>
+            <treecol id="Type" label="Size (KB)" sort="?size" flex="1"/>
+          </treecols>
 
-        <template>
-          <rule>
-            <treechildren>
-              <treeitem uri="rdf:*">
-                <treerow>
-                  <treecell label="rdf:http://flock.com/rdf#fileName" />
-                  <treecell label="rdf:http://flock.com/rdf#size" />
-                </treerow>
-              </treeitem>
-            </treechildren>
-          </rule>
-        </template>
-      </tree>
-      <menupopup id="s3ContentMenu" onclick="event.preventBubble();">
-        <menuitem oncommand="copyLink()" label="Copy Link" />
-        <menuitem oncommand="copyTorrent()" label="Copy Torrent Link" />
-        <menuseparator />
-        <menuitem oncommand="deleteItem()" label="Delete" />
-      </menupopup>
-    </vbox>
+          <template>
+            <rule>
+              <treechildren>
+                <treeitem uri="rdf:*">
+                  <treerow>
+                    <treecell label="rdf:http://flock.com/rdf#fileName" />
+                    <treecell label="rdf:http://flock.com/rdf#size" />
+                  </treerow>
+                </treeitem>
+              </treechildren>
+            </rule>
+          </template>
+        </tree>
+        <menupopup id="s3ContentMenu" onclick="event.preventBubble();">
+          <menuitem oncommand="copyLink()" label="Copy Link" />
+          <menuitem oncommand="copyTorrent()" label="Copy Torrent Link" />
+          <menuseparator />
+          <menuitem oncommand="deleteItem()" label="Delete" />
+        </menupopup>
+      </vbox>
+    </deck>
     <vbox id="spinner"
           flex="1"
-          style="background-color: black; opacity: 0.5">
+          hidden="true"
+          style="background-color: black;">
       <spacer flex="1" />
       <hbox>
         <spacer flex="1" />
@@ -103,4 +111,3 @@
     </vbox>
   </stack>
 </page>
-
