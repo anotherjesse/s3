@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!--
+     BEGIN FLOCK GPL
+     
+     Copyright Flock Inc. 2005-2006
+     http://flock.com
+     
+     This file may be used under the terms of of the
+     GNU General Public License Version 2 or later (the "GPL"),
+     http://www.gnu.org/licenses/gpl.html
+     
+     Software distributed under the License is distributed on an "AS IS" basis,
+     WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+     for the specific language governing rights and limitations under the
+     License.
+     
+     END FLOCK GPL
+-->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<!DOCTYPE page>
+
+<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns:flock="http://flock.com/rdf#"
+      onload="init();"
+      onunload="close();"
+      ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver, true); event.preventBubble();"
+      ondragover="nsDragAndDrop.dragOver(event, s3DNDObserver); event.preventBubble();">
+
+  <script type="application/x-javascript" src="chrome://browser/content/flock/common/flocksafe.js"/>
+  <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"/>
+  <script type="application/x-javascript" src="chrome://global/content/nsTransferable.js"/>
+  <script type="application/x-javascript" src="chrome://s3/content/s3Sidebar.js"/>
+  <script type="application/x-javascript" src="chrome://browser/content/utilityOverlay.js"/>
+
+
+  <stack flex="1">
+    <vbox flex="1">
+      <toolbox class="plain">
+        <toolbar>
+          <toolbarbutton id="s3refresh" class="toolbarbutton-1" 
+                         label="Refresh" oncommand="s3refresh()" 
+                         tooltiptext="Refresh" />
+          <spacer flex="1"/>
+        </toolbar>
+      </toolbox>
+      <tree id="s3-tree" 
+            flex="1" 
+            datasources="rdf:flock-s3" 
+            ref="urn:flock:s3:root" 
+            flags="dont-build-content"
+            hidecolumnpicker="true"
+            contextmenu="s3ContentMenu"
+            ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver);"
+            onclick="return onClick(event)">
+        <treecols>
+          <treecol id="Name" label="Name" sort="?fileName" primary="true" flex="3"/>
+          <splitter/>
+          <treecol id="Type" label="Size (KB)" sort="?size" flex="1"/>
+        </treecols>
+
+        <template>
+          <rule>
+            <treechildren>
+              <treeitem uri="rdf:*">
+                <treerow>
+                  <treecell label="rdf:http://flock.com/rdf#fileName" />
+                  <treecell label="rdf:http://flock.com/rdf#size" />
+                </treerow>
+              </treeitem>
+            </treechildren>
+          </rule>
+        </template>
+      </tree>
+      <menupopup id="s3ContentMenu" onclick="event.preventBubble();">
+        <menuitem oncommand="copyLink()" label="Copy Link" />
+        <menuitem oncommand="copyTorrent()" label="Copy Torrent Link" />
+        <menuseparator />
+        <menuitem oncommand="deleteItem()" label="Delete" />
+      </menupopup>
+    </vbox>
+    <vbox id="spinner"
+          flex="1"
+          style="background-color: black; opacity: 0.5">
+      <spacer flex="1" />
+      <hbox>
+        <spacer flex="1" />
+        <image src="chrome://browser/skin/Throbber-small.gif" />
+        <spacer flex="1" />
+      </hbox>
+      <spacer flex="1" />
+    </vbox>
+  </stack>
+</page>
+
