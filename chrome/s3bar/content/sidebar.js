@@ -24,9 +24,20 @@ function S3Bar() {
   this.ds = Components.classes['@mozilla.org/rdf/datasource;1?name=in-memory-datasource']
                       .createInstance(CI.nsIRDFDataSource);
 
+  var buckets = (function() {
+    var list = this;
+    this.urn = 'urn:buckets';
+    this.bag = RDFCU.MakeBag(inst.ds, RDFS.GetResource(list.urn));
+    this.add = function(bucket) {
+      list.bag.AppendElement(bucket);
+    }
+    return this;
+  })();
+
   var Bag = function(name) {
     this.urn = 'urn:' + name;
     var bag = RDFCU.MakeBag(inst.ds, RDFS.GetResource(this.urn));
+    buckets.add(RDFS.GetResource(this.urn));
     
     this.name = name;
     this.add = function( uri, val ) {
