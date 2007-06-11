@@ -17,7 +17,7 @@
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-      xmlns:flock="http://flock.com/rdf#"
+      xmlns:nc="http://home.netscape.com/NC-rdf#"
       ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver, true); event.preventBubble();"
       ondragover="nsDragAndDrop.dragOver(event, s3DNDObserver); event.preventBubble();">
 
@@ -48,10 +48,23 @@
 
   <toolbox class="plain">
     <toolbar>
+      <menulist label="Choose Bucket">
+       <menupopup id="s3-buckets" 
+                  datasources="rdf:null" 
+                  oncommand="s3.selectBucket(event.originalTarget.id)"
+                  ref="urn:buckets" 
+                  flags="dont-build-content">
+          <template>
+            <rule nc:type="bucket">
+              <menuitem uri="rdf:*" label="rdf:http://home.netscape.com/NC-rdf#name"/>
+            </rule>
+          </template>
+       </menupopup>
+      </menulist>
+      <spacer flex="1"/>
       <toolbarbutton class="toolbarbutton-1" 
                      label="Setup" oncommand="s3.setup()" 
                      tooltiptext="Change S3 Key/Secret Key" />
-      <spacer flex="1"/>
     </toolbar>
   </toolbox>
 

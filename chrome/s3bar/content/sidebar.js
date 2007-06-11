@@ -34,10 +34,13 @@ function S3Bar() {
     return this;
   })();
 
-  var Bag = function(name) {
+  var Bucket = function(name) {
     this.urn = 'urn:' + name;
     var bag = RDFCU.MakeBag(inst.ds, RDFS.GetResource(this.urn));
-    buckets.add(RDFS.GetResource(this.urn));
+    var resource = RDFS.GetResource(this.urn);
+    inst.ds.Assert(resource, NSRDF('name'), RDFS.GetLiteral(name), true);
+    inst.ds.Assert(resource, NSRDF('type'), RDFS.GetLiteral('bucket'), true);
+    buckets.add(resource);
     
     this.name = name;
     this.add = function( uri, val ) {
@@ -52,6 +55,8 @@ function S3Bar() {
   this.init = function() {
     $('s3-tree').database.AddDataSource(inst.ds);
     $('s3-tree').builder.rebuild();
+    $('s3-buckets').database.AddDataSource(inst.ds);
+    $('s3-buckets').builder.rebuild();
   
     if (PREFS.getPrefType('key') && PREFS.getPrefType('secret_key')) {
       inst.load();
@@ -71,7 +76,7 @@ function S3Bar() {
     $('s3-deck').selectedIndex = 1;
     S3.KEY_ID = PREFS.getCharPref('key');
     S3.SECRET_KEY = PREFS.getCharPref('secret_key');
-    inst.refresh();
+    inst.refreshList();
   }
   
   this.setup = function() {
@@ -85,25 +90,33 @@ function S3Bar() {
     $('s3-deck').selectedIndex = 0;
   }
   
-  this.refresh = function() {
+  this.refreshList = function() {
     S3.listBuckets(function(xml, objs) {
       var buckets = objs.ListAllMyBucketsResult.Buckets.Bucket;
-      for (var i=0; i<1; i++) {
-        var bag = new Bag(buckets[i].Name);
-        $('s3-tree').setAttribute('ref', bag.urn)
-        S3.listKeys( bag.name, '', function(xml,objs) {
-          var keys = objs.ListBucketResult.Contents;
-          for (var i=0; i<keys.length; i++) {
-             var obj = {};
-             obj.s3ID = 'http://s3.amazonaws.com/' + bag.name + '/' + keys[i].Key;
-             obj.type = 0; // file
-             obj.size= Math.round(keys[i].Size / 1024);
-             obj.fileName = keys[i].Key;
-             bag.add(obj.s3ID, obj);
-           }
-         }, function() { alert('failure'); } );
+      for (var i=0; i<buckets.length; i++) {
+        var bag = new Bucket(buckets[i].Name);
+        inst.refreshBucket(bag);
       }
     });
+  }
+  
+  this.refreshBucket = function(bag) {
+    S3.listKeys( bag.name, '', function(xml,objs) {
+      var keys = objs.ListBucketResult.Contents;
+      for (var i=0; i<keys.length; i++) {
+         var obj = {};
+         obj.s3ID = 'http://s3.amazonaws.com/' + bag.name + '/' + keys[i].Key;
+         obj.type = 0; // file
+         obj.size= Math.round(keys[i].Size / 1024);
+         obj.fileName = keys[i].Key;
+         bag.add(obj.s3ID, obj);
+       }
+     }, 
+     function() { alert('failure'); });
+  }
+  
+  this.selectBucket = function(urn) {
+    $('s3-tree').setAttribute('ref', urn)
   }
 }
 
