@@ -33,6 +33,8 @@ function S3Bar() {
     }
     return this;
   })();
+  
+  this.bucketByUrn = {};
 
   var Bucket = function(name) {
     this.urn = 'urn:' + name;
@@ -41,6 +43,8 @@ function S3Bar() {
     inst.ds.Assert(resource, NSRDF('name'), RDFS.GetLiteral(name), true);
     inst.ds.Assert(resource, NSRDF('type'), RDFS.GetLiteral('bucket'), true);
     buckets.add(resource);
+    inst.bucketByUrn[this.urn] = this;
+    inst.loaded = false;
     
     this.name = name;
     this.add = function( uri, val ) {
@@ -94,28 +98,30 @@ function S3Bar() {
     S3.listBuckets(function(xml, objs) {
       var buckets = objs.ListAllMyBucketsResult.Buckets.Bucket;
       for (var i=0; i<buckets.length; i++) {
-        var bag = new Bucket(buckets[i].Name);
-        inst.refreshBucket(bag);
+        new Bucket(buckets[i].Name);
       }
     });
   }
   
   this.refreshBucket = function(bag) {
+    if (bag.loaded) return;
     S3.listKeys( bag.name, '', function(xml,objs) {
       var keys = objs.ListBucketResult.Contents;
       for (var i=0; i<keys.length; i++) {
          var obj = {};
-         obj.s3ID = 'http://s3.amazonaws.com/' + bag.name + '/' + keys[i].Key;
+         var urn = 'http://s3.amazonaws.com/' + bag.name + '/' + keys[i].Key;
          obj.type = 0; // file
          obj.size= Math.round(keys[i].Size / 1024);
          obj.fileName = keys[i].Key;
-         bag.add(obj.s3ID, obj);
+         bag.add(urn, obj);
        }
-     }, 
+       bag.loaded = true;
+     },
      function() { alert('failure'); });
   }
   
   this.selectBucket = function(urn) {
+    inst.refreshBucket(inst.bucketByUrn[urn]);
     $('s3-tree').setAttribute('ref', urn)
   }
 }

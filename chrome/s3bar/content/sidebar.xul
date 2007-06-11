@@ -88,9 +88,9 @@
               ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver);"
               onclick="return onClick(event)">
           <treecols>
-            <treecol id="Name" label="Name" sort="?fileName" primary="true" flex="3"/>
+            <treecol id="Name" label="Name" sort="?fileName" primary="true" flex="1" />
             <splitter/>
-            <treecol id="Type" label="Size (KB)" sort="?size" flex="1"/>
+            <treecol id="Type" label="Size (KB)" sort="?size" />
           </treecols>
 
           <template>
