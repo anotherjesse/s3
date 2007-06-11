@@ -11,11 +11,11 @@
 // License.
 
 var $ = function(x) { return document.getElementById(x) };
+var CC = Components.classes;
+var CI = Components.interfaces;
 
 function S3Bar() {
   var inst=this;
-  var CC = Components.classes;
-  var CI = Components.interfaces;
 
   const RDFS = CC['@mozilla.org/rdf/rdf-service;1'].getService(CI.nsIRDFService);
   const RDFCU = CC['@mozilla.org/rdf/container-utils;1'].getService(CI.nsIRDFContainerUtils);
@@ -124,6 +124,10 @@ function S3Bar() {
     inst.refreshBucket(inst.bucketByUrn[urn]);
     $('s3-tree').setAttribute('ref', urn)
   }
+  
+  this.getBucket = function() {
+    return $('s3-tree').getAttribute('ref').slice(4);
+  }
 }
 
 var s3 = new S3Bar();
@@ -138,18 +142,22 @@ var s3DNDObserver = {
   canHandleMultipleItems: true,
 
   onDrop: function(aEvent, aDropData, aSession) {
-    //dump("s3DNDObserver: onDrop: contentType: " + aDropData.flavour.contentType + " data: " + aDropData.data + "\n");
     for (var c = 0; c < aDropData.dataList.length; c++) {
       var supports = aDropData.dataList[c].dataList[0].supports;
       var contentType = aDropData.dataList[c].dataList[0].flavour.contentType;
-      var url;
             
       switch (contentType) {
         case "application/x-moz-file":
-          dump('!!!!!!>>>>>>>aDropData.data ' + aDropData.dataList[c].dataList[0].data.path + '\n');
-          var s3DropObj = gFlockS3SVC.create(aDropData.dataList[c].dataList[0].data);
-          s3DropObj.fileName = aDropData.dataList[c].dataList[0].data.path;
-          gFlockS3SVC.add(s3DropObj);
+            var file = CC["@mozilla.org/file/local;1"].createInstance(CI.nsILocalFile);
+            file.initWithPath( aDropData.dataList[c].dataList[0].data.path );
+
+            var tmpInputStream = CC["@mozilla.org/network/file-input-stream;1"].createInstance(CI.nsIFileInputStream);
+            tmpInputStream.init(file, 1, 0644, 0);
+            var tmpInputBufferStream = CC["@mozilla.org/network/buffered-input-stream;1"].createInstance(CI.nsIBufferedInputStream);
+            tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
+            S3.put(s3.getBucket(), escape(file.leafName), tmpInputBufferStream, function() {
+              alert('woo hoo!');
+            }, function(a,b) { alert(a.responseText + '\n\n' +  b + '\n\n');}    );
           break;
         default:
           break;
@@ -197,6 +205,12 @@ function init() {
 function deleteItem() {
   var index = $('s3-tree').view.selection.currentIndex;
   var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
+  var key = url.match(/^http:\/\/[^\/]*s3\.amazonaws\.com\/[^\/]*\/(.*)$/)[1];
+  
+  S3.deleteKey(s3.getBucket(), key, function() {
+      alert('gone!');
+    }, function(a,b) { alert('error deleting - ' + a.responseText + '\n\n' +  b + '\n\n');}    );
+  
   gFlockS3SVC.remove(url);
 }
 
