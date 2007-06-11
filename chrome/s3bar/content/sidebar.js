@@ -12,7 +12,7 @@
 
 var $ = function(x) { return document.getElementById(x) };
 
-function S3() {
+function S3Bar() {
   var inst=this;
   var CC = Components.classes;
   var CI = Components.interfaces;
@@ -20,24 +20,28 @@ function S3() {
   const RDFCU = CC['@mozilla.org/rdf/container-utils;1'].getService(CI.nsIRDFContainerUtils);
   const NSRDF = function(name) { return RDFS.GetResource('http://home.netscape.com/NC-rdf#'+name); }
   var PREFS = CC['@mozilla.org/preferences-service;1'].getService(CI.nsIPrefService).getBranch('extension.s3bar.');
-  function RDF() {
-    var inst=this;
 
-    this.ds = Components.classes['@mozilla.org/rdf/datasource;1?name=in-memory-datasource']
-                        .createInstance(CI.nsIRDFDataSource);
+  this.ds = Components.classes['@mozilla.org/rdf/datasource;1?name=in-memory-datasource']
+                      .createInstance(CI.nsIRDFDataSource);
 
-    this.bag = RDFCU.MakeBag(this.ds, RDFS.GetResource("urn:root"));
-
-    this.add = function( uri, val ) {
+  var Bag = function(name) {
+	  this.urn = 'urn:' + name;
+	  var bag = RDFCU.MakeBag(inst.ds, RDFS.GetResource(this.urn));
+	  
+		this.name = name;
+	  this.add = function( uri, val ) {
       var resource = RDFS.GetResource(uri);
       for (var k in val) {
         inst.ds.Assert(resource, NSRDF(k), RDFS.GetLiteral(val[k]), true);
       }
-      inst.bag.AppendElement(resource);
+      bag.AppendElement(resource);
     }
   }
   
   this.init = function() {
+	  $('s3-tree').database.AddDataSource(inst.ds);
+    $('s3-tree').builder.rebuild();
+  
     if (PREFS.getPrefType('key') && PREFS.getPrefType('secret_key')) {
       inst.load();
     }
@@ -54,6 +58,9 @@ function S3() {
 	
 	this.load = function() {
 		$('s3-deck').selectedIndex = 1;
+		S3.KEY_ID = PREFS.getCharPref('key');
+		S3.SECRET_KEY = PREFS.getCharPref('secret_key');
+		inst.refresh();
 	}
 	
 	this.setup = function() {
@@ -66,9 +73,30 @@ function S3() {
     
     $('s3-deck').selectedIndex = 0;
 	}
+	
+	this.refresh = function() {
+		S3.listBuckets(function(xml, objs) {
+			var buckets = objs.ListAllMyBucketsResult.Buckets.Bucket;
+			for (var i=0; i<1; i++) {
+			  var bag = new Bag(buckets[i].Name);
+			  $('s3-tree').setAttribute('ref', bag.urn)
+			  S3.listKeys( bag.name, '', function(xml,objs) {
+					var keys = objs.ListBucketResult.Contents;
+			    for (var i=0; i<keys.length; i++) {
+			       var obj = {};
+			       obj.s3ID = 'http://s3.amazonaws.com/' + bag.name + '/' + keys[i].Key;
+			       obj.type = 0; // file
+			       obj.size= Math.round(keys[i].Size / 1024);
+			       obj.fileName = keys[i].Key;
+			       bag.add(obj.s3ID, obj);
+			     }
+			   }, function() { alert('failure'); } );
+			}
+		});
+	}
 }
 
-var s3 = new S3();
+var s3 = new S3Bar();
 s3.init();
 
 var s3DNDObserver = {
@@ -105,7 +133,6 @@ var s3DNDObserver = {
     flavors.appendFlavour("text/x-moz-url");
     return flavors;
   }
-  
 }
 
 var spinner_opacity = 0.5;

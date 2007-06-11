@@ -24,6 +24,8 @@
   <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"/>
   <script type="application/x-javascript" src="chrome://global/content/nsTransferable.js"/>
   <script type="application/x-javascript" src="chrome://browser/content/utilityOverlay.js"/>
+  <script type="application/x-javascript" src="chrome://s3bar/content/sha1.js"/>
+  <script type="application/x-javascript" src="chrome://s3bar/content/S3Ajax.js"/>
   <script type="text/javascript"><![CDATA[ 
 
     function loadJS() {
@@ -31,7 +33,9 @@
                                .getService(Components.interfaces.mozIJSSubScriptLoader);
 
       var scripts = [
-        'chrome://s3bar/content/sidebar.js', 
+          'chrome://s3bar/content/sha1.js', 
+          'chrome://s3bar/content/S3Ajax.js', 
+          'chrome://s3bar/content/sidebar.js', 
         ];
 
       for (var i = 0; i < scripts.length; i++) {
@@ -63,8 +67,8 @@
       <vbox flex="1">
         <tree id="s3-tree" 
               flex="1" 
-              datasources="rdf:flock-s3" 
-              ref="urn:flock:s3:root" 
+              datasources="rdf:null" 
+              ref="urn:root" 
               flags="dont-build-content"
               hidecolumnpicker="true"
               contextmenu="s3ContentMenu"
@@ -81,8 +85,8 @@
               <treechildren>
                 <treeitem uri="rdf:*">
                   <treerow>
-                    <treecell label="rdf:http://flock.com/rdf#fileName" />
-                    <treecell label="rdf:http://flock.com/rdf#size" />
+                    <treecell label="rdf:http://home.netscape.com/NC-rdf#fileName" />
+                    <treecell label="rdf:http://home.netscape.com/NC-rdf#size" />
                   </treerow>
                 </treeitem>
               </treechildren>

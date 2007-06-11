@@ -9,9 +9,6 @@
         http://pajhome.org.uk/crypt/md5/sha1.js
 */
 
-// const nsIXMLHttpRequest = Components.interfaces.nsIXMLHttpRequest;
-// const XMLHTTPREQUEST_CONTRACTID = '@mozilla.org/xmlextras/xmlhttprequest;1';
-
 // TODO: Figure out if Safari doesn't support PUT and DELETE
 
 S3 = {
