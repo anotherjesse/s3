@@ -25,11 +25,11 @@ function S3Bar() {
                       .createInstance(CI.nsIRDFDataSource);
 
   var Bag = function(name) {
-	  this.urn = 'urn:' + name;
-	  var bag = RDFCU.MakeBag(inst.ds, RDFS.GetResource(this.urn));
-	  
-		this.name = name;
-	  this.add = function( uri, val ) {
+    this.urn = 'urn:' + name;
+    var bag = RDFCU.MakeBag(inst.ds, RDFS.GetResource(this.urn));
+    
+    this.name = name;
+    this.add = function( uri, val ) {
       var resource = RDFS.GetResource(uri);
       for (var k in val) {
         inst.ds.Assert(resource, NSRDF(k), RDFS.GetLiteral(val[k]), true);
@@ -39,7 +39,7 @@ function S3Bar() {
   }
   
   this.init = function() {
-	  $('s3-tree').database.AddDataSource(inst.ds);
+    $('s3-tree').database.AddDataSource(inst.ds);
     $('s3-tree').builder.rebuild();
   
     if (PREFS.getPrefType('key') && PREFS.getPrefType('secret_key')) {
@@ -50,50 +50,50 @@ function S3Bar() {
     }
   }
 
-	this.save = function() {
-		PREFS.setCharPref('key', $('s3-key').value);
-		PREFS.setCharPref('secret_key', $('s3-secret-key').value);
+  this.save = function() {
+    PREFS.setCharPref('key', $('s3-key').value);
+    PREFS.setCharPref('secret_key', $('s3-secret-key').value);
     inst.load();
-	}
-	
-	this.load = function() {
-		$('s3-deck').selectedIndex = 1;
-		S3.KEY_ID = PREFS.getCharPref('key');
-		S3.SECRET_KEY = PREFS.getCharPref('secret_key');
-		inst.refresh();
-	}
-	
-	this.setup = function() {
-		if (PREFS.getPrefType('key')) {
+  }
+  
+  this.load = function() {
+    $('s3-deck').selectedIndex = 1;
+    S3.KEY_ID = PREFS.getCharPref('key');
+    S3.SECRET_KEY = PREFS.getCharPref('secret_key');
+    inst.refresh();
+  }
+  
+  this.setup = function() {
+    if (PREFS.getPrefType('key')) {
       $('s3-key').value = PREFS.getCharPref('key');
     }
-		if (PREFS.getPrefType('secret_key')) {
+    if (PREFS.getPrefType('secret_key')) {
       $('s3-secret-key').value = PREFS.getCharPref('secret_key');
     }
     
     $('s3-deck').selectedIndex = 0;
-	}
-	
-	this.refresh = function() {
-		S3.listBuckets(function(xml, objs) {
-			var buckets = objs.ListAllMyBucketsResult.Buckets.Bucket;
-			for (var i=0; i<1; i++) {
-			  var bag = new Bag(buckets[i].Name);
-			  $('s3-tree').setAttribute('ref', bag.urn)
-			  S3.listKeys( bag.name, '', function(xml,objs) {
-					var keys = objs.ListBucketResult.Contents;
-			    for (var i=0; i<keys.length; i++) {
-			       var obj = {};
-			       obj.s3ID = 'http://s3.amazonaws.com/' + bag.name + '/' + keys[i].Key;
-			       obj.type = 0; // file
-			       obj.size= Math.round(keys[i].Size / 1024);
-			       obj.fileName = keys[i].Key;
-			       bag.add(obj.s3ID, obj);
-			     }
-			   }, function() { alert('failure'); } );
-			}
-		});
-	}
+  }
+  
+  this.refresh = function() {
+    S3.listBuckets(function(xml, objs) {
+      var buckets = objs.ListAllMyBucketsResult.Buckets.Bucket;
+      for (var i=0; i<1; i++) {
+        var bag = new Bag(buckets[i].Name);
+        $('s3-tree').setAttribute('ref', bag.urn)
+        S3.listKeys( bag.name, '', function(xml,objs) {
+          var keys = objs.ListBucketResult.Contents;
+          for (var i=0; i<keys.length; i++) {
+             var obj = {};
+             obj.s3ID = 'http://s3.amazonaws.com/' + bag.name + '/' + keys[i].Key;
+             obj.type = 0; // file
+             obj.size= Math.round(keys[i].Size / 1024);
+             obj.fileName = keys[i].Key;
+             bag.add(obj.s3ID, obj);
+           }
+         }, function() { alert('failure'); } );
+      }
+    });
+  }
 }
 
 var s3 = new S3Bar();
@@ -109,22 +109,22 @@ var s3DNDObserver = {
 
   onDrop: function(aEvent, aDropData, aSession) {
     //dump("s3DNDObserver: onDrop: contentType: " + aDropData.flavour.contentType + " data: " + aDropData.data + "\n");
-		for (var c = 0; c < aDropData.dataList.length; c++) {
+    for (var c = 0; c < aDropData.dataList.length; c++) {
       var supports = aDropData.dataList[c].dataList[0].supports;
       var contentType = aDropData.dataList[c].dataList[0].flavour.contentType;
       var url;
             
-			switch (contentType) {
-	      case "application/x-moz-file":
-	        dump('!!!!!!>>>>>>>aDropData.data ' + aDropData.dataList[c].dataList[0].data.path + '\n');
-	        var s3DropObj = gFlockS3SVC.create(aDropData.dataList[c].dataList[0].data);
-	        s3DropObj.fileName = aDropData.dataList[c].dataList[0].data.path;
-	        gFlockS3SVC.add(s3DropObj);
+      switch (contentType) {
+        case "application/x-moz-file":
+          dump('!!!!!!>>>>>>>aDropData.data ' + aDropData.dataList[c].dataList[0].data.path + '\n');
+          var s3DropObj = gFlockS3SVC.create(aDropData.dataList[c].dataList[0].data);
+          s3DropObj.fileName = aDropData.dataList[c].dataList[0].data.path;
+          gFlockS3SVC.add(s3DropObj);
           break;
-				default:
-					break;
-			}
-		}
+        default:
+          break;
+      }
+    }
   },
   
   getSupportedFlavours: function() {
@@ -138,9 +138,9 @@ var s3DNDObserver = {
 var spinner_opacity = 0.5;
 function spinner_fade() {
   if (spinner_opacity > 0) {
-		spinner_opacity -= 0.1;
-		$('spinner').style.opacity = spinner_opacity;
-		window.setTimeout (spinner_fade, 100);
+    spinner_opacity -= 0.1;
+    $('spinner').style.opacity = spinner_opacity;
+    window.setTimeout (spinner_fade, 100);
   }
   else {
     $('spinner').setAttribute ('hidden', true);
@@ -204,7 +204,7 @@ function copyUrl(url) {
 function onClick(aEvent) {
   dump("onClick\n");
   if (aEvent.button == 2 || aEvent.originalTarget.localName != "treechildren") {
-		return;
+    return;
   }
 
   var index = $('s3-tree').view.selection.currentIndex;
