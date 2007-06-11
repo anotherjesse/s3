@@ -77,8 +77,7 @@ S3 = {
     /**
         Put data into a key in a bucket.
     */
-    put: function(bucket, key, content, cb, err_cb) {
-        var params = {};
+    put: function(bucket, key, content, params, cb, err_cb) {
         if (!params.content_type) 
             params.content_type = this.DEFAULT_CONTENT_TYPE;
         if (!params.acl)

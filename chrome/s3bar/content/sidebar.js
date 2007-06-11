@@ -148,14 +148,15 @@ var s3DNDObserver = {
             
       switch (contentType) {
         case "application/x-moz-file":
+            var params = {};
             var file = CC["@mozilla.org/file/local;1"].createInstance(CI.nsILocalFile);
             file.initWithPath( aDropData.dataList[c].dataList[0].data.path );
-
+            params.content_type = CC['@mozilla.org/mime;1'].createInstance(CI.nsIMIMEService).getTypeFromFile(file);
             var tmpInputStream = CC["@mozilla.org/network/file-input-stream;1"].createInstance(CI.nsIFileInputStream);
             tmpInputStream.init(file, 1, 0644, 0);
             var tmpInputBufferStream = CC["@mozilla.org/network/buffered-input-stream;1"].createInstance(CI.nsIBufferedInputStream);
             tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
-            S3.put(s3.getBucket(), escape(file.leafName), tmpInputBufferStream, function() {
+            S3.put(s3.getBucket(), escape(file.leafName), tmpInputBufferStream, params, function() {
               alert('woo hoo!');
             }, function(a,b) { alert(a.responseText + '\n\n' +  b + '\n\n');}    );
           break;

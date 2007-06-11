@@ -18,9 +18,9 @@
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
       xmlns:nc="http://home.netscape.com/NC-rdf#"
-      ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver, true); event.preventBubble();"
-      ondragover="nsDragAndDrop.dragOver(event, s3DNDObserver); event.preventBubble();">
-
+      ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver, true); event.stopPropagation();"
+      ondragover="nsDragAndDrop.dragOver(event, s3DNDObserver); event.stopPropagation();">
+      
   <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"/>
   <script type="application/x-javascript" src="chrome://global/content/nsTransferable.js"/>
   <script type="application/x-javascript" src="chrome://browser/content/utilityOverlay.js"/>
