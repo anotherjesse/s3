@@ -9,6 +9,7 @@
         http://pajhome.org.uk/crypt/md5/sha1.js
 */
 
+
 // TODO: Figure out if Safari doesn't support PUT and DELETE
 
 S3 = {
@@ -234,7 +235,7 @@ S3 = {
         }
 
         // Perform the HTTP request.
-        var req = Components.classes[XMLHTTPREQUEST_CONTRACTID].createInstance(nsIXMLHttpRequest);
+        var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance(Components.interfaces.nsIXMLHttpRequest);
         req.open(kwArgs.method, url, true);
         for (var k in hdrs) req.setRequestHeader(k, hdrs[k]);
         req.onreadystatechange = function() {

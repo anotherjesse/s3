@@ -16,13 +16,13 @@ function S3Bar() {
   var inst=this;
   var CC = Components.classes;
   var CI = Components.interfaces;
+
   const RDFS = CC['@mozilla.org/rdf/rdf-service;1'].getService(CI.nsIRDFService);
   const RDFCU = CC['@mozilla.org/rdf/container-utils;1'].getService(CI.nsIRDFContainerUtils);
   const NSRDF = function(name) { return RDFS.GetResource('http://home.netscape.com/NC-rdf#'+name); }
-  var PREFS = CC['@mozilla.org/preferences-service;1'].getService(CI.nsIPrefService).getBranch('extension.s3bar.');
+  const PREFS = CC['@mozilla.org/preferences-service;1'].getService(CI.nsIPrefService).getBranch('extension.s3bar.');
 
-  this.ds = Components.classes['@mozilla.org/rdf/datasource;1?name=in-memory-datasource']
-                      .createInstance(CI.nsIRDFDataSource);
+  this.ds = CC['@mozilla.org/rdf/datasource;1?name=in-memory-datasource'].createInstance(CI.nsIRDFDataSource);
 
   var buckets = (function() {
     var list = this;
