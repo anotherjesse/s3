@@ -56,6 +56,7 @@ function S3Bar() {
     }
     
     this.name = name;
+    
     this.add = function( uri, val ) {
       var resource = RDFS.GetResource(uri);
       for (var k in val) {
@@ -63,17 +64,13 @@ function S3Bar() {
       }
       bag.AppendElement(resource);
     }
+    
+    this.remove = function(uri) {
+      var resource = RDFS.GetResource(uri);
+      bag.RemoveElement(resource, true);
+    }
   }
   
-  this.init = function() {  
-    if (PREFS.getPrefType('key') && PREFS.getPrefType('secret_key')) {
-      inst.load();
-    }
-    else {
-      inst.setup();
-    }
-  }
-
   this.save = function() {
     PREFS.setCharPref('key', $('s3-key').value);
     PREFS.setCharPref('secret_key', $('s3-secret-key').value);
@@ -133,10 +130,69 @@ function S3Bar() {
   this.getBucket = function() {
     return $('s3-tree').getAttribute('ref').slice(4);
   }
+  
+  
+  this.deleteItem = function() {
+    var index = $('s3-tree').view.selection.currentIndex;
+    var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
+    var key = url.match(/^http:\/\/[^\/]*s3\.amazonaws\.com\/[^\/]*\/(.*)$/)[1];
+
+    S3.deleteKey(s3.getBucket(), escape(key), function() {
+        var bucket = inst.bucketByUrn['urn:'+$('s3-tree').getAttribute('ref').slice(4)];
+        bucket.remove(url);
+      }, function(a,b) { alert('error deleting - ' + a.responseText + '\n\n' +  b + '\n\n');}    );
+  }
+  
+  this.copyLink = function() {
+    var index = $('s3-tree').view.selection.currentIndex;
+    var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
+    inst.copyUrl(url)
+  }
+
+  this.copyTorrent = function() {
+    var index = $('s3-tree').view.selection.currentIndex;
+    var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
+    inst.copyUrl(url+"?torrent");
+  }
+
+  this.copyUrl = function(url) {
+    const kSuppWStringContractID = "@mozilla.org/supports-string;1";
+    const kSuppWStringIID = Components.interfaces.nsISupportsString;
+    const kXferableContractID = "@mozilla.org/widget/transferable;1";
+    const kXferableIID = Components.interfaces.nsITransferable;
+    var xferable = Components.classes[kXferableContractID].createInstance(kXferableIID);
+    var unicodestring = Components.classes[kSuppWStringContractID].createInstance(kSuppWStringIID);
+
+    xferable.addDataFlavor("text/unicode");
+    unicodestring.data = url + '\n';
+    xferable.setTransferData("text/unicode", unicodestring, (url.length+1)*2);
+
+    const kClipboardContractID = "@mozilla.org/widget/clipboard;1";
+    const kClipboardIID = Components.interfaces.nsIClipboard;
+    var clipboard = Components.classes[kClipboardContractID].getService(kClipboardIID);
+    clipboard.setData(xferable, null, kClipboardIID.kGlobalClipboard);
+  }
+
+  this.onClick = function(aEvent) {
+    if (aEvent.button == 2 || aEvent.originalTarget.localName != "treechildren") {
+      return;
+    }
+
+    var index = $('s3-tree').view.selection.currentIndex;
+    var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
+
+    openUILinkIn(url, whereToOpenLink(aEvent));
+  }
+  
+  if (PREFS.getPrefType('key') && PREFS.getPrefType('secret_key')) {
+    inst.load();
+  }
+  else {
+    inst.setup();
+  }
 }
 
 var s3 = new S3Bar();
-s3.init();
 
 var s3DNDObserver = {
   onDragOver: function(aEvent, aFlavor, aSession) { dump("s3DNDObserver: onDragOver\n"); },
@@ -177,88 +233,4 @@ var s3DNDObserver = {
     flavors.appendFlavour("text/x-moz-url");
     return flavors;
   }
-}
-
-var spinner_opacity = 0.5;
-function spinner_fade() {
-  if (spinner_opacity > 0) {
-    spinner_opacity -= 0.1;
-    $('spinner').style.opacity = spinner_opacity;
-    window.setTimeout (spinner_fade, 100);
-  }
-  else {
-    $('spinner').setAttribute ('hidden', true);
-  }
-}
-
-function spinner_unfade() {
-  spinner_opacity = 0.5;
-  $('spinner').style.opacity = 0.5;
-  $('spinner').setAttribute ('hidden', false);
-}
-
-function s3refresh () {
-  // spinner_unfade ();
-  // window.setTimeout (loaded, 2000);
-  spinner_fade();
-  gFlockS3SVC.refresh();
-}
-
-function init() {
-  s3refresh();
-}
-
-function deleteItem() {
-  var index = $('s3-tree').view.selection.currentIndex;
-  var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
-  var key = url.match(/^http:\/\/[^\/]*s3\.amazonaws\.com\/[^\/]*\/(.*)$/)[1];
-  
-  S3.deleteKey(s3.getBucket(), key, function() {
-      alert('gone!');
-    }, function(a,b) { alert('error deleting - ' + a.responseText + '\n\n' +  b + '\n\n');}    );
-  
-  gFlockS3SVC.remove(url);
-}
-
-
-function copyLink() {
-  var index = $('s3-tree').view.selection.currentIndex;
-  var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
-  copyUrl(url)
-}
-
-function copyTorrent() {
-  var index = $('s3-tree').view.selection.currentIndex;
-  var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
-  copyUrl(url+"?torrent");
-}
-
-function copyUrl(url) {
-  const kSuppWStringContractID = "@mozilla.org/supports-string;1";
-  const kSuppWStringIID = Components.interfaces.nsISupportsString;
-  const kXferableContractID = "@mozilla.org/widget/transferable;1";
-  const kXferableIID = Components.interfaces.nsITransferable;
-  var xferable = Components.classes[kXferableContractID].createInstance(kXferableIID);
-  var unicodestring = Components.classes[kSuppWStringContractID].createInstance(kSuppWStringIID);
-
-  xferable.addDataFlavor("text/unicode");
-  unicodestring.data = url + '\n';
-  xferable.setTransferData("text/unicode", unicodestring, (url.length+1)*2);
-
-  const kClipboardContractID = "@mozilla.org/widget/clipboard;1";
-  const kClipboardIID = Components.interfaces.nsIClipboard;
-  var clipboard = Components.classes[kClipboardContractID].getService(kClipboardIID);
-  clipboard.setData(xferable, null, kClipboardIID.kGlobalClipboard);
-}
-
-function onClick(aEvent) {
-  dump("onClick\n");
-  if (aEvent.button == 2 || aEvent.originalTarget.localName != "treechildren") {
-    return;
-  }
-
-  var index = $('s3-tree').view.selection.currentIndex;
-  var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
-
-  openUILinkIn(url, whereToOpenLink(aEvent));
 }

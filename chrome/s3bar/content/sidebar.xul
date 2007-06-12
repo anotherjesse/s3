@@ -86,7 +86,7 @@
               hidecolumnpicker="true"
               contextmenu="s3ContentMenu"
               ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver);"
-              onclick="return onClick(event)">
+              onclick="return s3.onClick(event)">
           <treecols>
             <treecol id="Name" label="Name" sort="?fileName" primary="true" flex="1" />
             <splitter/>
@@ -107,10 +107,10 @@
           </template>
         </tree>
         <menupopup id="s3ContentMenu" onclick="event.preventBubble();">
-          <menuitem oncommand="copyLink()" label="Copy Link" />
-          <menuitem oncommand="copyTorrent()" label="Copy Torrent Link" />
+          <menuitem oncommand="s3.copyLink()" label="Copy Link" />
+          <menuitem oncommand="s3.copyTorrent()" label="Copy Torrent Link" />
           <menuseparator />
-          <menuitem oncommand="deleteItem()" label="Delete" />
+          <menuitem oncommand="s3.deleteItem()" label="Delete" />
         </menupopup>
       </vbox>
     </deck>
