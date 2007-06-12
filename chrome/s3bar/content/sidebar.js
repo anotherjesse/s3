@@ -44,7 +44,16 @@ function S3Bar() {
     inst.ds.Assert(resource, NSRDF('type'), RDFS.GetLiteral('bucket'), true);
     buckets.add(resource);
     inst.bucketByUrn[this.urn] = this;
-    inst.loaded = false;
+    
+    // the following is UGLY
+    
+    this.load = function() {
+      inst.ds.Assert(resource, NSRDF('loaded'), RDFS.GetLiteral('loaded'), true);
+    }
+    
+    this.loaded = function() {
+      return inst.ds.HasAssertion(resource, NSRDF('loaded'), RDFS.GetLiteral('loaded'), true);
+    }
     
     this.name = name;
     this.add = function( uri, val ) {
@@ -90,6 +99,7 @@ function S3Bar() {
   }
   
   this.refreshList = function() {
+    // this happens on EVERY load... costs $0.00001 per load :0
     S3.listBuckets(function(xml, objs) {
       var buckets = objs.ListAllMyBucketsResult.Buckets.Bucket;
       for (var i=0; i<buckets.length; i++) {
@@ -99,7 +109,7 @@ function S3Bar() {
   }
   
   this.refreshBucket = function(bag) {
-    if (bag.loaded) return;
+    if (bag.loaded()) return;
     S3.listKeys( bag.name, '', function(xml,objs) {
       var keys = objs.ListBucketResult.Contents;
       for (var i=0; i<keys.length; i++) {
@@ -110,7 +120,7 @@ function S3Bar() {
          obj.fileName = keys[i].Key;
          bag.add(urn, obj);
        }
-       bag.loaded = true;
+       bag.load();
      },
      function() { alert('failure'); });
   }
