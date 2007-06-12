@@ -105,19 +105,18 @@ function S3Bar() {
     });
   }
   
-  this.refreshBucket = function(bag) {
-    if (bag.loaded()) return;
-    S3.listKeys( bag.name, '', function(xml,objs) {
+  this.refreshBucket = function(bucket) {
+    if (bucket.loaded()) return;
+    S3.listKeys( bucket.name, '', function(xml,objs) {
       var keys = objs.ListBucketResult.Contents;
       for (var i=0; i<keys.length; i++) {
          var obj = {};
-         var urn = 'http://s3.amazonaws.com/' + bag.name + '/' + keys[i].Key;
-         obj.type = 0; // file
+         var urn = 'http://s3.amazonaws.com/' + bucket.name + '/' + keys[i].Key;
          obj.size= Math.round(keys[i].Size / 1024);
          obj.fileName = keys[i].Key;
-         bag.add(urn, obj);
+         bucket.add(urn, obj);
        }
-       bag.load();
+       bucket.load();
      },
      function() { alert('failure'); });
   }
@@ -127,17 +126,16 @@ function S3Bar() {
     $('s3-tree').setAttribute('ref', urn)
   }
   
-  this.getBucket = function() {
-    return $('s3-tree').getAttribute('ref').slice(4);
+  this.getCurrentBucket = function() {
+    return inst.bucketByUrn[$('s3-tree').getAttribute('ref')];
   }
-  
   
   this.deleteItem = function() {
     var index = $('s3-tree').view.selection.currentIndex;
     var url = $('s3-tree').builder.getResourceAtIndex(index).ValueUTF8;
     var key = url.match(/^http:\/\/[^\/]*s3\.amazonaws\.com\/[^\/]*\/(.*)$/)[1];
 
-    S3.deleteKey(s3.getBucket(), escape(key), function() {
+    S3.deleteKey(inst.getCurrentBucket().name, escape(key), function() {
         var bucket = inst.bucketByUrn['urn:'+$('s3-tree').getAttribute('ref').slice(4)];
         bucket.remove(url);
       }, function(a,b) { alert('error deleting - ' + a.responseText + '\n\n' +  b + '\n\n');}    );
@@ -217,8 +215,12 @@ var s3DNDObserver = {
             tmpInputStream.init(file, 1, 0644, 0);
             var tmpInputBufferStream = CC["@mozilla.org/network/buffered-input-stream;1"].createInstance(CI.nsIBufferedInputStream);
             tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
-            S3.put(s3.getBucket(), escape(file.leafName), tmpInputBufferStream, params, function() {
-              alert('woo hoo!');
+            S3.put(s3.getCurrentBucket().name, escape(file.leafName), tmpInputBufferStream, params, function() {
+              var obj = {};
+              var urn = 'http://s3.amazonaws.com/' + s3.getCurrentBucket().name + '/' + file.leafName;
+              obj.size= Math.round(file.fileSize / 1024);
+              obj.fileName = file.leafName;
+              s3.getCurrentBucket().add(urn, obj);
             }, function(a,b) { alert(a.responseText + '\n\n' +  b + '\n\n');}    );
           break;
         default:
