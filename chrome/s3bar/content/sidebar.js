@@ -72,8 +72,9 @@ function S3Bar() {
     
     this.clear = function() {
       inst.ds.beginUpdateBatch();
-      while (bag.GetCount() > 0) {
-        bag.RemoveElement(bag.GetElements().getNext(), true);
+      var children = bag.GetElements();
+      while (children.hasMoreElements()) {
+        bag.RemoveElement(children.getNext(), false);
       }
       inst.ds.endUpdateBatch();
     }
