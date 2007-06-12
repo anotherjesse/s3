@@ -22,7 +22,7 @@ function S3Bar() {
   const NSRDF = function(name) { return RDFS.GetResource('http://home.netscape.com/NC-rdf#'+name); }
   const PREFS = CC['@mozilla.org/preferences-service;1'].getService(CI.nsIPrefService).getBranch('extension.s3bar.');
 
-  this.ds = CC['@mozilla.org/rdf/datasource;1?name=in-memory-datasource'].createInstance(CI.nsIRDFDataSource);
+  this.ds = RDFS.GetDataSource('rdf:s3', false);
 
   var buckets = (function() {
     var list = this;
@@ -56,12 +56,7 @@ function S3Bar() {
     }
   }
   
-  this.init = function() {
-    $('s3-tree').database.AddDataSource(inst.ds);
-    $('s3-tree').builder.rebuild();
-    $('s3-buckets').database.AddDataSource(inst.ds);
-    $('s3-buckets').builder.rebuild();
-  
+  this.init = function() {  
     if (PREFS.getPrefType('key') && PREFS.getPrefType('secret_key')) {
       inst.load();
     }

@@ -50,7 +50,7 @@
     <toolbar>
       <menulist label="Choose Bucket">
        <menupopup id="s3-buckets" 
-                  datasources="rdf:null" 
+                  datasources="rdf:s3" 
                   oncommand="s3.selectBucket(event.originalTarget.id)"
                   ref="urn:buckets" 
                   flags="dont-build-content">
@@ -80,7 +80,7 @@
       <vbox flex="1">
         <tree id="s3-tree" 
               flex="1" 
-              datasources="rdf:null" 
+              datasources="rdf:s3" 
               ref="urn:root" 
               flags="dont-build-content"
               hidecolumnpicker="true"
