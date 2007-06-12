@@ -24,17 +24,32 @@ function S3Bar() {
 
   this.ds = RDFS.GetDataSource('rdf:s3', false);
 
-  var buckets = (function() {
-    var list = this;
-    this.urn = 'urn:buckets';
-    this.bag = RDFCU.MakeBag(inst.ds, RDFS.GetResource(list.urn));
-    this.add = function(bucket) {
-      list.bag.AppendElement(bucket);
-    }
-    return this;
-  })();
+  var buckets = {}
+  buckets.urn = 'urn:buckets';
+  buckets.bag = RDFCU.MakeBag(inst.ds, RDFS.GetResource(buckets.urn));
+  buckets.add = function(bucket) {
+    buckets.bag.AppendElement(bucket);
+  }
   
   this.bucketByUrn = {};
+
+  var uploads = {};
+  uploads.urn = 'urn:uploads';
+  uploads.bag = RDFCU.MakeBag(inst.ds, RDFS.GetResource(uploads.urn));
+  uploads.add = function(fileName) {
+    var resource = RDFS.GetResource('urn:upload:' + fileName);
+    inst.ds.Assert(resource, NSRDF('fileName'), RDFS.GetLiteral(fileName), true);
+    inst.ds.Assert(resource, NSRDF('type'), RDFS.GetLiteral('upload'), true);
+    inst.ds.Assert(resource, NSRDF('status'), RDFS.GetLiteral('uploading'), true);
+    uploads.bag.AppendElement(resource);
+    return resource;
+  }
+  uploads.remove = function(resource) {
+    uploads.bag.RemoveElement(resource, true);
+  }
+  uploads.errors = function(resource) {
+    inst.ds.Assert(resource, NSRDF('status'), RDFS.GetLiteral('error'), true);
+  }
 
   var Bucket = function(name) {
     this.urn = 'urn:' + name;
@@ -202,6 +217,29 @@ function S3Bar() {
     openUILinkIn(url, whereToOpenLink(aEvent));
   }
   
+  this.upload = function(file) {
+    var params = {};
+    try {
+      params.content_type = CC['@mozilla.org/mime;1'].createInstance(CI.nsIMIMEService).getTypeFromFile(file);
+      // TODO: if this fails, we should do our own lookup ... instead of just defaulting to text/plain
+    } catch(e) {};
+    var tmpInputStream = CC["@mozilla.org/network/file-input-stream;1"].createInstance(CI.nsIFileInputStream);
+    tmpInputStream.init(file, 1, 0644, 0);
+    var tmpInputBufferStream = CC["@mozilla.org/network/buffered-input-stream;1"].createInstance(CI.nsIBufferedInputStream);
+    tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
+    var upResource = uploads.add(file.leafName);
+    S3.put(inst.getCurrentBucket().name, escape(file.leafName), tmpInputBufferStream, params, function() {
+      var obj = {};
+      var urn = 'http://s3.amazonaws.com/' + inst.getCurrentBucket().name + '/' + file.leafName;
+      obj.size = Math.round(file.fileSize / 1024);
+      obj.fileName = file.leafName;
+      inst.getCurrentBucket().add(urn, obj);
+      uploads.remove(upResource);
+    }, function(a,b) { 
+      uploads.error(upResource, a, b);
+    });
+  }
+  
   if (PREFS.getPrefType('key') && PREFS.getPrefType('secret_key')) {
     inst.load();
   }
@@ -227,21 +265,9 @@ var s3DNDObserver = {
             
       switch (contentType) {
         case "application/x-moz-file":
-            var params = {};
             var file = CC["@mozilla.org/file/local;1"].createInstance(CI.nsILocalFile);
             file.initWithPath( aDropData.dataList[c].dataList[0].data.path );
-            params.content_type = CC['@mozilla.org/mime;1'].createInstance(CI.nsIMIMEService).getTypeFromFile(file);
-            var tmpInputStream = CC["@mozilla.org/network/file-input-stream;1"].createInstance(CI.nsIFileInputStream);
-            tmpInputStream.init(file, 1, 0644, 0);
-            var tmpInputBufferStream = CC["@mozilla.org/network/buffered-input-stream;1"].createInstance(CI.nsIBufferedInputStream);
-            tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
-            S3.put(s3.getCurrentBucket().name, escape(file.leafName), tmpInputBufferStream, params, function() {
-              var obj = {};
-              var urn = 'http://s3.amazonaws.com/' + s3.getCurrentBucket().name + '/' + file.leafName;
-              obj.size= Math.round(file.fileSize / 1024);
-              obj.fileName = file.leafName;
-              s3.getCurrentBucket().add(urn, obj);
-            }, function(a,b) { alert(a.responseText + '\n\n' +  b + '\n\n');}    );
+            s3.upload(file);
           break;
         case "text/x-moz-url":
           alert('need to write code to upload the contents of this url');

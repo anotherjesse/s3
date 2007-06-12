@@ -14,6 +14,7 @@
 -->
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://s3bar/content/sidebar.css" type="text/css"?>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -71,63 +72,59 @@
     </toolbar>
   </toolbox>
 
-  <stack flex="1">
-    <deck flex="1" id="s3-deck">
-      <vbox flex="1">
-        <label value="S3 Key" />
-        <textbox id="s3-key" />
-        <label value="S3 Secret Key" />
-        <textbox id="s3-secret-key" />
-        <button label="go" oncommand="s3.save()" />
-      </vbox>
-      <vbox flex="1">
-        <tree id="s3-tree" 
-              flex="1" 
-              datasources="rdf:s3" 
-              ref="urn:root" 
-              flags="dont-build-content"
-              hidecolumnpicker="true"
-              contextmenu="s3ContentMenu"
-              ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver);"
-              onclick="return s3.onClick(event)">
-          <treecols>
-            <treecol id="Name" label="Name" sort="?fileName" primary="true" flex="1" />
-            <splitter/>
-            <treecol id="Type" label="Size (KB)" sort="?size" />
-          </treecols>
-
-          <template>
-            <rule>
-              <treechildren>
-                <treeitem uri="rdf:*">
-                  <treerow>
-                    <treecell label="rdf:http://home.netscape.com/NC-rdf#fileName" />
-                    <treecell label="rdf:http://home.netscape.com/NC-rdf#size" />
-                  </treerow>
-                </treeitem>
-              </treechildren>
-            </rule>
-          </template>
-        </tree>
-        <menupopup id="s3ContentMenu" onclick="event.preventBubble();">
-          <menuitem oncommand="s3.copyLink()" label="Copy Link" />
-          <menuitem oncommand="s3.copyTorrent()" label="Copy Torrent Link" />
-          <menuseparator />
-          <menuitem oncommand="s3.deleteItem()" label="Delete" />
-        </menupopup>
-      </vbox>
-    </deck>
-    <vbox id="spinner"
-          flex="1"
-          hidden="true"
-          style="background-color: black;">
-      <spacer flex="1" />
-      <hbox>
-        <spacer flex="1" />
-        <image src="spinner.gif" />
-        <spacer flex="1" />
-      </hbox>
-      <spacer flex="1" />
+  <deck flex="1" id="s3-deck">
+    <vbox flex="1">
+      <label value="S3 Key" />
+      <textbox id="s3-key" />
+      <label value="S3 Secret Key" />
+      <textbox id="s3-secret-key" />
+      <button label="go" oncommand="s3.save()" />
     </vbox>
-  </stack>
+    <vbox flex="1">
+      <tree id="s3-tree" 
+            flex="1" 
+            datasources="rdf:s3" 
+            ref="urn:root" 
+            flags="dont-build-content"
+            hidecolumnpicker="true"
+            contextmenu="s3ContentMenu"
+            ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver);"
+            onclick="return s3.onClick(event)">
+        <treecols>
+          <treecol id="Name" label="Name" sort="?fileName" primary="true" flex="1" />
+          <splitter/>
+          <treecol id="Type" label="Size (KB)" sort="?size" />
+        </treecols>
+
+        <template>
+          <rule>
+            <treechildren>
+              <treeitem uri="rdf:*">
+                <treerow>
+                  <treecell label="rdf:http://home.netscape.com/NC-rdf#fileName" />
+                  <treecell label="rdf:http://home.netscape.com/NC-rdf#size" />
+                </treerow>
+              </treeitem>
+            </treechildren>
+          </rule>
+        </template>
+      </tree>
+      <menupopup id="s3ContentMenu" onclick="event.stopPropagation();">
+        <menuitem oncommand="s3.copyLink()" label="Copy Link" />
+        <menuitem oncommand="s3.copyTorrent()" label="Copy Torrent Link" />
+        <menuseparator />
+        <menuitem oncommand="s3.deleteItem()" label="Delete" />
+      </menupopup>
+    </vbox>
+  </deck>
+  <vbox id="s3-uploads"
+        datasources="rdf:s3" 
+        ref="urn:uploads" 
+        flags="dont-build-content">
+    <template>
+      <rule nc:type="upload">
+        <label uri="rdf:*" value="rdf:http://home.netscape.com/NC-rdf#fileName" class="http://home.netscape.com/NC-rdf#status" />
+      </rule>
+    </template>
+  </vbox>
 </page>
