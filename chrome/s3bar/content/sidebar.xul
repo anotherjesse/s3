@@ -61,6 +61,9 @@
           </template>
        </menupopup>
       </menulist>
+      <toolbarbutton class="toolbarbutton-1" 
+                     label="Refresh" oncommand="s3.refresh()" 
+                     tooltiptext="Change S3 Key/Secret Key" />
       <spacer flex="1"/>
       <toolbarbutton class="toolbarbutton-1" 
                      label="Setup" oncommand="s3.setup()" 

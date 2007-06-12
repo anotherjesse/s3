@@ -69,6 +69,14 @@ function S3Bar() {
       var resource = RDFS.GetResource(uri);
       bag.RemoveElement(resource, true);
     }
+    
+    this.clear = function() {
+      inst.ds.beginUpdateBatch();
+      while (bag.GetCount() > 0) {
+        bag.RemoveElement(bag.GetElements().getNext(), true);
+      }
+      inst.ds.endUpdateBatch();
+    }
   }
   
   this.save = function() {
@@ -105,8 +113,19 @@ function S3Bar() {
     });
   }
   
-  this.refreshBucket = function(bucket) {
-    if (bucket.loaded()) return;
+  this.refresh = function() {
+    inst.refreshBucket(inst.getCurrentBucket(), true);
+  }
+  
+  this.refreshBucket = function(bucket, force) {
+    if (bucket.loaded()) {
+      if (force) {
+        bucket.clear();
+      }
+      else {
+        return;
+      }
+    }
     S3.listKeys( bucket.name, '', function(xml,objs) {
       var keys = objs.ListBucketResult.Contents;
       for (var i=0; i<keys.length; i++) {
