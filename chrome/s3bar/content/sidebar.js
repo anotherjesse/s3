@@ -243,7 +243,11 @@ var s3DNDObserver = {
               s3.getCurrentBucket().add(urn, obj);
             }, function(a,b) { alert(a.responseText + '\n\n' +  b + '\n\n');}    );
           break;
+        case "text/x-moz-url":
+          alert('need to write code to upload the contents of this url');
+          break;
         default:
+          alert('add handler for: ' + contentType);
           break;
       }
     }
@@ -253,6 +257,10 @@ var s3DNDObserver = {
     var flavors = new FlavourSet();
     flavors.appendFlavour("application/x-moz-file", "nsIFile");
     flavors.appendFlavour("text/x-moz-url");
+    // don't think the following work, but worth a shot...
+    flavors.appendFlavour("image/png");
+    flavors.appendFlavour("image/gif");
+    flavors.appendFlavour("image/jpeg");
     return flavors;
   }
 }
