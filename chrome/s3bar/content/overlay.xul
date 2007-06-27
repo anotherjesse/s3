@@ -13,7 +13,7 @@
      License.
 -->
 
-<?xml-stylesheet type="text/css" href="chrome://s3bar/content/button.css"?>
+<?xml-stylesheet type="text/css" href="chrome://s3bar/content/style.css"?>
 
 <overlay id="s3Overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
