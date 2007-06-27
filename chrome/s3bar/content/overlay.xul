@@ -13,6 +13,8 @@
      License.
 -->
 
+<?xml-stylesheet type="text/css" href="chrome://s3bar/content/button.css"?>
+
 <overlay id="s3Overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
@@ -32,8 +34,16 @@
                    oncommand="toggleSidebar('flock_S3SidebarBroadcaster')"/>
   </broadcasterset>
 
+  <toolbarpalette id="BrowserToolbarPalette">
+    <toolbarbutton id="s3-toolbarbutton"
+      label="S3"
+      tooltiptext="toggle s3 sidebar"
+      oncommand="toggleSidebar('flock_S3SidebarBroadcaster')"
+      class="toolbarbutton-1 chromeclass-toolbar-additional custombutton"
+      />
+    </toolbarpalette>
+
   <menupopup id="viewSidebarMenu">
     <menuitem observes="flock_S3SidebarBroadcaster"/>
   </menupopup>
 </overlay>
-
