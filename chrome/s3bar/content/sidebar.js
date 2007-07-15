@@ -265,12 +265,20 @@ var s3DNDObserver = {
             
       switch (contentType) {
         case "application/x-moz-file":
-            var file = CC["@mozilla.org/file/local;1"].createInstance(CI.nsILocalFile);
-            file.initWithPath( aDropData.dataList[c].dataList[0].data.path );
-            s3.upload(file);
+          var file = CC["@mozilla.org/file/local;1"].createInstance(CI.nsILocalFile);
+          file.initWithPath( aDropData.dataList[c].dataList[0].data.path );
+          s3.upload(file);
           break;
         case "text/x-moz-url":
-          alert('need to write code to upload the contents of this url');
+          var url = aDropData.dataList[c].dataList[0].data;
+          if (url.slice(0,7) == 'file://') {
+            var file = CC["@mozilla.org/file/local;1"].createInstance(CI.nsILocalFile);
+            file.initWithPath( aDropData.dataList[c].dataList[0].data.slice(7) );
+            s3.upload(file);
+          }
+          else {
+            alert('need to write code to upload the contents of url');
+          }
           break;
         default:
           alert('add handler for: ' + contentType);
