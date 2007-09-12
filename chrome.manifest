@@ -1,0 +1,2 @@
+overlay	chrome://browser/content/browser.xul	chrome://s3bar/content/overlay.xul
+content	s3bar	chrome/content/
