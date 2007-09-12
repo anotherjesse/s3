@@ -14,7 +14,7 @@
 -->
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<?xml-stylesheet type="text/css" href="chrome://s3bar/content/style.css"?>
+<?xml-stylesheet type="text/css" href="chrome://s4/content/style.css"?>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -25,8 +25,8 @@
   <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"/>
   <script type="application/x-javascript" src="chrome://global/content/nsTransferable.js"/>
   <script type="application/x-javascript" src="chrome://browser/content/utilityOverlay.js"/>
-  <script type="application/x-javascript" src="chrome://s3bar/content/sha1.js"/>
-  <script type="application/x-javascript" src="chrome://s3bar/content/S3Ajax.js"/>
+  <script type="application/x-javascript" src="chrome://s4/content/sha1.js"/>
+  <script type="application/x-javascript" src="chrome://s4/content/S3Ajax.js"/>
   <script type="text/javascript"><![CDATA[ 
 
     function loadJS() {
@@ -34,9 +34,9 @@
                                .getService(Components.interfaces.mozIJSSubScriptLoader);
 
       var scripts = [
-          'chrome://s3bar/content/sha1.js', 
-          'chrome://s3bar/content/S3Ajax.js', 
-          'chrome://s3bar/content/sidebar.js', 
+          'chrome://s4/content/sha1.js', 
+          'chrome://s4/content/S3Ajax.js', 
+          'chrome://s4/content/sidebar.js', 
         ];
 
       for (var i = 0; i < scripts.length; i++) {

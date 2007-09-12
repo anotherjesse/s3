@@ -13,7 +13,7 @@
      License.
 -->
 
-<?xml-stylesheet type="text/css" href="chrome://s3bar/content/style.css"?>
+<?xml-stylesheet type="text/css" href="chrome://s4/content/style.css"?>
 
 <overlay id="s3Overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -29,7 +29,7 @@
                    tooltiptext="Amazon S3 File Storage"
                    type="checkbox"
                    group="sidebar"
-                   sidebarurl="chrome://s3bar/content/sidebar.xul"
+                   sidebarurl="chrome://s4/content/sidebar.xul"
                    sidebartitle="S3 Sidebar"
                    oncommand="toggleSidebar('flock_S3SidebarBroadcaster')"/>
   </broadcasterset>

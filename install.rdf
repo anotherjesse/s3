@@ -2,10 +2,10 @@
     
 <RDF:RDF xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <RDF:Description RDF:about="urn:mozilla:install-manifest">
-    <em:name>S3 Bar</em:name>
-    <em:id>s3@overstimulate.com</em:id>
+    <em:name>Simple S3</em:name>
+    <em:id>s4@overstimulate.com</em:id>
     <em:version>0.01</em:version>
-    <em:description>simple s3 sidebar</em:description>
+    <em:description>Simple S3 Access</em:description>
     <em:creator>Jesse Andrews; http://overstimulate.com</em:creator>
 
     <!-- firefox -->
@@ -27,7 +27,7 @@
     </em:targetApplication>
 
     <em:file>
-      <RDF:Description RDF:about="urn:mozilla:extension:file:s3bar">
+      <RDF:Description RDF:about="urn:mozilla:extension:file:s4">
         <em:package>content/</em:package>
       </RDF:Description>
     </em:file>
