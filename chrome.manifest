@@ -1,2 +1,3 @@
 overlay	chrome://browser/content/browser.xul	chrome://s4/content/overlay.xul
 content	s4 chrome/content/
+skin	s4 chrome/skin/
