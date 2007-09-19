@@ -1,3 +1,6 @@
-overlay	chrome://browser/content/browser.xul	chrome://s4/content/overlay.xul
 content	s4 chrome/content/
 skin	s4 classic/1.0	chrome/skin/
+
+overlay chrome://browser/content/browser.xul    chrome://s4/content/browserOverlay.xul
+overlay chrome://global/content/customizeToolbar.xul         chrome://s4/content/customizeToolbarOverlay.xul
+
