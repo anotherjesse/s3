@@ -89,9 +89,17 @@
             ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver);"
             onclick="return s3.onClick(event)">
         <treecols>
-          <treecol id="Name" label="Name" sort="?fileName" primary="true" flex="1" />
+          <treecol id="name" label="Name" flex="1" primary="true" 
+                   class="sortDirectionIndicator"
+                   persist="width hidden ordinal"
+                   sort="rdf:http://home.netscape.com/NC-rdf#fileName"
+                   sortActive="true" sortDirection="none"/>
           <splitter/>
-          <treecol id="Type" label="Size (KB)" sort="?size" />
+          <treecol id="size" label="Size (KB)" primary="true" 
+                   class="sortDirectionIndicator"
+                   persist="width hidden ordinal"
+                   sort="rdf:http://home.netscape.com/NC-rdf#size"
+                   sortActive="true" sortDirection="none"/>
         </treecols>
 
         <template>
