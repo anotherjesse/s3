@@ -62,7 +62,7 @@
       </menulist>
       <toolbarbutton class="toolbarbutton-1" id="s3bar-refresh"
                      label="Refresh" oncommand="s3.refresh()" 
-                     tooltiptext="Change S3 Key/Secret Key" />
+                     tooltiptext="Refresh Contents of Bucket" />
       <spacer flex="1"/>
       <toolbarbutton class="toolbarbutton-1" id="s3bar-setup"
                      label="Setup" oncommand="s3.setup()" 
