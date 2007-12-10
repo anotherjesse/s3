@@ -15,7 +15,15 @@ s3Handler.prototype.allowPort = function (port, scheme) { return false; }
 s3Handler.prototype.newChannel = 
 function (URI) {
   var ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-  var channel = ios.newChannel("chrome://s3/content/browse.html", null, null);
+
+  if (URI.spec.match(/\?download$/)) {
+    var bucket = URI.spec.split('/')[2];
+    var url = 'http://' + bucket + '.s3.amazonaws.com/' + URI.spec.slice(6+bucket.length).split('?')[0];
+    var channel = ios.newChannel(url, null, null);
+  }
+  else {
+    var channel = ios.newChannel("chrome://s3/content/browse.html", null, null);
+  }
   return channel;
 }
   
