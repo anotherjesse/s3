@@ -12,7 +12,7 @@
 
 // TODO: Figure out if Safari doesn't support PUT and DELETE
 
-S3 = {
+S3Ajax = {
 
     // Defeat caching with query params on GET requests?
     DEFEAT_CACHE: false,

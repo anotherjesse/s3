@@ -15,7 +15,7 @@ s3Handler.prototype.allowPort = function (port, scheme) { return false; }
 s3Handler.prototype.newChannel = 
 function (URI) {
   var ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-  var channel = ios.newChannel("chrome://s4/content/sidebar.xul", null, null);
+  var channel = ios.newChannel("chrome://s4/content/browse.html", null, null);
   return channel;
 }
   
