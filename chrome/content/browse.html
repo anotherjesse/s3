@@ -36,7 +36,9 @@
 
       var td=document.createElement('td');
       var a=document.createElement('a');
-      a.appendChild( document.createTextNode( key ));
+      var label = key.split('/');
+      label = label[label.length-1];
+      a.appendChild( document.createTextNode( label ));
       a.href = '//' + fm.bucket + '/' + key;
       td.appendChild( a );
       tr.appendChild( td );
@@ -123,7 +125,7 @@
       if (this.prefix.length) 
         this.addDir();
         
-      document.title = 'Index of S3 ' + this.bucket
+      document.title = 'Index of S3 ' + this.bucket + '/' + this.prefix;
 
       S3Ajax.listKeys(this.bucket, {prefix: this.prefix, delimiter: '/'},
         function(req, obj) {

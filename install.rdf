@@ -2,10 +2,10 @@
     
 <RDF:RDF xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <RDF:Description RDF:about="urn:mozilla:install-manifest">
-    <em:name>Simple S3</em:name>
-    <em:id>s4@overstimulate.com</em:id>
+    <em:name>s3://</em:name>
+    <em:id>s3@overstimulate.com</em:id>
     <em:version>0.01</em:version>
-    <em:description>Simple S3 Access</em:description>
+    <em:description>S3 protocol</em:description>
     <em:creator>Jesse Andrews; http://overstimulate.com</em:creator>
 
     <!-- firefox -->
