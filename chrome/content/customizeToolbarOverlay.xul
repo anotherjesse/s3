@@ -1,5 +1,5 @@
-<?xml-stylesheet href="chrome://s4/skin/toolbarbutton.css"?>
+<?xml-stylesheet href="chrome://s3/skin/toolbarbutton.css"?>
 
-<overlay id="S4Overlay"
+<overlay id="s3Overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 </overlay>

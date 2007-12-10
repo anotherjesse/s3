@@ -27,7 +27,7 @@
     </em:targetApplication>
 
     <em:file>
-      <RDF:Description RDF:about="urn:mozilla:extension:file:s4">
+      <RDF:Description RDF:about="urn:mozilla:extension:file:s3">
         <em:package>content/</em:package>
       </RDF:Description>
     </em:file>
