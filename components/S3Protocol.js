@@ -16,13 +16,14 @@ s3Handler.prototype.newChannel =
 function (URI) {
   var ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
 
-  if (URI.spec.match(/\?download$/)) {
-    var bucket = URI.spec.split('/')[2];
-    var url = 'http://' + bucket + '.s3.amazonaws.com/' + URI.spec.slice(6+bucket.length).split('?')[0];
-    var channel = ios.newChannel(url, null, null);
+  var bucket = URI.spec.split('/')[2];
+  var key = URI.spec.slice(6+bucket.length);
+  // var url = 'http://' + bucket + '.s3.amazonaws.com/' + key;
+
+  if (key == '') {
+    var channel = ios.newChannel("chrome://s3/content/browse.html", null, null);
   }
   else {
-    //var channel = ios.newChannel("chrome://s3/content/browse.html", null, null);
     var channel = new s3Channel(URI);
   }
   return channel;
@@ -87,15 +88,14 @@ function s3Channel__onload(aEvent) {
   if (aEvent.target.status == 200) {
     this._redirectChannel(this._testURL);
   } else {
-    this.sendData('the file exists!')
-//    this._redirectChannel("chrome://s3/content/browse.html");
+     this._redirectChannel("chrome://s3/content/browse.html");
   }
 }
 
 s3Channel.prototype._onerror =
 function s3Channel__onerror(aEvent) {
-  this.sendData('oooops!')
-//  this._redirectChannel("chrome://s3/content/browse.html");
+  // this.sendData('oooops!')
+ this._redirectChannel("chrome://s3/content/browse.html");
 }
 
 s3Channel.prototype._redirectChannel =
@@ -178,7 +178,10 @@ function s3Channel_asyncOpen(aListener, aContext) {
   };
 
   try {
-    this._testURL = this._uri.spec.replace(/^s3:\/\//, "");
+    var bucket = this._uri.spec.split('/')[2];
+    var url = 'http://' + bucket + '.s3.amazonaws.com/' + this._uri.spec.slice(6+bucket.length).split('?')[0];
+
+    this._testURL = url;
     xhr.open("HEAD", this._testURL);
     xhr.send(null);
   }

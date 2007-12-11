@@ -23,18 +23,7 @@
     init: function() {
       this.bucket = window.location.href.split('/')[2];
       this.prefix = window.location.href.slice(6+this.bucket.length);
-      if (this.prefix) {
-        S3Ajax.head(this.bucket, this.prefix,
-          function(req, obj) {
-            window.location.href += '?download'
-          },
-          function(req, obj) {
-            fm.list();
-          });
-      }
-      else {
-        this.list();
-      }
+      this.list();
     },
     addKey: function( item ) {
       var key = item.Key;
