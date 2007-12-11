@@ -87,13 +87,15 @@ function s3Channel__onload(aEvent) {
   if (aEvent.target.status == 200) {
     this._redirectChannel(this._testURL);
   } else {
-    this._redirectChannel("chrome://s3/content/browse.html");
+    this.sendData('the file exists!')
+//    this._redirectChannel("chrome://s3/content/browse.html");
   }
 }
 
 s3Channel.prototype._onerror =
 function s3Channel__onerror(aEvent) {
-  this._redirectChannel("chrome://s3/content/browse.html");
+  this.sendData('oooops!')
+//  this._redirectChannel("chrome://s3/content/browse.html");
 }
 
 s3Channel.prototype._redirectChannel =
@@ -113,6 +115,33 @@ function s3Channel__redirectChannel(aSpec) {
 /******************************************************************************
  * nsIChannel
  ******************************************************************************/
+ 
+s3Channel.prototype.finish =
+function ()
+{
+   this.cancel(Components.results.NS_OK);
+}
+ 
+s3Channel.prototype.sendData =
+function s3Channel_sendData(channel, data) {
+   var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
+       .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+
+   converter.charset = 'UTF-8';
+
+   var convdata = converter.ConvertFromUnicode(data) + converter.Finish();
+
+   var stream = Components.classes["@mozilla.org/io/string-input-stream;1"]
+       .createInstance(Components.interfaces.nsIStringInputStream);
+
+   var len = convdata.length;
+   stream.setData(convdata, len);
+
+   this.sendStream(stream, 0, len);
+
+   this.finish();
+}
+
 
 s3Channel.prototype.contentCharset = "utf-8";
 s3Channel.prototype.contentLength = -1;
@@ -120,6 +149,10 @@ s3Channel.prototype.contentType = "text/html";
 s3Channel.prototype.notificationCallbacks = null;
 s3Channel.prototype.owner = null;
 s3Channel.prototype.securityInfo = null;
+s3Channel.prototype.sendStream =
+function (stream, offset, length) {
+    this._listener.onDataAvailable(this, this._context, stream, offset, length);
+}
 
 s3Channel.prototype.__defineGetter__("URI",
 function s3Channel_getter_URI() {
