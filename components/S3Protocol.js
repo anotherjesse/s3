@@ -12,7 +12,7 @@ s3Handler.prototype.scheme = 's3';
 s3Handler.prototype.defaultPort = -1;
 s3Handler.prototype.protocolFlags = 0;
 s3Handler.prototype.allowPort = function (port, scheme) { return false; }
-s3Handler.prototype.newChannel = 
+s3Handler.prototype.newChannel =
 function (URI) {
   var ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
 
@@ -22,12 +22,13 @@ function (URI) {
     var channel = ios.newChannel(url, null, null);
   }
   else {
-    var channel = ios.newChannel("chrome://s3/content/browse.html", null, null);
+    //var channel = ios.newChannel("chrome://s3/content/browse.html", null, null);
+    var channel = new s3Channel(URI);
   }
   return channel;
 }
-  
-s3Handler.prototype.newURI = 
+
+s3Handler.prototype.newURI =
 function (spec, originCharset, baseURI) {
   var url = Components.classes["@mozilla.org/network/simple-uri;1"].createInstance(Components.interfaces.nsIURI);
 
@@ -48,7 +49,7 @@ function (spec, originCharset, baseURI) {
  * nsIClassInfo
  ******************************************************************************/
 
-s3Handler.prototype.getInterfaces = 
+s3Handler.prototype.getInterfaces =
 function (aCount) {
   var interfaces = [Components.interfaces.nsIProtocolHandler, Components.interfaces.nsIClassInfo];
   aCount.value = interfaces.length;
@@ -61,12 +62,167 @@ s3Handler.prototype.classDescription = CLASS_NAME;
 s3Handler.prototype.classID = CLASS_ID;
 s3Handler.prototype.implementationLanguage = Components.interfaces.nsIProgrammingLanguage.JAVASCRIPT;
 s3Handler.prototype.flags = null;
-s3Handler.prototype.QueryInterface = 
+s3Handler.prototype.QueryInterface =
 function (aIID) {
   if (!aIID.equals(Components.interfaces.nsISupports) && !aIID.equals(Components.interfaces.nsIProtocolHandler) && !aIID.equals(Components.interfaces.nsIClassInfo))
     throw Components.results.NS_ERROR_NO_INTERFACE;
   return this;
 }
+
+/******************************************************************************
+ * Channel implementation
+ ******************************************************************************/
+
+function s3Channel(aURI) {
+  this._uri = aURI;
+  this.originalURI = aURI;
+
+  this._status = Components.results.NS_OK;
+
+  this._pending = true;
+}
+
+s3Channel.prototype._onload =
+function s3Channel__onload(aEvent) {
+  if (aEvent.target.status == 200) {
+    this._redirectChannel(this._testURL);
+  } else {
+    this._redirectChannel("chrome://s3/content/browse.html");
+  }
+}
+
+s3Channel.prototype._onerror =
+function s3Channel__onerror(aEvent) {
+  this._redirectChannel("chrome://s3/content/browse.html");
+}
+
+s3Channel.prototype._redirectChannel =
+function s3Channel__redirectChannel(aSpec) {
+  const NS_BINDING_REDIRECTED = 0x804b0003;
+  var ios = Components.classes["@mozilla.org/network/io-service;1"]
+                      .getService(Components.interfaces.nsIIOService);
+  var channel = ios.newChannel(aSpec, null, null);
+
+  channel.asyncOpen(this._listener, this._context);
+  this.cancel(NS_BINDING_REDIRECTED);
+
+  this._listener = null;
+  this._context = null;
+}
+
+/******************************************************************************
+ * nsIChannel
+ ******************************************************************************/
+
+s3Channel.prototype.contentCharset = "utf-8";
+s3Channel.prototype.contentLength = -1;
+s3Channel.prototype.contentType = "text/html";
+s3Channel.prototype.notificationCallbacks = null;
+s3Channel.prototype.owner = null;
+s3Channel.prototype.securityInfo = null;
+
+s3Channel.prototype.__defineGetter__("URI",
+function s3Channel_getter_URI() {
+  return this._uri;
+});
+
+s3Channel.prototype.asyncOpen =
+function s3Channel_asyncOpen(aListener, aContext) {
+  this._listener = aListener;
+  this._context = aContext;
+
+  var xhr = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
+                      .createInstance(Components.interfaces.nsIXMLHttpRequest);
+
+  var inst = this;
+  xhr.onload = function s3Channel_asyncOpen_onload(aEvent) {
+    inst._onload(aEvent);
+  };
+  xhr.onerror = function s3Channel_asyncOpen_onerror(aEvent) {
+    inst._onerror(aEvent);
+  };
+
+  try {
+    this._testURL = this._uri.spec.replace(/^s3:\/\//, "");
+    xhr.open("HEAD", this._testURL);
+    xhr.send(null);
+  }
+  catch (ex) {
+    this._onerror(null);
+  }
+}
+
+s3Channel.prototype.open =
+function s3Channel_open() {
+  throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/******************************************************************************
+ * nsIRequest
+ ******************************************************************************/
+
+s3Channel.prototype.loadGroup = null;
+s3Channel.prototype.loadFlags = 0;
+
+s3Channel.prototype.__defineGetter__("name",
+function s3Channel_getter_name() {
+  return this._uri.spec;
+});
+
+s3Channel.prototype.__defineGetter__("status",
+function s3Channel_getter_status() {
+  return this._status;
+});
+
+s3Channel.prototype.cancel =
+function s3Channel_cancel(status) {
+  if (this._pending) {
+    this._pending = false;
+    this._listener.onStopRequest(this, this._context, status);
+  }
+  this._status = status;
+}
+
+s3Channel.prototype.isPending =
+function s3Channel_isPending() {
+  return this._pending;
+}
+
+s3Channel.prototype.resume =
+function s3Channel_resume() {
+  throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+}
+
+s3Channel.prototype.suspend =
+function s3Channel_suspend() {
+  throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/******************************************************************************
+ * nsIClassInfo
+ ******************************************************************************/
+
+s3Channel.prototype.getInterfaces =
+function (aCount) {
+  var interfaces = [Components.interfaces.nsIChannel, Components.interfaces.nsIClassInfo];
+  aCount.value = interfaces.length;
+  return interfaces;
+}
+
+s3Channel.prototype.getHelperForLanguage = function (aLanguage) { return null; }
+s3Channel.prototype.contractID = CONTRACT_ID;
+s3Channel.prototype.classDescription = CLASS_NAME;
+s3Channel.prototype.classID = CLASS_ID;
+s3Channel.prototype.implementationLanguage = Components.interfaces.nsIProgrammingLanguage.JAVASCRIPT;
+s3Channel.prototype.flags = null;
+s3Channel.prototype.QueryInterface =
+function (aIID) {
+  if (!aIID.equals(Components.interfaces.nsISupports) && !aIID.equals(Components.interfaces.nsIChannel) && !aIID.equals(Components.interfaces.nsIClassInfo))
+    throw Components.results.NS_ERROR_NO_INTERFACE;
+  return this;
+}
+
+
 
 /******************************************************************************
  * XPCOM Functions for construction and registration
@@ -84,9 +240,9 @@ var Module = {
 
   unregisterSelf: function(aCompMgr, aLocation, aType) {
     aCompMgr = aCompMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    aCompMgr.unregisterFactoryLocation(CLASS_ID, aLocation);        
+    aCompMgr.unregisterFactoryLocation(CLASS_ID, aLocation);
   },
-  
+
   getClassObject: function(aCompMgr, aCID, aIID) {
     if (!aIID.equals(Components.interfaces.nsIFactory))
       throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
