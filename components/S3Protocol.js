@@ -108,6 +108,8 @@ function s3Channel__redirectChannel(aSpec) {
   channel.asyncOpen(this._listener, this._context);
   this.cancel(NS_BINDING_REDIRECTED);
 
+  channel.originalURI = this._uri;
+
   this._listener = null;
   this._context = null;
 }
