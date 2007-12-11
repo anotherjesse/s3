@@ -16,9 +16,9 @@ s3Handler.prototype.newChannel =
 function (URI) {
   var ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
 
-  var bucket = URI.spec.split('/')[2];
-  var key = URI.spec.slice(6+bucket.length);
-  // var url = 'http://' + bucket + '.s3.amazonaws.com/' + key;
+  var real = URI.spec.split('#')[0].split('?')[0]
+  var bucket = real.split('/')[2];
+  var key = real.slice(6+bucket.length);
 
   if (key == '') {
     var channel = ios.newChannel("chrome://s3/content/browse.html", null, null);
@@ -31,19 +31,11 @@ function (URI) {
 
 s3Handler.prototype.newURI =
 function (spec, originCharset, baseURI) {
-  var url = Components.classes["@mozilla.org/network/simple-uri;1"].createInstance(Components.interfaces.nsIURI);
+  var cls = Components.classes['@mozilla.org/network/standard-url;1'];
+  var url = cls.createInstance(Components.interfaces.nsIStandardURL);
+  url.init(Components.interfaces.nsIStandardURL.URLTYPE_STANDARD, 80, spec, originCharset, baseURI);
 
-  try {
-    url.spec = spec;
-  } catch (e) {
-    try {
-      url.spec = this.scheme + ":" + spec;
-    } catch (e) {
-      url.spec = "javascript:void(0)";
-    }
-  }
-
-  return url;
+  return url.QueryInterface(Components.interfaces.nsIURI);
 }
 
 /******************************************************************************
@@ -77,9 +69,7 @@ function (aIID) {
 function s3Channel(aURI) {
   this._uri = aURI;
   this.originalURI = aURI;
-
   this._status = Components.results.NS_OK;
-
   this._pending = true;
 }
 

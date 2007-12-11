@@ -36,7 +36,7 @@
       var label = key.split('/');
       label = label[label.length-1];
       a.appendChild( document.createTextNode( label ));
-      a.href = '//' + fm.bucket + '/' + key;
+      a.href = label;
       td.appendChild( a );
       tr.appendChild( td );
 
@@ -67,7 +67,7 @@
         var label = key;
       } 
       else {
-        var key = '';
+        var key = '..';
         var label = '..'
       }
 
@@ -77,7 +77,7 @@
       var td=document.createElement('td');
       var a=document.createElement('a');
       a.appendChild( document.createTextNode( label ));
-      a.href = '//' + fm.bucket + '/' + key;
+      a.href = key;
       td.appendChild( a );
       tr.appendChild( td );
 
