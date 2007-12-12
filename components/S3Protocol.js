@@ -21,7 +21,7 @@ function (URI) {
   var key = real.slice(6+bucket.length);
 
   if (key == '') {
-    var channel = ios.newChannel("chrome://s3/content/browse.html", null, null);
+    var channel = ios.newChannel("chrome://s3/content/browse-xslt.html", null, null);
   }
   else {
     var channel = new s3Channel(URI);
@@ -78,14 +78,14 @@ function s3Channel__onload(aEvent) {
   if (aEvent.target.status == 200) {
     this._redirectChannel(this._testURL);
   } else {
-     this._redirectChannel("chrome://s3/content/browse.html");
+     this._redirectChannel("chrome://s3/content/browse-xslt.html");
   }
 }
 
 s3Channel.prototype._onerror =
 function s3Channel__onerror(aEvent) {
   // this.sendData('oooops!')
- this._redirectChannel("chrome://s3/content/browse.html");
+ this._redirectChannel("chrome://s3/content/browse-xslt.html");
 }
 
 s3Channel.prototype._redirectChannel =
