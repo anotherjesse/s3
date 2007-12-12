@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+  <head>
+    <title>Browsing...</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script language="javascript">
+
+    function init() {
+      var bucket = window.location.href.split('/')[2];
+      var prefix = window.location.href.slice(6+bucket.length);
+      var req = new XMLHttpRequest();
+      req.open("GET", "chrome://s3/content/keys.xsl", false);
+      req.send(null);
+
+      var xslt = new XSLTProcessor();
+      xslt.importStylesheet(req.responseXML);
+
+      var req = new XMLHttpRequest();
+      req.open("GET", "http://s3.amazonaws.com/"+bucket, false);
+      req.send(null);
+
+      var fragment = xslt.transformToFragment(req.responseXML, document);
+      document.getElementById('results').appendChild(fragment);
+    }
+
+    window.onload = init;
+
+  </script>
+  </head>
+  <body>
+    <div id="results"></div>   
+  </body>
+</html>
