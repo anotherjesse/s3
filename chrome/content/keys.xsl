@@ -21,8 +21,8 @@
     <table border="0" cellspacing="0" width="100%">
     <tr>
       <th align="left">Key</th>
+      <th align="left">Last Modified</th>
       <th align="left">Size</th>
-      <th align="left">LastModified</th>
     </tr>
     <xsl:for-each select="S3:ListBucketResult/S3:CommonPrefixes">
 	    <tr>
