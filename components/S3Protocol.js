@@ -85,7 +85,7 @@ function s3Channel__onload(aEvent) {
 s3Channel.prototype._onerror =
 function s3Channel__onerror(aEvent) {
   // this.sendData('oooops!')
- this._redirectChannel("chrome://s3/content/browse-xslt.html");
+  this._redirectChannel("chrome://s3/content/browse-xslt.html");
 }
 
 s3Channel.prototype._redirectChannel =
@@ -156,28 +156,14 @@ function s3Channel_asyncOpen(aListener, aContext) {
   this._listener = aListener;
   this._context = aContext;
 
-  var xhr = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                      .createInstance(Components.interfaces.nsIXMLHttpRequest);
+  var bucket = this._uri.spec.split('/')[2];
+  var url = 'http://' + bucket + '.s3.amazonaws.com/' + this._uri.spec.slice(6+bucket.length).split('?')[0];
 
-  var inst = this;
-  xhr.onload = function s3Channel_asyncOpen_onload(aEvent) {
-    inst._onload(aEvent);
-  };
-  xhr.onerror = function s3Channel_asyncOpen_onerror(aEvent) {
-    inst._onerror(aEvent);
-  };
-
-  try {
-    var bucket = this._uri.spec.split('/')[2];
-    var url = 'http://' + bucket + '.s3.amazonaws.com/' + this._uri.spec.slice(6+bucket.length).split('?')[0];
-
-    this._testURL = url;
-    xhr.open("HEAD", this._testURL);
-    xhr.send(null);
-  }
-  catch (ex) {
-    this._onerror(null);
-  }
+  var ios = Components.classes["@mozilla.org/network/io-service;1"]
+                      .getService(Components.interfaces.nsIIOService);
+  this._subChannel = ios.newChannel(url, null, null);
+  this._subChannel.asyncOpen(this, null);
+  this._subChannel.originalURI = this._uri;
 }
 
 s3Channel.prototype.open =
@@ -206,7 +192,7 @@ s3Channel.prototype.cancel =
 function s3Channel_cancel(status) {
   if (this._pending) {
     this._pending = false;
-    this._listener.onStopRequest(this, this._context, status);
+    this._subChannel.cancel(status);
   }
   this._status = status;
 }
@@ -227,12 +213,42 @@ function s3Channel_suspend() {
 }
 
 /******************************************************************************
+ * nsIStreamListener
+ ******************************************************************************/
+
+s3Channel.prototype.onDataAvailable =
+function s3Channel_onDataAvailable(aRequest, aContext, aInputStream, aOffset, aCount) {
+  this._listener.onDataAvailable(aRequest, this._context, aInputStream, aOffset, aCount);
+}
+
+/******************************************************************************
+ * nsIRequestObserver
+ ******************************************************************************/
+
+s3Channel.prototype.onStartRequest =
+function s3Channel_onStartRequest(aRequest, aContext) {
+  if (this._subChannel instanceof Components.interfaces.nsIHttpChannel) {
+    if (this._subChannel.responseStatus == 200) {
+      this._listener.onStartRequest(aRequest, this._context);
+      return;
+    }
+  }
+
+  this._redirectChannel("chrome://s3/content/browse-xslt.html");
+}
+
+s3Channel.prototype.onStopRequest =
+function s3Channel_onStopRequest(aRequest, aContext, aStatusCode) {
+  this._listener.onStopRequest(aRequest, this._context, aStatusCode);
+}
+
+/******************************************************************************
  * nsIClassInfo
  ******************************************************************************/
 
 s3Channel.prototype.getInterfaces =
 function (aCount) {
-  var interfaces = [Components.interfaces.nsIChannel, Components.interfaces.nsIClassInfo];
+  var interfaces = [Components.interfaces.nsIChannel, Components.interfaces.nsIStreamListener, Components.interfaces.nsIRequestObserver, Components.interfaces.nsIClassInfo];
   aCount.value = interfaces.length;
   return interfaces;
 }
@@ -245,7 +261,11 @@ s3Channel.prototype.implementationLanguage = Components.interfaces.nsIProgrammin
 s3Channel.prototype.flags = null;
 s3Channel.prototype.QueryInterface =
 function (aIID) {
-  if (!aIID.equals(Components.interfaces.nsISupports) && !aIID.equals(Components.interfaces.nsIChannel) && !aIID.equals(Components.interfaces.nsIClassInfo))
+  if (!aIID.equals(Components.interfaces.nsISupports) &&
+      !aIID.equals(Components.interfaces.nsIChannel) &&
+      !aIID.equals(Components.interfaces.nsIStreamListener) &&
+      !aIID.equals(Components.interfaces.nsIRequestObserver) &&
+      !aIID.equals(Components.interfaces.nsIClassInfo))
     throw Components.results.NS_ERROR_NO_INTERFACE;
   return this;
 }
