@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
   <head>
-    <title>Browsing...</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script language="javascript">
+
       function init() {
         var bucket = window.location.href.split('/')[2];
         var prefix = window.location.href.slice(6+bucket.length);
@@ -18,10 +18,12 @@
         req.open("GET", "http://s3.amazonaws.com/"+bucket+"?prefix="+encodeURIComponent(prefix)+"&delimiter=%2F", false);
         req.send(null);
 
+
         var fragment = xslt.transformToFragment(req.responseXML, document);
         document.body.appendChild(fragment);
       }
 
+      document.title = window.location.href;
       window.onload = init;
     </script>
   	<style>
