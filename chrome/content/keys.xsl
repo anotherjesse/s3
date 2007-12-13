@@ -16,12 +16,12 @@
 		<tbody>
 			<xsl:for-each select="S3:ListBucketResult/S3:CommonPrefixes">
 				<tr>
-					<td><a><xsl:attribute name="href"><xsl:value-of select="S3:Prefix"/></xsl:attribute><xsl:value-of select="S3:Prefix"/></a></td>
+					<td><a><xsl:attribute name="href">/<xsl:value-of select="S3:Prefix"/></xsl:attribute><xsl:value-of select="S3:Prefix"/></a></td>
 				</tr>
 			</xsl:for-each>
 			<xsl:for-each select="S3:ListBucketResult/S3:Contents">
 				<tr>
-				  <td><a><xsl:attribute name="href"><xsl:value-of select="S3:Key"/></xsl:attribute><xsl:value-of select="S3:Key"/></a></td>
+				  <td><a><xsl:attribute name="href">/<xsl:value-of select="S3:Key"/></xsl:attribute><xsl:value-of select="S3:Key"/></a></td>
 				  <td><xsl:value-of select="S3:LastModified"/></td>
 				  <td><xsl:value-of select="S3:Size"/></td>
 				</tr>
