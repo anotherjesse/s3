@@ -16,7 +16,7 @@
       xslt.importStylesheet(req.responseXML);
 
       var req = new XMLHttpRequest();
-      req.open("GET", "http://s3.amazonaws.com/"+bucket, false);
+      req.open("GET", "http://s3.amazonaws.com/"+bucket+"?prefix="+encodeURIComponent(prefix)+"&delimiter=%2F", false);
       req.send(null);
 
       var fragment = xslt.transformToFragment(req.responseXML, document);
