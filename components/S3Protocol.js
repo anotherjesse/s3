@@ -18,13 +18,19 @@ function (URI) {
 
   var real = URI.spec.split('#')[0].split('?')[0]
   var bucket = real.split('/')[2];
-  var key = real.slice(6+bucket.length);
 
-  if (key == '') {
-    var channel = ios.newChannel("chrome://s3/content/browse-xslt.html", null, null);
+  if (bucket == '') {
+    var channel = ios.newChannel("chrome://s3/content/accounts.html", null, null);
   }
   else {
-    var channel = new s3Channel(URI);
+    var key = real.slice(6+bucket.length);
+
+    if (key == '') {
+      var channel = ios.newChannel("chrome://s3/content/browse-xslt.html", null, null);
+    }
+    else {
+      var channel = new s3Channel(URI);
+    }
   }
   return channel;
 }

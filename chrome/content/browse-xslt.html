@@ -1,7 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html>
+<html
+  ondragdrop="nsDragAndDrop.drop(event, dnd, true); event.stopPropagation();"
+  ondragover="nsDragAndDrop.dragOver(event, dnd); event.stopPropagation();">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"></script>
+    <script type="application/x-javascript" src="chrome://s3/content/dnd.js"></script>
     <script language="javascript">
 
       function init() {
