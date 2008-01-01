@@ -99,7 +99,10 @@ function s3Channel(aURI) {
   var ios = Components.classes["@mozilla.org/network/io-service;1"]
                       .getService(Components.interfaces.nsIIOService);
   this._subChannel = ios.newChannel(url, null, null);
+
   this._subChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
+  this._subChannel.QueryInterface(Components.interfaces.nsIHttpChannelInternal);
+  this._subChannel.QueryInterface(Components.interfaces.nsICachingChannel);
 
   s3_auth(this._subChannel, resource);
 }
@@ -319,6 +322,84 @@ function s3Channel_isNoCacheResponse() {
 }
 
 /******************************************************************************
+ * nsIHttpChannelInternal
+ ******************************************************************************/
+
+s3Channel.prototype.__defineGetter__("documentURI",
+function s3Channel_getter_documentURI() {
+  return this._subChannel.documentURI;
+});
+
+s3Channel.prototype.__defineSetter__("documentURI",
+function s3Channel_setter_documentURI(aValue) {
+  this._subChannel.documentURI = aValue;
+});
+
+s3Channel.prototype.__defineGetter__("proxyInfo",
+function s3Channel_getter_proxyInfo() {
+  return this._subChannel.proxyInfo;
+});
+
+s3Channel.prototype.getRequestVersion =
+function s3Channel_getRequestVersion(aMajor, aMinor) {
+  this._subChannel.getRequestVersion(aMajor, aMinor);
+}
+
+s3Channel.prototype.getResponseVersion =
+function s3Channel_getResponseVersion(aMajor, aMinor) {
+  this._subChannel.getResponseVersion(aMajor, aMinor);
+}
+
+s3Channel.prototype.setCookie =
+function s3Channel_setCookie(aCookieHeader) {
+  this._subChannel.setCookie(aCookieHeader);
+}
+
+/******************************************************************************
+ * nsICachingChannel
+ ******************************************************************************/
+
+s3Channel.prototype.__defineGetter__("cacheToken",
+function s3Channel_getter_cacheToken() {
+  return this._subChannel.cacheToken;
+});
+
+s3Channel.prototype.__defineSetter__("cacheToken",
+function s3Channel_setter_cacheToken(aValue) {
+  this._subChannel.cacheToken = aValue;
+});
+
+s3Channel.prototype.__defineGetter__("cacheKey",
+function s3Channel_getter_cacheKey() {
+  return this._subChannel.cacheKey;
+});
+
+s3Channel.prototype.__defineSetter__("cacheKey",
+function s3Channel_setter_cacheKey(aValue) {
+  this._subChannel.cacheKey = aValue;
+});
+
+s3Channel.prototype.__defineGetter__("cacheAsFile",
+function s3Channel_getter_cacheAsFile() {
+  return this._subChannel.cacheAsFile;
+});
+
+s3Channel.prototype.__defineSetter__("cacheAsFile",
+function s3Channel_setter_cacheAsFile(aValue) {
+  this._subChannel.cacheAsFile = aValue;
+});
+
+s3Channel.prototype.__defineGetter__("cacheFile",
+function s3Channel_getter_cacheFile() {
+  return this._subChannel.cacheFile;
+});
+
+s3Channel.prototype.isFromCache =
+function s3Channel_isFromCache() {
+  return this._subChannel.isFromCache();
+}
+
+/******************************************************************************
  * nsIRequest
  ******************************************************************************/
 
@@ -411,6 +492,8 @@ function (aCount) {
   var interfaces = [Components.interfaces.nsIRequest,
                     Components.interfaces.nsIChannel,
                     Components.interfaces.nsIHttpChannel,
+                    Components.interfaces.nsIHttpChannelInternal,
+                    Components.interfaces.nsICachingChannel,
                     Components.interfaces.nsIStreamListener,
                     Components.interfaces.nsIRequestObserver,
                     Components.interfaces.nsIClassInfo];
@@ -430,6 +513,8 @@ function (aIID) {
       !aIID.equals(Components.interfaces.nsIRequest) &&
       !aIID.equals(Components.interfaces.nsIChannel) &&
       !aIID.equals(Components.interfaces.nsIHttpChannel) &&
+      !aIID.equals(Components.interfaces.nsIHttpChannelInternal) &&
+      !aIID.equals(Components.interfaces.nsICachingChannel) &&
       !aIID.equals(Components.interfaces.nsIStreamListener) &&
       !aIID.equals(Components.interfaces.nsIRequestObserver) &&
       !aIID.equals(Components.interfaces.nsIClassInfo))
