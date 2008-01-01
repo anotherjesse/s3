@@ -16,101 +16,81 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://s3/skin/style.css"?>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html xmlns="http://www.w3.org/1999/xhtml"
+			xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
       xmlns:nc="http://home.netscape.com/NC-rdf#">
-      
+      <head>
   <script type="application/x-javascript" src="chrome://s3/content/sha1.js"/>
   <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"/>
   <script type="application/x-javascript" src="chrome://s3/content/accounts.js"/>
-  
+	 <style type="text/css"> 
+	body {
+	  padding: 10px 20px;
+	  background: #eee;
+	  font-family: Arial, Helvetica, sans-serif;
+	  font-size: 10px;
+	}
 
-  <toolbox class="plain">
-    <toolbar>
-      <menulist label="Choose Bucket">
-       <menupopup id="s3-buckets" 
-                  datasources="rdf:s3" 
-                  oncommand="s3.selectBucket(event.originalTarget.id)"
-                  ref="urn:buckets" 
-                  flags="dont-build-content">
-          <template>
-            <rule nc:type="bucket">
-              <menuitem uri="rdf:*" label="rdf:http://home.netscape.com/NC-rdf#name"/>
-            </rule>
-          </template>
-       </menupopup>
-      </menulist>
-      <toolbarbutton class="toolbarbutton-1" id="s3bar-refresh"
-                     label="Refresh" oncommand="s3.refresh()" 
-                     tooltiptext="Refresh Contents of Bucket" />
-      <spacer flex="1"/>
-      <toolbarbutton class="toolbarbutton-1" id="s3bar-setup"
-                     label="Setup" oncommand="s3.setup()" 
-                     tooltiptext="Change S3 Key/Secret Key" />
-    </toolbar>
-  </toolbox>
+	table {
+	  width: 100%;
+	}
+	
+	body {
+			background: #eee;
+			padding: 20px;
+		}
+		table {
+			padding: 20px;
+			background: #fff;
+		  -moz-border-radius: 10px;
+		  border: 1px solid #ddd;
+		  width: 100%;
+		}
 
-  <deck flex="1" id="s3-deck">
-    <vbox flex="1">
-      <label value="S3 Key" />
-      <textbox id="s3-key" />
-      <label value="S3 Secret Key" />
-      <textbox id="s3-secret-key" />
-      <button label="Save" oncommand="s3.save()" />
-    </vbox>
-    <vbox flex="1">
-      <tree id="s3-tree" 
-            flex="1" 
-            datasources="rdf:s3" 
-            ref="urn:root" 
-            flags="dont-build-content"
-            hidecolumnpicker="true"
-            contextmenu="s3ContentMenu"
-            ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver);"
-            onclick="return s3.onClick(event)">
-        <treecols>
-          <treecol id="name" label="Name" flex="1" primary="true" 
-                   class="sortDirectionIndicator"
-                   persist="width hidden ordinal"
-                   sort="rdf:http://home.netscape.com/NC-rdf#fileName"
-                   sortActive="true" sortDirection="none"/>
-          <splitter/>
-          <treecol id="size" label="Size (KB)" primary="true" 
-                   class="sortDirectionIndicator"
-                   persist="width hidden ordinal"
-                   sort="rdf:http://home.netscape.com/NC-rdf#size"
-                   sortActive="true" sortDirection="none"/>
-        </treecols>
+	tr th {
+	  text-align: left;
+	}
 
-        <template>
-          <rule>
-            <treechildren>
-              <treeitem uri="rdf:*">
-                <treerow>
-                  <treecell label="rdf:http://home.netscape.com/NC-rdf#fileName" />
-                  <treecell label="rdf:http://home.netscape.com/NC-rdf#size" />
-                </treerow>
-              </treeitem>
-            </treechildren>
-          </rule>
-        </template>
-      </tree>
-      <menupopup id="s3ContentMenu" onclick="event.stopPropagation();">
-        <menuitem oncommand="s3.copyLink()" label="Copy Link" />
-        <menuitem oncommand="s3.copyTorrent()" label="Copy Torrent Link" />
-        <menuseparator />
-        <menuitem oncommand="s3.deleteItem()" label="Delete" />
-      </menupopup>
-    </vbox>
-  </deck>
-  <vbox id="s3-uploads"
-        datasources="rdf:s3" 
-        ref="urn:uploads" 
-        flags="dont-build-content">
-    <template>
-      <rule nc:type="upload">
-        <label uri="rdf:*" value="rdf:http://home.netscape.com/NC-rdf#fileName" class="http://home.netscape.com/NC-rdf#status" />
-      </rule>
-    </template>
-  </vbox>
-</window>
+	tr:hover td {
+	  background: #eee;
+	}
+
+	td.actions a {
+	  padding: 0 4px;
+	  border: 1px solid #888;
+	  margin: 2px;
+	  text-decoration: none;
+	  color: #08f;
+	  background: #fff;
+	}
+
+	td.actions a:hover {
+	  color: #f00;
+	  border-color: black;
+	}
+	#files {
+	  background: #fff;
+	  padding: 5px 10px;
+	  -moz-border-radius: 10px;
+	  border: 1px solid #ddd;
+	}
+	  </style>
+</head>
+	<body>
+	<div>
+	      <span>S3 Key</span>
+	      <input type="text" id="s3-key" /><br/>
+	      <span>S3 Secret Key</span>
+	      <input type="password" id="s3-secret-key" />
+	      <input type="button" value="Save" onclick="s3_controller.save()" />
+	</div><br/>
+	
+	 <div id="files"></div> 
+	<script type="application/x-javascript"><![CDATA[
+	
+		var s3_controller = new s3Control();
+    s3_controller.setup();
+	]]></script>
+  </body>
+</html>
