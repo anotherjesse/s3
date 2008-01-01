@@ -36,7 +36,7 @@ function (URI) {
   var bucket = real.split('/')[2];
 
   if (bucket == '') {
-    var channel = ios.newChannel("chrome://s3/content/accounts.xul", null, null);
+    var channel = ios.newChannel("chrome://s3/content/accounts.html", null, null);
   }
   else {
     var key = real.slice(6+bucket.length);
@@ -91,8 +91,12 @@ function (aIID) {
 function s3Channel(aURI) {
   this._uri = aURI;
   this.originalURI = aURI;
+
   this._status = Components.results.NS_OK;
   this._pending = true;
+
+  this._subChannel = null;
+  this._notificationCallbacks = null;
 }
 
 s3Channel.prototype._onload =
@@ -160,7 +164,6 @@ function s3Channel_sendData(channel, data) {
 s3Channel.prototype.contentCharset = "utf-8";
 s3Channel.prototype.contentLength = -1;
 s3Channel.prototype.contentType = "text/html";
-s3Channel.prototype.notificationCallbacks = null;
 s3Channel.prototype.owner = null;
 s3Channel.prototype.securityInfo = null;
 s3Channel.prototype.sendStream =
@@ -171,6 +174,19 @@ function (stream, offset, length) {
 s3Channel.prototype.__defineGetter__("URI",
 function s3Channel_getter_URI() {
   return this._uri;
+});
+
+s3Channel.prototype.__defineGetter__("notificationCallbacks",
+function s3Channel_getter_notificationCallbacks() {
+  return this._notificationCallbacks;
+});
+
+s3Channel.prototype.__defineSetter__("notificationCallbacks",
+function s3Channel_getter_notificationCallbacks(aValue) {
+  this._notificationCallbacks = aValue;
+  if (this._subChannel) {
+    this._subChannel.notificationCallbacks = aValue;
+  }
 });
 
 s3Channel.prototype.asyncOpen =
@@ -186,7 +202,9 @@ function s3Channel_asyncOpen(aListener, aContext) {
                       .getService(Components.interfaces.nsIIOService);
   this._subChannel = ios.newChannel(url, null, null);
   this._subChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
-  
+
+  this._subChannel.notificationCallbacks = this.notificationCallbacks;
+
   s3_auth(this._subChannel, resource);
   
   this._subChannel.asyncOpen(this, null);
@@ -198,7 +216,7 @@ function s3_auth(channel, resource) {
     var KEY = PREFS.getCharPref('key');
     var SECRET_KEY = PREFS.getCharPref('secret_key');
 
-    var http_date = httpDate();
+    var http_date = (new Date()).toUTCString();
 
     var s = "GET\n\n\n" + http_date + "\n" + resource;
     var signature = hmacSHA1(s, SECRET_KEY);
@@ -371,56 +389,6 @@ function hmacSHA1(data, secret) {
     // TODO: use builtin crypto stuff
     return b64_hmac_sha1(secret, data)+'=';
 }
-
-// FIXME: seems like firefox might have this builtin?
-
-function httpDate(d) {
-    // Use now as default date/time.
-    if (!d) d = new Date();
-
-    // Date abbreviations.
-    var daysShort   = ["Sun", "Mon", "Tue", "Wed",
-                       "Thu", "Fri", "Sat"];
-    var monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-    // See: http://www.quirksmode.org/js/introdate.html#sol
-    function takeYear(theDate) {
-        var x = theDate.getYear();
-        var y = x % 100;
-        y += (y < 38) ? 2000 : 1900;
-        return y;
-    };
-
-    // Number padding function
-    function zeropad(num, sz) { 
-        return ( (sz - (""+num).length) > 0 ) ? 
-            arguments.callee("0"+num, sz) : num; 
-    };
-    
-    function gmtTZ(d) {
-        // Difference to Greenwich time (GMT) in hours
-        var os = Math.abs(d.getTimezoneOffset());
-        var h = ""+Math.floor(os/60);
-        var m = ""+(os%60);
-        h.length == 1? h = "0"+h:1;
-        m.length == 1? m = "0"+m:1;
-        return d.getTimezoneOffset() < 0 ? "+"+h+m : "-"+h+m;
-    };
-
-    var s;
-    s  = daysShort[d.getDay()] + ", ";
-    s += d.getDate() + " ";
-    s += monthsShort[d.getMonth()] + " ";
-    s += takeYear(d) + " ";
-    s += zeropad(d.getHours(), 2) + ":";
-    s += zeropad(d.getMinutes(), 2) + ":";
-    s += zeropad(d.getSeconds(), 2) + " ";
-    s += gmtTZ(d);
-
-    return s;
-}
-
 
 // FIXME: use firefox's built in crypto stuff
 
