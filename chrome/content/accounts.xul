@@ -87,6 +87,13 @@
 	</div><br/>
 	
 	 <div id="files"></div> 
+	
+	<br/>
+	<div id="bucket_adding">
+	Add a Bucket:<br/>
+		<label for="bucket_name">Bucket Name</label><input type="text" id="bucket_name"/><br/>
+		
+	</div>
 	<script type="application/x-javascript"><![CDATA[
 	
 		var s3_controller = new s3Control();

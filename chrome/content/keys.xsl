@@ -11,6 +11,7 @@
 			  <th align="left">Key</th>
 			  <th align="left">Last Modified</th>
 			  <th align="left">Size</th>
+			  <th align="left">Action</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -24,6 +25,9 @@
 				  <td><a><xsl:attribute name="href">/<xsl:value-of select="S3:Key"/></xsl:attribute><xsl:value-of select="S3:Key"/></a></td>
 				  <td><xsl:value-of select="S3:LastModified"/></td>
 				  <td><xsl:value-of select="S3:Size"/></td>
+				  <td><a href="#">
+					<xsl:attribute name="key"><xsl:value-of select="S3:Key"/></xsl:attribute>
+					<xsl:attribute name="onclick"><![CDATA[ if (confirm('Are you sure you want to delete ' + this.getAttribute('key') + '?')) { fm.delete( this ); } return false; ]]></xsl:attribute>[delete]</a></td>
 				</tr>
 			</xsl:for-each>
 		</tbody>

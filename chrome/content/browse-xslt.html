@@ -1,5 +1,27 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html
+<?xml version="1.0"?>
+<!--
+     Copyright Flock Inc. 2005-2006
+     http://flock.com
+     
+     This file may be used under the terms of of the
+     GNU General Public License Version 2 or later (the "GPL"),
+     http://www.gnu.org/licenses/gpl.html
+     
+     Software distributed under the License is distributed on an "AS IS" basis,
+     WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+     for the specific language governing rights and limitations under the
+     License.
+-->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://s3/skin/style.css"?>
+
+<html xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns:nc="http://home.netscape.com/NC-rdf#"
+			xmlns="http://www.w3.org/1999/xhtml" 
+	    ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver, true); event.stopPropagation();"
+	    ondragover="nsDragAndDrop.dragOver(event, s3DNDObserver); event.stopPropagation();">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"></script>
@@ -12,6 +34,12 @@
                       .getBranch('extension.s3.');
 
 
+			var $ = function(x) { return document.getElementById(x) };
+			var CC = Components.classes;
+			var CI = Components.interfaces;
+		  var htmlNS = "http://www.w3.org/1999/xhtml";
+			var bucket = "";
+			var prefix = "";
       function init() {
         try {
           
@@ -28,8 +56,8 @@
         var xslt = new XSLTProcessor();
         xslt.importStylesheet(req.responseXML);
 
-        var bucket = window.location.href.split('/')[2];
-        var prefix = window.location.href.slice(6+bucket.length);
+        bucket = window.location.href.split('/')[2];
+        prefix = window.location.href.slice(6+bucket.length);
         
         S3Ajax.listKeys(bucket, 
           {prefix: prefix, delimiter: '/'},
@@ -38,6 +66,38 @@
             document.body.appendChild(fragment);
           });
       }
+
+			function upload_this() {
+				var filename = $('upload_file').value;
+				var fileProtocol = CC["@mozilla.org/network/protocol;1?name=file"].createInstance(CI.nsIFileProtocolHandler);
+				var file = fileProtocol.getFileFromURLSpec("file://" + filename);
+			    var params = {};
+			    try {
+			      params.content_type = CC['@mozilla.org/mime;1'].createInstance(CI.nsIMIMEService).getTypeFromFile(file);
+			      // TODO: if this fails, we should do our own lookup ... instead of just defaulting to text/plain
+			    } catch(e) {};
+			    var tmpInputStream = CC["@mozilla.org/network/file-input-stream;1"].createInstance(CI.nsIFileInputStream);
+			    tmpInputStream.init(file, 1, 0644, 0);
+			    var tmpInputBufferStream = CC["@mozilla.org/network/buffered-input-stream;1"].createInstance(CI.nsIBufferedInputStream);
+			    tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
+			    S3Ajax.put(bucket, escape(file.leafName), tmpInputBufferStream, params, function() {
+			      var obj = {};
+			      var urn = 'http://s3.amazonaws.com/' + bucket + '/' + file.leafName;
+			      obj.size = Math.round(file.fileSize / 1024);
+			      obj.fileName = file.leafName;
+					});
+					window.location = window.location.href;
+			}
+
+			var fm = {
+			  delete: function(keyObj) {
+		      S3Ajax.deleteKey( bucket, keyObj.getAttribute('key'), function() {
+						// var rowNode = $(keyObj.getAttribute('key'));
+						// TODO - Remove the whole row
+		        keyObj.parentNode.parentNode.parentNode.removeChild( keyObj.parentNode.parentNode );
+		      } );
+		    },	
+			}
 
       document.title = window.location.href;
       window.onload = init;
@@ -56,5 +116,11 @@
   		}
   	</style>
   </head>
-  <body></body>
+  <body>
+  	<div align="center">
+			Add a File: <input type="file" id="upload_file"/>
+			<input type="button" id="upload_button" onclick="upload_this()" value=" Upload! (note - costs money)"/> 
+		</div>
+	</div>
+  </body>
 </html>
