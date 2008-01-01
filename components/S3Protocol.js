@@ -186,7 +186,7 @@ function s3_auth(channel, resource) {
     var KEY = PREFS.getCharPref('key');
     var SECRET_KEY = PREFS.getCharPref('secret_key');
 
-    var http_date = httpDate();
+    var http_date = (new Date()).toUTCString();
 
     var s = "GET\n\n\n" + http_date + "\n" + resource;
     var signature = hmacSHA1(s, SECRET_KEY);
@@ -359,56 +359,6 @@ function hmacSHA1(data, secret) {
     // TODO: use builtin crypto stuff
     return b64_hmac_sha1(secret, data)+'=';
 }
-
-// FIXME: seems like firefox might have this builtin?
-
-function httpDate(d) {
-    // Use now as default date/time.
-    if (!d) d = new Date();
-
-    // Date abbreviations.
-    var daysShort   = ["Sun", "Mon", "Tue", "Wed",
-                       "Thu", "Fri", "Sat"];
-    var monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-    // See: http://www.quirksmode.org/js/introdate.html#sol
-    function takeYear(theDate) {
-        var x = theDate.getYear();
-        var y = x % 100;
-        y += (y < 38) ? 2000 : 1900;
-        return y;
-    };
-
-    // Number padding function
-    function zeropad(num, sz) { 
-        return ( (sz - (""+num).length) > 0 ) ? 
-            arguments.callee("0"+num, sz) : num; 
-    };
-    
-    function gmtTZ(d) {
-        // Difference to Greenwich time (GMT) in hours
-        var os = Math.abs(d.getTimezoneOffset());
-        var h = ""+Math.floor(os/60);
-        var m = ""+(os%60);
-        h.length == 1? h = "0"+h:1;
-        m.length == 1? m = "0"+m:1;
-        return d.getTimezoneOffset() < 0 ? "+"+h+m : "-"+h+m;
-    };
-
-    var s;
-    s  = daysShort[d.getDay()] + ", ";
-    s += d.getDate() + " ";
-    s += monthsShort[d.getMonth()] + " ";
-    s += takeYear(d) + " ";
-    s += zeropad(d.getHours(), 2) + ":";
-    s += zeropad(d.getMinutes(), 2) + ":";
-    s += zeropad(d.getSeconds(), 2) + " ";
-    s += gmtTZ(d);
-
-    return s;
-}
-
 
 // FIXME: use firefox's built in crypto stuff
 
