@@ -121,12 +121,28 @@
   		  border: 1px solid #ddd;
   		  width: 100%;
   		}
+
+			.dark_row {
+				background-color:#efefef;
+			}
+			
+			.upload_label {
+				font-weight: bold;
+			}
+			
+			.upload_box {
+				padding: 10px;
+			}
+			
+			.upload_box input {
+				font-weight: bold;
+			}
   	</style>
   </head>
   <body>
-  	<div align="center" class="delete_button">
-			Add a File: <input type="file" id="upload_file"/>
-			<input type="button" id="upload_button" onclick="fm.upload()" value=" Upload! (note - costs money)"/> 
+  	<div class="delete_button upload_box">
+			<span class="upload_label">Add a File:</span> <input type="file" id="upload_file" size="45"/> &nbsp;
+			<input type="button" id="upload_button" onclick="fm.upload()" value=" Upload "/> 
 		</div>
 	</div>
   </body>
