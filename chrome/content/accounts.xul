@@ -16,39 +16,17 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://s3/skin/style.css"?>
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-      xmlns:nc="http://home.netscape.com/NC-rdf#"
-      ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver, true); event.stopPropagation();"
-      ondragover="nsDragAndDrop.dragOver(event, s3DNDObserver); event.stopPropagation();"
-onload="loadJS()">
+      xmlns:nc="http://home.netscape.com/NC-rdf#">
       
-  <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"/>
-  <script type="application/x-javascript" src="chrome://global/content/nsTransferable.js"/>
-  <script type="application/x-javascript" src="chrome://browser/content/utilityOverlay.js"/>
-  <script type="text/javascript"><![CDATA[ 
-
-    function loadJS() {
-      const loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-                               .getService(Components.interfaces.mozIJSSubScriptLoader);
-
-      var scripts = [
-          'chrome://s3/content/sha1.js', 
-          'chrome://s3/content/S3Ajax.js', 
-          'chrome://s3/content/sidebar.js', 
-        ];
-
-      for (var i = 0; i < scripts.length; i++) {
-        loader.loadSubScript(scripts[i], window);
-      }
-    }
-
-    window.addEventListener("load", loadJS, false);
-  ]]></script>
+  <script type="application/x-javascript" src="chrome://s3/content/sha1.js"/>
+  <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"/>
+  <script type="application/x-javascript" src="chrome://s3/content/accounts.js"/>
+  
 
   <toolbox class="plain">
     <toolbar>
-		<label>Choose Bucket</label>
       <menulist label="Choose Bucket">
        <menupopup id="s3-buckets" 
                   datasources="rdf:s3" 
@@ -135,4 +113,4 @@ onload="loadJS()">
       </rule>
     </template>
   </vbox>
-</page>
+</window>

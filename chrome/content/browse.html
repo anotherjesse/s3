@@ -1,3 +1,28 @@
+<?xml version="1.0"?>
+<!--
+     Copyright Flock Inc. 2005-2006
+     http://flock.com
+     
+     This file may be used under the terms of of the
+     GNU General Public License Version 2 or later (the "GPL"),
+     http://www.gnu.org/licenses/gpl.html
+     
+     Software distributed under the License is distributed on an "AS IS" basis,
+     WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+     for the specific language governing rights and limitations under the
+     License.
+-->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://s3/skin/style.css"?>
+
+<html xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns:nc="http://home.netscape.com/NC-rdf#"
+			xmlns="http://www.w3.org/1999/xhtml"
+      ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver, true); event.stopPropagation();"
+      ondragover="nsDragAndDrop.dragOver(event, s3DNDObserver); event.stopPropagation();"
+			onload="loadJS()">
 <html><head><title>File Manager</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <script type="text/javascript" src="chrome://s3/content/S3Ajax.js"></script>
@@ -197,5 +222,8 @@ td.actions a:hover {
   </head><body>
 
   <div id="files"></div>  
+	<div>
+  	<xul:hbox id="droptarget"></xul:hbox>
+	</div>
 
 </body></html>

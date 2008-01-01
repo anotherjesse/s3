@@ -20,7 +20,7 @@ function (URI) {
   var bucket = real.split('/')[2];
 
   if (bucket == '') {
-    var channel = ios.newChannel("chrome://s3/content/accounts.html", null, null);
+    var channel = ios.newChannel("chrome://s3/content/accounts.xul", null, null);
   }
   else {
     var key = real.slice(6+bucket.length);
