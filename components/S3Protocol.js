@@ -80,26 +80,16 @@ function s3Channel(aURI) {
   this._uri = aURI;
   this.originalURI = aURI;
 
-  this._status = Components.results.NS_OK;
-  this._pending = true;
+  var bucket = aURI.spec.split('/')[2];
+  var resource = '/' + bucket + '/' + aURI.spec.slice(6+bucket.length).split('?')[0];
+  var url = 'http://s3.amazonaws.com' + resource;
 
-  this._subChannel = null;
-  this._notificationCallbacks = null;
-}
+  var ios = Components.classes["@mozilla.org/network/io-service;1"]
+                      .getService(Components.interfaces.nsIIOService);
+  this._subChannel = ios.newChannel(url, null, null);
+  this._subChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
 
-s3Channel.prototype._onload =
-function s3Channel__onload(aEvent) {
-  if (aEvent.target.status == 200) {
-    this._redirectChannel(this._testURL);
-  } else {
-     this._redirectChannel("chrome://s3/content/browse-xslt.html");
-  }
-}
-
-s3Channel.prototype._onerror =
-function s3Channel__onerror(aEvent) {
-  // this.sendData('oooops!')
-  this._redirectChannel("chrome://s3/content/browse-xslt.html");
+  s3_auth(this._subChannel, resource);
 }
 
 s3Channel.prototype._redirectChannel =
@@ -121,60 +111,65 @@ function s3Channel__redirectChannel(aSpec) {
 /******************************************************************************
  * nsIChannel
  ******************************************************************************/
- 
-s3Channel.prototype.finish =
-function ()
-{
-   this.cancel(Components.results.NS_OK);
-}
- 
-s3Channel.prototype.sendData =
-function s3Channel_sendData(channel, data) {
-   var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-       .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-
-   converter.charset = 'UTF-8';
-
-   var convdata = converter.ConvertFromUnicode(data) + converter.Finish();
-
-   var stream = Components.classes["@mozilla.org/io/string-input-stream;1"]
-       .createInstance(Components.interfaces.nsIStringInputStream);
-
-   var len = convdata.length;
-   stream.setData(convdata, len);
-
-   this.sendStream(stream, 0, len);
-
-   this.finish();
-}
-
-
-s3Channel.prototype.contentCharset = "utf-8";
-s3Channel.prototype.contentLength = -1;
-s3Channel.prototype.contentType = "text/html";
-s3Channel.prototype.owner = null;
-s3Channel.prototype.securityInfo = null;
-s3Channel.prototype.sendStream =
-function (stream, offset, length) {
-    this._listener.onDataAvailable(this, this._context, stream, offset, length);
-}
 
 s3Channel.prototype.__defineGetter__("URI",
 function s3Channel_getter_URI() {
   return this._uri;
 });
 
+s3Channel.prototype.__defineGetter__("owner",
+function s3Channel_getter_owner() {
+  return this._subChannel.owner;
+});
+
+s3Channel.prototype.__defineSetter__("owner",
+function s3Channel_setter_owner(aValue) {
+  this._subChannel.owner = aValue;
+});
+
 s3Channel.prototype.__defineGetter__("notificationCallbacks",
 function s3Channel_getter_notificationCallbacks() {
-  return this._notificationCallbacks;
+  return this._subChannel.notificationCallbacks;
 });
 
 s3Channel.prototype.__defineSetter__("notificationCallbacks",
-function s3Channel_getter_notificationCallbacks(aValue) {
-  this._notificationCallbacks = aValue;
-  if (this._subChannel) {
-    this._subChannel.notificationCallbacks = aValue;
-  }
+function s3Channel_setter_notificationCallbacks(aValue) {
+  this._subChannel.notificationCallbacks = aValue;
+});
+
+s3Channel.prototype.__defineGetter__("securityInfo",
+function s3Channel_getter_securityInfo() {
+  return this._subChannel.securityInfo;
+});
+
+s3Channel.prototype.__defineGetter__("contentType",
+function s3Channel_getter_contentType() {
+  return this._subChannel.contentType;
+});
+
+s3Channel.prototype.__defineSetter__("contentType",
+function s3Channel_setter_contentType(aValue) {
+  this._subChannel.contentType = aValue;
+});
+
+s3Channel.prototype.__defineGetter__("contentCharset",
+function s3Channel_getter_contentCharset() {
+  return this._subChannel.contentCharset;
+});
+
+s3Channel.prototype.__defineSetter__("contentCharset",
+function s3Channel_setter_contentCharset(aValue) {
+  this._subChannel.contentCharset = aValue;
+});
+
+s3Channel.prototype.__defineGetter__("contentLength",
+function s3Channel_getter_contentLength() {
+  return this._subChannel.contentLength;
+});
+
+s3Channel.prototype.__defineSetter__("contentLength",
+function s3Channel_setter_contentLength(aValue) {
+  this._subChannel.contentLength = aValue;
 });
 
 s3Channel.prototype.asyncOpen =
@@ -182,19 +177,6 @@ function s3Channel_asyncOpen(aListener, aContext) {
   this._listener = aListener;
   this._context = aContext;
 
-  var bucket = this._uri.spec.split('/')[2];
-  var resource = '/' + bucket + '/' +this._uri.spec.slice(6+bucket.length).split('?')[0];
-  var url = 'http://s3.amazonaws.com' + resource;
-
-  var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                      .getService(Components.interfaces.nsIIOService);
-  this._subChannel = ios.newChannel(url, null, null);
-  this._subChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
-
-  this._subChannel.notificationCallbacks = this.notificationCallbacks;
-
-  s3_auth(this._subChannel, resource);
-  
   this._subChannel.asyncOpen(this, null);
   this._subChannel.originalURI = this._uri;
 }
@@ -208,8 +190,8 @@ function s3_auth(channel, resource) {
 
     var s = "GET\n\n\n" + http_date + "\n" + resource;
     var signature = hmacSHA1(s, SECRET_KEY);
-    channel.setRequestHeader("Date", http_date, false)
-    channel.setRequestHeader("Authorization", "AWS "+KEY+":"+signature, false)    
+    channel.setRequestHeader("Date", http_date, false);
+    channel.setRequestHeader("Authorization", "AWS "+KEY+":"+signature, false);
   } catch (ex) {
     // if the key or secret key isn't set, we don't need
     // to set any headers, make the call anonymously
@@ -222,11 +204,131 @@ function s3Channel_open() {
 }
 
 /******************************************************************************
+ * nsIHttpChannel
+ ******************************************************************************/
+
+s3Channel.prototype.__defineGetter__("requestMethod",
+function s3Channel_getter_requestMethod() {
+  return this._subChannel.requestMethod;
+});
+
+s3Channel.prototype.__defineSetter__("requestMethod",
+function s3Channel_setter_requestMethod(aValue) {
+  if (aValue == "GET" || aValue == "HEAD") {
+    this._subChannel.requestMethod = aValue;
+  } else {
+    throw Components.results.NS_ERROR_INVALID_ARG;
+  }
+});
+
+s3Channel.prototype.__defineGetter__("referrer",
+function s3Channel_getter_referrer() {
+  return this._subChannel.referrer;
+});
+
+s3Channel.prototype.__defineSetter__("referrer",
+function s3Channel_setter_referrer(aValue) {
+  this._subChannel.referrer = aValue;
+});
+
+s3Channel.prototype.__defineGetter__("allowPipelining",
+function s3Channel_getter_allowPipelining() {
+  return this._subChannel.allowPipelining;
+});
+
+s3Channel.prototype.__defineSetter__("allowPipelining",
+function s3Channel_setter_allowPipelining(aValue) {
+  this._subChannel.allowPipelining = aValue;
+});
+
+s3Channel.prototype.__defineGetter__("redirectionLimit",
+function s3Channel_getter_redirectionLimit() {
+  return this._subChannel.redirectionLimit;
+});
+
+s3Channel.prototype.__defineSetter__("redirectionLimit",
+function s3Channel_setter_redirectionLimit(aValue) {
+  this._subChannel.redirectionLimit = aValue;
+});
+
+s3Channel.prototype.__defineGetter__("responseStatus",
+function s3Channel_getter_responseStatus() {
+  return this._subChannel.responseStatus;
+});
+
+s3Channel.prototype.__defineGetter__("responseStatusText",
+function s3Channel_getter_responseStatusText() {
+  return this._subChannel.responseStatusText;
+});
+
+s3Channel.prototype.__defineGetter__("requestSucceeded",
+function s3Channel_getter_requestSucceeded() {
+  return this._subChannel.requestSucceeded;
+});
+
+s3Channel.prototype.getRequestHeader =
+function s3Channel_getRequestHeader(aHeader) {
+  return this._subChannel.getRequestHeader(aHeader);
+}
+
+s3Channel.prototype.setRequestHeader =
+function s3Channel_setRequestHeader(aHeader, aValue, aMerge) {
+  this._subChannel.setRequestHeader(aHeader, aValue, aMerge);
+}
+
+s3Channel.prototype.visitRequestHeaders =
+function s3Channel_visitRequestHeaders(aVisitor) {
+  this._subChannel.visitRequestHeaders(aVisitor);
+}
+
+s3Channel.prototype.getResponseHeader =
+function s3Channel_getResponseHeader(aHeader) {
+  return this._subChannel.getResponseHeader(aHeader);
+}
+
+s3Channel.prototype.setResponseHeader =
+function s3Channel_setResponseHeader(aHeader, aValue, aMerge) {
+  this._subChannel.setResponseHeader(aHeader, aValue, aMerge);
+}
+
+s3Channel.prototype.visitResponseHeaders =
+function s3Channel_visitResponseHeaders(aVisitor) {
+  this._subChannel.visitResponseHeaders(aVisitor);
+}
+
+s3Channel.prototype.isNoStoreResponse =
+function s3Channel_isNoStoreResponse() {
+  return this._subChannel.isNoStoreResponse();
+}
+
+s3Channel.prototype.isNoCacheResponse =
+function s3Channel_isNoCacheResponse() {
+  return this._subChannel.isNoCacheResponse();
+}
+
+/******************************************************************************
  * nsIRequest
  ******************************************************************************/
 
-s3Channel.prototype.loadGroup = null;
-s3Channel.prototype.loadFlags = 0;
+s3Channel.prototype.__defineGetter__("loadGroup",
+function s3Channel_getter_loadGroup() {
+  return this._subChannel.loadGroup;
+});
+
+s3Channel.prototype.__defineSetter__("loadGroup",
+function s3Channel_setter_loadGroup(aValue) {
+  this._subChannel.loadGroup = aValue;
+});
+
+s3Channel.prototype.__defineGetter__("loadFlags",
+function s3Channel_getter_loadFlags() {
+  return this._subChannel.loadFlags;
+});
+
+s3Channel.prototype.__defineSetter__("loadFlags",
+function s3Channel_setter_loadFlags(aValue) {
+  this._subChannel.loadFlags = aValue;
+});
 
 s3Channel.prototype.__defineGetter__("name",
 function s3Channel_getter_name() {
@@ -235,31 +337,27 @@ function s3Channel_getter_name() {
 
 s3Channel.prototype.__defineGetter__("status",
 function s3Channel_getter_status() {
-  return this._status;
+  return this._subChannel.status;
 });
 
 s3Channel.prototype.cancel =
 function s3Channel_cancel(status) {
-  if (this._pending) {
-    this._pending = false;
-    this._subChannel.cancel(status);
-  }
-  this._status = status;
+  this._subChannel.cancel(status);
 }
 
 s3Channel.prototype.isPending =
 function s3Channel_isPending() {
-  return this._pending;
+  return this._subChannel.isPending();
 }
 
 s3Channel.prototype.resume =
 function s3Channel_resume() {
-  throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+  this._subChannel.resume();
 }
 
 s3Channel.prototype.suspend =
 function s3Channel_suspend() {
-  throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+  this._subChannel.suspend();
 }
 
 /******************************************************************************
@@ -277,11 +375,9 @@ function s3Channel_onDataAvailable(aRequest, aContext, aInputStream, aOffset, aC
 
 s3Channel.prototype.onStartRequest =
 function s3Channel_onStartRequest(aRequest, aContext) {
-  if (this._subChannel instanceof Components.interfaces.nsIHttpChannel) {
-    if (this._subChannel.responseStatus == 200) {
-      this._listener.onStartRequest(aRequest, this._context);
-      return;
-    }
+  if (this._subChannel.responseStatus == 200) {
+    this._listener.onStartRequest(aRequest, this._context);
+    return;
   }
 
   this._redirectChannel("chrome://s3/content/browse-xslt.html");
@@ -290,7 +386,7 @@ function s3Channel_onStartRequest(aRequest, aContext) {
 s3Channel.prototype.onStopRequest =
 function s3Channel_onStopRequest(aRequest, aContext, aStatusCode) {
   if (this._listener) {
-    this._listener.onStopRequest(aRequest, this._context, aStatusCode);    
+    this._listener.onStopRequest(aRequest, this._context, aStatusCode);
   }
 }
 
@@ -300,7 +396,12 @@ function s3Channel_onStopRequest(aRequest, aContext, aStatusCode) {
 
 s3Channel.prototype.getInterfaces =
 function (aCount) {
-  var interfaces = [Components.interfaces.nsIChannel, Components.interfaces.nsIStreamListener, Components.interfaces.nsIRequestObserver, Components.interfaces.nsIClassInfo];
+  var interfaces = [Components.interfaces.nsIRequest,
+                    Components.interfaces.nsIChannel,
+                    Components.interfaces.nsIHttpChannel,
+                    Components.interfaces.nsIStreamListener,
+                    Components.interfaces.nsIRequestObserver,
+                    Components.interfaces.nsIClassInfo];
   aCount.value = interfaces.length;
   return interfaces;
 }
@@ -314,7 +415,9 @@ s3Channel.prototype.flags = null;
 s3Channel.prototype.QueryInterface =
 function (aIID) {
   if (!aIID.equals(Components.interfaces.nsISupports) &&
+      !aIID.equals(Components.interfaces.nsIRequest) &&
       !aIID.equals(Components.interfaces.nsIChannel) &&
+      !aIID.equals(Components.interfaces.nsIHttpChannel) &&
       !aIID.equals(Components.interfaces.nsIStreamListener) &&
       !aIID.equals(Components.interfaces.nsIRequestObserver) &&
       !aIID.equals(Components.interfaces.nsIClassInfo))
