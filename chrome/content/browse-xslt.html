@@ -36,7 +36,7 @@
 			var $ = function(x) { return document.getElementById(x) };
 			var CC = Components.classes;
 			var CI = Components.interfaces;
-
+			var snoop = null;
 			var fm = {
 				bucket: null,
 				prefix: null,
@@ -53,6 +53,10 @@
 		        var req = new XMLHttpRequest();
 		        req.open("GET", "chrome://s3/content/keys.xsl", false);
 		        req.send(null);
+						style = req.responseXML;
+						if (!S3Ajax.SECRET_KEY) {
+							document.body.setAttribute("unauth", true);
+						}
 		        var xslt = new XSLTProcessor();
 		        xslt.importStylesheet(req.responseXML);
 
@@ -63,6 +67,7 @@
 		        S3Ajax.listKeys(this.bucket, 
 		          {prefix: this.prefix, delimiter: '/'},
 		          function(req){
+								snoop = req;
 		            var fragment = xslt.transformToFragment(req.responseXML, document);
 		            document.body.appendChild(fragment);
 		          });
@@ -105,6 +110,11 @@
   			background: #eee;
   			padding: 20px;
   		}
+
+			body[unauth] .delete_button{
+				display: none;
+			}
+			
   		table {
   			padding: 20px;
   			background: #fff;
@@ -115,7 +125,7 @@
   	</style>
   </head>
   <body>
-  	<div align="center">
+  	<div align="center" class="delete_button">
 			Add a File: <input type="file" id="upload_file"/>
 			<input type="button" id="upload_button" onclick="fm.upload()" value=" Upload! (note - costs money)"/> 
 		</div>
