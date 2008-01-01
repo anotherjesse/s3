@@ -79,8 +79,12 @@ function (aIID) {
 function s3Channel(aURI) {
   this._uri = aURI;
   this.originalURI = aURI;
+
   this._status = Components.results.NS_OK;
   this._pending = true;
+
+  this._subChannel = null;
+  this._notificationCallbacks = null;
 }
 
 s3Channel.prototype._onload =
@@ -148,7 +152,6 @@ function s3Channel_sendData(channel, data) {
 s3Channel.prototype.contentCharset = "utf-8";
 s3Channel.prototype.contentLength = -1;
 s3Channel.prototype.contentType = "text/html";
-s3Channel.prototype.notificationCallbacks = null;
 s3Channel.prototype.owner = null;
 s3Channel.prototype.securityInfo = null;
 s3Channel.prototype.sendStream =
@@ -159,6 +162,19 @@ function (stream, offset, length) {
 s3Channel.prototype.__defineGetter__("URI",
 function s3Channel_getter_URI() {
   return this._uri;
+});
+
+s3Channel.prototype.__defineGetter__("notificationCallbacks",
+function s3Channel_getter_notificationCallbacks() {
+  return this._notificationCallbacks;
+});
+
+s3Channel.prototype.__defineSetter__("notificationCallbacks",
+function s3Channel_getter_notificationCallbacks(aValue) {
+  this._notificationCallbacks = aValue;
+  if (this._subChannel) {
+    this._subChannel.notificationCallbacks = aValue;
+  }
 });
 
 s3Channel.prototype.asyncOpen =
@@ -176,7 +192,7 @@ function s3Channel_asyncOpen(aListener, aContext) {
   this._subChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
 
   this._subChannel.notificationCallbacks = this.notificationCallbacks;
-  
+
   s3_auth(this._subChannel, resource);
   
   this._subChannel.asyncOpen(this, null);
