@@ -9,9 +9,6 @@
         http://pajhome.org.uk/crypt/md5/sha1.js
 */
 
-
-// TODO: Figure out if Safari doesn't support PUT and DELETE
-
 S3Ajax = {
 
     // Defeat caching with query params on GET requests?
@@ -19,13 +16,13 @@ S3Ajax = {
 
     // Default ACL to use when uploading keys.
     DEFAULT_ACL: 'public-read',
-    
+
     // Default content-type to use in uploading keys.
     DEFAULT_CONTENT_TYPE: 'text/plain',
 
     /**
-        DANGER WILL ROBINSON - Do NOT fill in your KEY_ID and SECRET_KEY 
-        here.  These should be supplied by client-side code, and not 
+        DANGER WILL ROBINSON - Do NOT fill in your KEY_ID and SECRET_KEY
+        here.  These should be supplied by client-side code, and not
         stored in any server-side files.  Failure to protect your S3
         credentials will result in surly people doing nasty things
         on your tab.
@@ -78,7 +75,7 @@ S3Ajax = {
         Put data into a key in a bucket.
     */
     put: function(bucket, key, content, params, cb, err_cb) {
-        if (!params.content_type) 
+        if (!params.content_type)
             params.content_type = this.DEFAULT_CONTENT_TYPE;
         if (!params.acl)
             params.acl = this.DEFAULT_ACL;
@@ -104,10 +101,10 @@ S3Ajax = {
         List buckets belonging to the account.
     */
     listBuckets: function(cb, err_cb) {
-        return this.httpClient({ 
-            method:'GET', resource:'/', 
+        return this.httpClient({
+            method:'GET', resource:'/',
             force_lists: [ 'ListAllMyBucketsResult.Buckets.Bucket' ],
-            load: cb, error:err_cb 
+            load: cb, error:err_cb
         });
     },
 
@@ -115,8 +112,8 @@ S3Ajax = {
         Create a new bucket for this account.
     */
     createBucket: function(bucket, cb, err_cb) {
-        return this.httpClient({ 
-            method:'PUT', resource:'/'+bucket, load:cb, error:err_cb 
+        return this.httpClient({
+            method:'PUT', resource:'/'+bucket, load:cb, error:err_cb
         });
     },
 
@@ -124,8 +121,8 @@ S3Ajax = {
         Delete an empty bucket.
     */
     deleteBucket: function(bucket, cb, err_cb) {
-        return this.httpClient({ 
-            method:'DELETE', resource:'/'+bucket, load:cb, error:err_cb 
+        return this.httpClient({
+            method:'DELETE', resource:'/'+bucket, load:cb, error:err_cb
         });
     },
 
@@ -134,7 +131,7 @@ S3Ajax = {
     */
     listKeys: function(bucket, params, cb, err_cb) {
         return this.httpClient({
-            method:'GET', resource: '/'+bucket, 
+            method:'GET', resource: '/'+bucket,
             force_lists: [ 'ListBucketResult.Contents' ],
             params:params, load:cb, error:err_cb
         });
@@ -155,11 +152,11 @@ S3Ajax = {
     */
     deleteKeys: function(bucket, list, one_cb, all_cb) {
         var _this = this;
-        
+
         // If the list is empty, then fire off the callback.
         if (!list.length && all_cb) return all_cb();
 
-        // Fire off key deletion with a callback to delete the 
+        // Fire off key deletion with a callback to delete the
         // next part of list.
         var key = list.shift();
         this.deleteKey(bucket, key, function() {
@@ -173,7 +170,7 @@ S3Ajax = {
     */
     httpClient: function(kwArgs) {
         var _this = this;
-        
+
         // If need to defeat cache, toss in a date param on GET.
         if (this.DEFEAT_CACHE && ( kwArgs.method == "GET" || kwArgs.method == "HEAD" ) ) {
             if (!kwArgs.params) kwArgs.params = {};
@@ -186,7 +183,7 @@ S3Ajax = {
         var hdrs = {};
 
         // Handle Content-Type header
-        if (!kwArgs.content_type && kwArgs.method == 'PUT') 
+        if (!kwArgs.content_type && kwArgs.method == 'PUT')
             kwArgs.content_type = 'text/plain';
         if (kwArgs.content_type)
             hdrs['Content-Type'] = kwArgs.content_type;
@@ -194,7 +191,7 @@ S3Ajax = {
             kwArgs.content_type = '';
 
         // Set the timestamp for this request.
-        var http_date = this.httpDate();
+        var http_date = (new Date()).toUTCString();
         hdrs['Date']  = http_date;
 
         var content_MD5 = '';
@@ -205,7 +202,7 @@ S3Ajax = {
             hdrs['x-amz-acl'] = kwArgs.acl;
             acl_header_to_sign = "x-amz-acl:"+kwArgs.acl+"\n";
         }
-        
+
         // Handle the metadata headers
         var meta_to_sign = '';
         if (kwArgs.meta) {
@@ -219,7 +216,7 @@ S3Ajax = {
         if (kwArgs['anonymous'] != true && this.KEY_ID && this.SECRET_KEY) {
 
             // Build the string to sign for authentication.
-            var s; 
+            var s;
             s  = kwArgs.method + "\n";
             s += content_MD5 + "\n";
             s += kwArgs.content_type + "\n";
@@ -250,7 +247,7 @@ S3Ajax = {
                     window._lastreq = req;
                     window._lastobj = obj;
                 }
-                
+
                 // Dispatch to appropriate handler callback
                 if ( (req.status >= 400 || (obj && obj.Error) ) && kwArgs.error)
                     return kwArgs.error(req, obj);
@@ -264,7 +261,7 @@ S3Ajax = {
     },
 
     /**
-        Turn a simple structure of nested XML elements into a 
+        Turn a simple structure of nested XML elements into a
         JavaScript object.
 
         TODO: Handle attributes?
@@ -275,7 +272,7 @@ S3Ajax = {
         var is_struct = false;
 
         for(var i=0,node; node=parent.childNodes[i]; i++) {
-            if (3 == node.nodeType) { 
+            if (3 == node.nodeType) {
                 cdata += node.nodeValue;
             } else {
                 is_struct = true;
@@ -314,69 +311,12 @@ S3Ajax = {
         // TODO: Alternate Dojo implementation?
         return b64_hmac_sha1(secret, data)+'=';
     },
-    
-    /**
-        Return a date formatted appropriately for HTTP Date header.
-        Inspired by: http://www.svendtofte.com/code/date_format/
-
-        TODO: Should some/all of this go into common.js?
-    */
-    httpDate: function(d) {
-        // Use now as default date/time.
-        if (!d) d = new Date();
-
-        // Date abbreviations.
-        var daysShort   = ["Sun", "Mon", "Tue", "Wed",
-                           "Thu", "Fri", "Sat"];
-        var monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-        // See: http://www.quirksmode.org/js/introdate.html#sol
-        function takeYear(theDate) {
-            var x = theDate.getYear();
-            var y = x % 100;
-            y += (y < 38) ? 2000 : 1900;
-            return y;
-        };
-
-        // Number padding function
-        function zeropad(num, sz) { 
-            return ( (sz - (""+num).length) > 0 ) ? 
-                arguments.callee("0"+num, sz) : num; 
-        };
-        
-        function gmtTZ(d) {
-            // Difference to Greenwich time (GMT) in hours
-            var os = Math.abs(d.getTimezoneOffset());
-            var h = ""+Math.floor(os/60);
-            var m = ""+(os%60);
-            h.length == 1? h = "0"+h:1;
-            m.length == 1? m = "0"+m:1;
-            return d.getTimezoneOffset() < 0 ? "+"+h+m : "-"+h+m;
-        };
-
-        var s;
-        s  = daysShort[d.getDay()] + ", ";
-        s += d.getDate() + " ";
-        s += monthsShort[d.getMonth()] + " ";
-        s += takeYear(d) + " ";
-        s += zeropad(d.getHours(), 2) + ":";
-        s += zeropad(d.getMinutes(), 2) + ":";
-        s += zeropad(d.getSeconds(), 2) + " ";
-        s += gmtTZ(d);
-
-        return s;
-    },
-
-    /* Help protect against errant end-commas */
-    EOF: null
-
 };
 
-    // Swiped from MochiKit
-    function queryString(params) {
-        var l = [];
-        for (k in params) 
-            l.push(k+'='+encodeURIComponent(params[k]))
-        return l.join("&");
-    }
+// Swiped from MochiKit
+function queryString(params) {
+    var l = [];
+    for (k in params)
+        l.push(k+'='+encodeURIComponent(params[k]))
+    return l.join("&");
+}
