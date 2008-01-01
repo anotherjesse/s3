@@ -1,3 +1,5 @@
+// Copyright Jesse Andrews, 2005-2007
+// http://overstimulate.com
 // 
 // This file may be used under the terms of of the
 // GNU General Public License Version 2 or later (the "GPL"),

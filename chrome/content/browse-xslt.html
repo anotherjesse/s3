@@ -1,5 +1,27 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html
+<?xml version="1.0"?>
+<!--
+     Copyright Jesse Andrews, 2005-2007
+     http://overstimulate.com
+     
+     This file may be used under the terms of of the
+     GNU General Public License Version 2 or later (the "GPL"),
+     http://www.gnu.org/licenses/gpl.html
+     
+     Software distributed under the License is distributed on an "AS IS" basis,
+     WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+     for the specific language governing rights and limitations under the
+     License.
+-->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://s3/skin/style.css"?>
+
+<html xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns:nc="http://home.netscape.com/NC-rdf#"
+			xmlns="http://www.w3.org/1999/xhtml" 
+	    ondragdrop="nsDragAndDrop.drop(event, s3DNDObserver, true); event.stopPropagation();"
+	    ondragover="nsDragAndDrop.dragOver(event, s3DNDObserver); event.stopPropagation();">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"></script>
@@ -11,36 +33,72 @@
                       .getService(Components.interfaces.nsIPrefService)
                       .getBranch('extension.s3.');
 
+			var $ = function(x) { return document.getElementById(x) };
+			var CC = Components.classes;
+			var CI = Components.interfaces;
 
-      function init() {
-        try {
-          
-          S3Ajax.KEY_ID = PREFS.getCharPref('key');
-          S3Ajax.SECRET_KEY = PREFS.getCharPref('secret_key');          
-        } catch (e) {
-          // if the keys aren't set proceed without them
-          // S3Ajax will do anonymous calls
-        }
-        
-        var req = new XMLHttpRequest();
-        req.open("GET", "chrome://s3/content/keys.xsl", false);
-        req.send(null);
-        var xslt = new XSLTProcessor();
-        xslt.importStylesheet(req.responseXML);
+			var fm = {
+				bucket: null,
+				prefix: null,
+				 init: function() {
+		        try {
 
-        var bucket = window.location.href.split('/')[2];
-        var prefix = window.location.href.slice(6+bucket.length);
-        
-        S3Ajax.listKeys(bucket, 
-          {prefix: prefix, delimiter: '/'},
-          function(req){
-            var fragment = xslt.transformToFragment(req.responseXML, document);
-            document.body.appendChild(fragment);
-          });
-      }
+		          S3Ajax.KEY_ID = PREFS.getCharPref('key');
+		          S3Ajax.SECRET_KEY = PREFS.getCharPref('secret_key');          
+		        } catch (e) {
+		          // if the keys aren't set proceed without them
+		          // S3Ajax will do anonymous calls
+		        }
 
+		        var req = new XMLHttpRequest();
+		        req.open("GET", "chrome://s3/content/keys.xsl", false);
+		        req.send(null);
+		        var xslt = new XSLTProcessor();
+		        xslt.importStylesheet(req.responseXML);
+
+		        this.bucket = window.location.href.split('/')[2];
+		        this.prefix = window.location.href.slice(6+bucket.length);
+						var inst = this;
+						
+		        S3Ajax.listKeys(this.bucket, 
+		          {prefix: this.prefix, delimiter: '/'},
+		          function(req){
+		            var fragment = xslt.transformToFragment(req.responseXML, document);
+		            document.body.appendChild(fragment);
+		          });
+		      },
+		
+			  delete: function(keyObj) {
+		      S3Ajax.deleteKey( this.bucket, keyObj.getAttribute('key'), function() {
+		        keyObj.parentNode.parentNode.parentNode.removeChild( keyObj.parentNode.parentNode );
+		      } );
+		    },
+			
+				upload: function() {
+					var filename = $('upload_file').value;
+					var fileProtocol = CC["@mozilla.org/network/protocol;1?name=file"].createInstance(CI.nsIFileProtocolHandler);
+					var file = fileProtocol.getFileFromURLSpec("file://" + filename);
+				  var params = {};
+			    try {
+			      params.content_type = CC['@mozilla.org/mime;1'].createInstance(CI.nsIMIMEService).getTypeFromFile(file);
+			      // TODO: if this fails, we should do our own lookup ... instead of just defaulting to text/plain
+			    } catch(e) {};
+			    var tmpInputStream = CC["@mozilla.org/network/file-input-stream;1"].createInstance(CI.nsIFileInputStream);
+			    tmpInputStream.init(file, 1, 0644, 0);
+			    var tmpInputBufferStream = CC["@mozilla.org/network/buffered-input-stream;1"].createInstance(CI.nsIBufferedInputStream);
+			    tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
+					var inst = this;
+			    S3Ajax.put(this.bucket, escape(file.leafName), tmpInputBufferStream, params, function() {
+			      var obj = {};
+			      var urn = 'http://s3.amazonaws.com/' + inst.bucket + '/' + file.leafName;
+			      obj.size = Math.round(file.fileSize / 1024);
+			      obj.fileName = file.leafName;
+					});
+					window.location = window.location.href;
+				}
+			}
       document.title = window.location.href;
-      window.onload = init;
+      window.onload = fm.init;
     </script>
   	<style>
   		body {
@@ -56,5 +114,11 @@
   		}
   	</style>
   </head>
-  <body></body>
+  <body>
+  	<div align="center">
+			Add a File: <input type="file" id="upload_file"/>
+			<input type="button" id="upload_button" onclick="fm.upload()" value=" Upload! (note - costs money)"/> 
+		</div>
+	</div>
+  </body>
 </html>
