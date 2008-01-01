@@ -1,3 +1,15 @@
+// Copyright Jesse Andrews, 2005-2007
+// http://overstimulate.com
+// 
+// This file may be used under the terms of of the
+// GNU General Public License Version 2 or later (the "GPL"),
+// http://www.gnu.org/licenses/gpl.html
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+// for the specific language governing rights and limitations under the
+// License.
+
 const CLASS_ID    = Components.ID("{363b503c-a2f6-11dc-8314-0800200c9a66}");
 const CLASS_NAME  = "S3 Protocol Handler";
 const CONTRACT_ID = "@mozilla.org/network/protocol;1?name=s3";
