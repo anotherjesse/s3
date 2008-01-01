@@ -12,7 +12,6 @@
 	var $ = function(x) { return document.getElementById(x) };
 	var CC = Components.classes;
 	var CI = Components.interfaces;
-  var htmlNS = "http://www.w3.org/1999/xhtml";
 	
 	function s3Control() {
 		var inst = this;
@@ -22,7 +21,7 @@
 		this.save = function() {
 	    PREFS.setCharPref('key', $('s3-key').value);
 	    PREFS.setCharPref('secret_key', $('s3-secret-key').value);
-	    // inst.load();
+	    inst.load();
 	  }
 
 	  this.load = function() {
@@ -43,41 +42,21 @@
 	  }
 	  
 	  this.addDir = function( dirname ) {
-      var tr=document.createElementNS(htmlNS, 'tr');
+      var tr=document.createElement('tr');
       tr.setAttribute('id', dirname);
 
-      var td=document.createElementNS(htmlNS, 'td');
-      var a=document.createElementNS(htmlNS, 'a');
+      var td=document.createElement('td');
+      var a=document.createElement('a');
       a.appendChild( document.createTextNode( dirname ));
       a.setAttribute("href", "s3://" + dirname);
       td.appendChild( a );
       tr.appendChild( td );
 
-      $('keys').appendChild( tr );
+      $('buckets').appendChild( tr );
     }
 	
     this.list = function() {
-      while ($('files').hasChildNodes()) 
-        $('files').removeChild( $('files').lastChild );
-
-      var table = document.createElementNS(htmlNS, 'table');
-      table.setAttribute('id', 'keys');
-      var tr = document.createElementNS(htmlNS, 'tr');
-      var th = document.createElementNS(htmlNS, 'th');
-      th.appendChild( document.createTextNode('Key') );
-      tr.appendChild( th );
-      var th = document.createElementNS(htmlNS, 'th');
-      th.appendChild( document.createTextNode('Last Modified') );
-      tr.appendChild( th );
-      var th = document.createElementNS(htmlNS, 'th');
-      th.appendChild( document.createTextNode('Size') );
-      tr.appendChild( th );
-      var th = document.createElementNS(htmlNS, 'th');
-      th.appendChild( document.createTextNode('Actions') );
-      tr.appendChild( th );
-      
-      table.appendChild(tr);
-      $('files').appendChild( table );
+      $('buckets').innerHTML = '';
 
       S3Ajax.listBuckets(
         function(xml, objs) {

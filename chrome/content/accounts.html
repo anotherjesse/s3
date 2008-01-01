@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+			xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns:nc="http://home.netscape.com/NC-rdf#">
+      <head>
+  <script type="application/x-javascript" src="chrome://s3/content/sha1.js"></script>
+  <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"></script>
+  <script type="application/x-javascript" src="chrome://s3/content/accounts.js"></script>
+  <style type="text/css"> 
+	body {
+	  padding: 10px 20px;
+	  background: #eee;
+	  font-family: Arial, Helvetica, sans-serif;
+	  font-size: 10px;
+	}
+
+	table {
+	  width: 100%;
+    margin-top: 20px;
+		padding: 20px;
+		background: #fff;
+	  -moz-border-radius: 10px;
+	  border: 1px solid #ddd;
+	}
+
+	tr th {
+	  text-align: left;
+	}
+
+	tr:hover td {
+	  background: #eee;
+	}
+
+	td.actions a {
+	  padding: 0 4px;
+	  border: 1px solid #888;
+	  margin: 2px;
+	  text-decoration: none;
+	  color: #08f;
+	  background: #fff;
+	}
+
+	td.actions a:hover {
+	  color: #f00;
+	  border-color: black;
+	}
+</style>
+
+</head>
+<body>
+	<div id="account">
+    <span>S3 Key</span>
+    <input type="text" id="s3-key" /><br/>
+    <span>S3 Secret Key</span>
+    <input type="password" id="s3-secret-key" />
+    <input type="button" value="Save" onclick="s3_controller.save()" />
+	</div>
+
+	<table id="buckets"></table> 
+
+  <p>Built by <a href="http://overstimulate.com">Jesse Andrews</a></p>
+
+	<script type="application/x-javascript">
+		var s3_controller = new s3Control();
+    s3_controller.setup();
+	</script>
+</body>
+</html>
