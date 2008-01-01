@@ -1,5 +1,0 @@
-<?xml-stylesheet href="chrome://s3/skin/toolbarbutton.css"?>
-
-<overlay id="s3Overlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-</overlay>

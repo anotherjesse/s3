@@ -1,8 +1,109 @@
-<html>
-  <head>
-    <title>S3 Accounts/Buckets</title>
-  </head>
-  <body>
-    code me
-  </body>
+<?xml version="1.0"?>
+<!--
+     Copyright Jesse Andrews, 2005-2007
+     http://overstimulate.com
+
+     This file may be used under the terms of of the
+     GNU General Public License Version 2 or later (the "GPL"),
+     http://www.gnu.org/licenses/gpl.html
+
+     Software distributed under the License is distributed on an "AS IS" basis,
+     WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+     for the specific language governing rights and limitations under the
+     License.
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+			xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns:nc="http://home.netscape.com/NC-rdf#">
+      <head>
+  <script type="application/x-javascript" src="chrome://s3/content/sha1.js"></script>
+  <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"></script>
+  <script type="application/x-javascript" src="chrome://s3/content/accounts.js"></script>
+  <style type="text/css"> 
+	body {
+	  padding: 10px 20px;
+	  background: #eee;
+	  font-family: Arial, Helvetica, sans-serif;
+	  font-size: 10px;
+	}
+
+	table {
+	  width: 100%;
+		padding: 20px;
+		background: #fff;
+	  -moz-border-radius: 10px;
+	  border: 1px solid #ddd;
+	}
+
+	tr th {
+	  text-align: left;
+	}
+
+  #account {
+    border: 1px solid #333;
+    width: 400px;
+    margin: 0 auto;
+  }
+
+  #account label {
+    font-weight: bold;
+    font-size: 1.25em;
+    width: 150px;
+    padding-right: 10px;
+    text-align: right;
+    display: block;
+    float: left;
+  }
+
+  #account div {
+    padding-bottom: 10px;
+  }
+</style>
+
+</head>
+<body>
+  <h1>S3 Browser</h1>
+  <br />
+  <br />
+  <br />
+	<div id="account" style="display:none">
+    <div>
+      <label>&nbsp;</label>
+      <h2>Your Amazon Access Keys</h2>
+    </div>
+    <div>
+      <label>AWS Access Key</label>
+      <input type="text" id="s3-key" />
+    </div>
+    <div>
+      <label>S3 Secret Key</label>
+      <input type="password" id="s3-secret-key" />
+    </div>
+    <div>
+      <label>&nbsp;</label>
+      <input type="button" value="Save" onclick="s3_controller.save()" />
+    </div>
+	</div>
+
+
+  <h2>Your S3 Buckets</h2>
+	<table id="buckets"></table> 
+
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <a href="#" id="setup" onclick="setkeys(); return false">Setup S3 Credentials</a>
+
+	<script type="application/x-javascript">
+    function setkeys() {
+      document.getElementById('account').style.display='block';
+    }
+
+		var s3_controller = new s3Control();
+    s3_controller.setup();
+	</script>
+</body>
 </html>

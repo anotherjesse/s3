@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
-     Copyright Flock Inc. 2005-2007
-     http://flock.com
+     Copyright Jesse Andrews, 2005-2007
+     http://overstimulate.com
      
      This file may be used under the terms of of the
      GNU General Public License Version 2 or later (the "GPL"),
@@ -18,32 +18,10 @@
 <overlay id="s3Overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <keyset id="mainKeyset">
-    <key id="key_s3OpenSidebar" oncommand="toggleSidebar('s3SidebarBroadcaster')" modifiers="accel shift" key="m" />
-  </keyset>
-
-  <broadcasterset id="mainBroadcasterSet">
-      <broadcaster id="s3SidebarBroadcaster"
-                   autoCheck="false"
-                   label="S3 Storage"
-                   tooltiptext="Amazon S3 File Storage"
-                   type="checkbox"
-                   group="sidebar"
-                   sidebarurl="chrome://s3/content/sidebar.xul"
-                   sidebartitle="S3 Sidebar"
-                   oncommand="toggleSidebar('s3SidebarBroadcaster')"/>
-  </broadcasterset>
-
-  <toolbarpalette id="BrowserToolbarPalette">
-    <toolbarbutton id="s3-toolbarbutton"
-      label="S3 Sidebar"
-      tooltiptext="Toggle S3 Sidebar"
-      oncommand="toggleSidebar('s3SidebarBroadcaster')"
-      class="toolbarbutton-1 chromeclass-toolbar-additional custombutton"
-      />
-  </toolbarpalette>
-
-  <menupopup id="viewSidebarMenu">
-    <menuitem observes="s3SidebarBroadcaster"/>
+  <menupopup id="menu_ToolsPopup">
+    <menuitem id="s3-base-menuitem"
+            oncommand="openUILink('s3:///', event, false, true);"
+            onclick="checkForMiddleClick(this, event);"
+            label="Open S3"/>
   </menupopup>
 </overlay>
