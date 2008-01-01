@@ -2,11 +2,11 @@
 <!--
      Copyright Jesse Andrews, 2005-2007
      http://overstimulate.com
-     
+
      This file may be used under the terms of of the
      GNU General Public License Version 2 or later (the "GPL"),
      http://www.gnu.org/licenses/gpl.html
-     
+
      Software distributed under the License is distributed on an "AS IS" basis,
      WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
      for the specific language governing rights and limitations under the
@@ -37,29 +37,26 @@
       var fm = {
          init: function() {
             try {
-
               S3Ajax.KEY_ID = PREFS.getCharPref('key');
-              S3Ajax.SECRET_KEY = PREFS.getCharPref('secret_key');          
+              S3Ajax.SECRET_KEY = PREFS.getCharPref('secret_key');
+              document.body.removeAttribute("unauth");
             } catch (e) {
               // if the keys aren't set proceed without them
               // S3Ajax will do anonymous calls
+              document.body.setAttribute("unauth", true);
             }
 
             var req = new XMLHttpRequest();
             req.open("GET", "chrome://s3/content/keys.xsl", false);
             req.send(null);
-            style = req.responseXML;
-            if (!S3Ajax.SECRET_KEY) {
-              document.body.setAttribute("unauth", true);
-            }
+
             var xslt = new XSLTProcessor();
             xslt.importStylesheet(req.responseXML);
 
             bucket = window.location.href.split('/')[2];
             prefix = window.location.href.slice(6+bucket.length);
-            var inst = this;
-            
-            S3Ajax.listKeys(bucket, 
+
+            S3Ajax.listKeys(bucket,
               {prefix: prefix, delimiter: '/'},
               function(req){
                 snoop = req;
@@ -67,13 +64,13 @@
                 document.body.appendChild(fragment);
               });
           },
-    
+
         delete: function(keyObj) {
           S3Ajax.deleteKey( bucket, keyObj.getAttribute('key'), function() {
             keyObj.parentNode.parentNode.parentNode.removeChild( keyObj.parentNode.parentNode );
           } );
         },
-      
+
         upload: function() {
           var filename = $('upload_file').value;
           var fileProtocol = CC["@mozilla.org/network/protocol;1?name=file"].createInstance(CI.nsIFileProtocolHandler);
@@ -87,16 +84,12 @@
           tmpInputStream.init(file, 1, 0644, 0);
           var tmpInputBufferStream = CC["@mozilla.org/network/buffered-input-stream;1"].createInstance(CI.nsIBufferedInputStream);
           tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
-          var inst = this;
           S3Ajax.put(bucket, escape(file.leafName), tmpInputBufferStream, params, function() {
-            var obj = {};
-            var urn = 'http://s3.amazonaws.com/' + bucket + '/' + file.leafName;
-            obj.size = Math.round(file.fileSize / 1024);
-            obj.fileName = file.leafName;
+            // FIXME: relist the keys
           });
-          window.location = window.location.href;
         }
       }
+
       document.title = window.location.href;
       window.onload = fm.init;
     </script>
@@ -109,7 +102,7 @@
       body[unauth] .delete_button{
         display: none;
       }
-      
+
       table {
         padding: 20px;
         background: #fff;
@@ -121,15 +114,15 @@
       .dark_row {
         background-color:#efefef;
       }
-      
+
       .upload_label {
         font-weight: bold;
       }
-      
+
       .upload_box {
         padding: 10px;
       }
-      
+
       .upload_box input {
         font-weight: bold;
       }
@@ -138,7 +131,7 @@
   <body>
     <div class="delete_button upload_box">
       <span class="upload_label">Add a File:</span> <input type="file" id="upload_file" size="45"/> &nbsp;
-      <input type="button" id="upload_button" onclick="fm.upload()" value=" Upload "/> 
+      <input type="button" id="upload_button" onclick="fm.upload()" value=" Upload "/>
     </div>
   </div>
   </body>
