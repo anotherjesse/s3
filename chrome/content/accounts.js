@@ -24,6 +24,7 @@
 	    PREFS.setCharPref('key', $('s3-key').value);
 	    PREFS.setCharPref('secret_key', $('s3-secret-key').value);
 	    inst.load();
+      $('account').style.display = 'none';
 	  }
 
 	  this.load = function() {
