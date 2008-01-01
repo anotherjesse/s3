@@ -36,10 +36,9 @@
 			var $ = function(x) { return document.getElementById(x) };
 			var CC = Components.classes;
 			var CI = Components.interfaces;
-			var snoop = null;
+			var bucket = null;
+			var prefix = null;
 			var fm = {
-				bucket: null,
-				prefix: null,
 				 init: function() {
 		        try {
 
@@ -60,12 +59,12 @@
 		        var xslt = new XSLTProcessor();
 		        xslt.importStylesheet(req.responseXML);
 
-		        this.bucket = window.location.href.split('/')[2];
-		        this.prefix = window.location.href.slice(6+bucket.length);
+		        bucket = window.location.href.split('/')[2];
+		        prefix = window.location.href.slice(6+bucket.length);
 						var inst = this;
 						
-		        S3Ajax.listKeys(this.bucket, 
-		          {prefix: this.prefix, delimiter: '/'},
+		        S3Ajax.listKeys(bucket, 
+		          {prefix: prefix, delimiter: '/'},
 		          function(req){
 								snoop = req;
 		            var fragment = xslt.transformToFragment(req.responseXML, document);
@@ -74,7 +73,7 @@
 		      },
 		
 			  delete: function(keyObj) {
-		      S3Ajax.deleteKey( this.bucket, keyObj.getAttribute('key'), function() {
+		      S3Ajax.deleteKey( bucket, keyObj.getAttribute('key'), function() {
 		        keyObj.parentNode.parentNode.parentNode.removeChild( keyObj.parentNode.parentNode );
 		      } );
 		    },
@@ -93,9 +92,9 @@
 			    var tmpInputBufferStream = CC["@mozilla.org/network/buffered-input-stream;1"].createInstance(CI.nsIBufferedInputStream);
 			    tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
 					var inst = this;
-			    S3Ajax.put(this.bucket, escape(file.leafName), tmpInputBufferStream, params, function() {
+			    S3Ajax.put(bucket, escape(file.leafName), tmpInputBufferStream, params, function() {
 			      var obj = {};
-			      var urn = 'http://s3.amazonaws.com/' + inst.bucket + '/' + file.leafName;
+			      var urn = 'http://s3.amazonaws.com/' + bucket + '/' + file.leafName;
 			      obj.size = Math.round(file.fileSize / 1024);
 			      obj.fileName = file.leafName;
 					});
