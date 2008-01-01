@@ -1,30 +1,42 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html
-  ondragdrop="nsDragAndDrop.drop(event, dnd, true); event.stopPropagation();"
-  ondragover="nsDragAndDrop.dragOver(event, dnd); event.stopPropagation();">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"></script>
-    <script type="application/x-javascript" src="chrome://s3/content/dnd.js"></script>
+    <script type="application/x-javascript" src="chrome://s3/content/sha1.js"></script>
+    <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"></script>
     <script language="javascript">
 
+      const PREFS = Components.classes['@mozilla.org/preferences-service;1']
+                      .getService(Components.interfaces.nsIPrefService)
+                      .getBranch('extension.s3.');
+
+
       function init() {
-        var bucket = window.location.href.split('/')[2];
-        var prefix = window.location.href.slice(6+bucket.length);
+        try {
+          
+          S3Ajax.KEY_ID = PREFS.getCharPref('key');
+          S3Ajax.SECRET_KEY = PREFS.getCharPref('secret_key');          
+        } catch (e) {
+          // if the keys aren't set proceed without them
+          // S3Ajax will do anonymous calls
+        }
+        
         var req = new XMLHttpRequest();
         req.open("GET", "chrome://s3/content/keys.xsl", false);
         req.send(null);
-
         var xslt = new XSLTProcessor();
         xslt.importStylesheet(req.responseXML);
 
-        var req = new XMLHttpRequest();
-        req.open("GET", "http://s3.amazonaws.com/"+bucket+"?prefix="+encodeURIComponent(prefix)+"&delimiter=%2F", false);
-        req.send(null);
-
-
-        var fragment = xslt.transformToFragment(req.responseXML, document);
-        document.body.appendChild(fragment);
+        var bucket = window.location.href.split('/')[2];
+        var prefix = window.location.href.slice(6+bucket.length);
+        
+        S3Ajax.listKeys(bucket, 
+          {prefix: prefix, delimiter: '/'},
+          function(req){
+            var fragment = xslt.transformToFragment(req.responseXML, document);
+            document.body.appendChild(fragment);
+          });
       }
 
       document.title = window.location.href;
