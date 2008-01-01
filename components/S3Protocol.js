@@ -174,6 +174,8 @@ function s3Channel_asyncOpen(aListener, aContext) {
                       .getService(Components.interfaces.nsIIOService);
   this._subChannel = ios.newChannel(url, null, null);
   this._subChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
+
+  this._subChannel.notificationCallbacks = this.notificationCallbacks;
   
   s3_auth(this._subChannel, resource);
   
