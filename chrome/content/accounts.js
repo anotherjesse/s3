@@ -10,41 +10,41 @@
 // for the specific language governing rights and limitations under the
 // License.
 
-	
-	var $ = function(x) { return document.getElementById(x) };
-	var CC = Components.classes;
-	var CI = Components.interfaces;
-	
-	function s3Control() {
-		var inst = this;
+  
+  var $ = function(x) { return document.getElementById(x) };
+  var CC = Components.classes;
+  var CI = Components.interfaces;
+  
+  function s3Control() {
+    var inst = this;
 
-		const PREFS = CC['@mozilla.org/preferences-service;1'].getService(CI.nsIPrefService).getBranch('extension.s3.');
-		
-		this.save = function() {
-	    PREFS.setCharPref('key', $('s3-key').value);
-	    PREFS.setCharPref('secret_key', $('s3-secret-key').value);
-	    inst.load();
+    const PREFS = CC['@mozilla.org/preferences-service;1'].getService(CI.nsIPrefService).getBranch('extension.s3.');
+    
+    this.save = function() {
+      PREFS.setCharPref('key', $('s3-key').value);
+      PREFS.setCharPref('secret_key', $('s3-secret-key').value);
+      inst.load();
       $('account').style.display = 'none';
-	  }
+    }
 
-	  this.load = function() {
-	    S3Ajax.KEY_ID = PREFS.getCharPref('key');
-	    S3Ajax.SECRET_KEY = PREFS.getCharPref('secret_key');
-	    inst.list();
-	  }
+    this.load = function() {
+      S3Ajax.KEY_ID = PREFS.getCharPref('key');
+      S3Ajax.SECRET_KEY = PREFS.getCharPref('secret_key');
+      inst.list();
+    }
 
-	  this.setup = function() {
-	    if (PREFS.getPrefType('key')) {
-	      $('s3-key').value = PREFS.getCharPref('key');
-	    }
-	    if (PREFS.getPrefType('secret_key')) {
-	      $('s3-secret-key').value = PREFS.getCharPref('secret_key');
-	      inst.load();
-	    }
+    this.setup = function() {
+      if (PREFS.getPrefType('key')) {
+        $('s3-key').value = PREFS.getCharPref('key');
+      }
+      if (PREFS.getPrefType('secret_key')) {
+        $('s3-secret-key').value = PREFS.getCharPref('secret_key');
+        inst.load();
+      }
       
-	  }
-	  
-	  this.addDir = function( dirname ) {
+    }
+    
+    this.addDir = function( dirname ) {
       var tr=document.createElement('tr');
       tr.setAttribute('id', dirname);
 
@@ -57,7 +57,7 @@
 
       $('buckets').appendChild( tr );
     }
-	
+  
     this.list = function() {
       $('buckets').innerHTML = '';
 
@@ -69,5 +69,5 @@
           }
         });
     }
-	}
-	
+  }
+  

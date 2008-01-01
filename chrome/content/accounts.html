@@ -14,30 +14,30 @@
 -->
 
 <html xmlns="http://www.w3.org/1999/xhtml"
-			xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
       <head>
   <script type="application/x-javascript" src="chrome://s3/content/sha1.js"></script>
   <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"></script>
   <script type="application/x-javascript" src="chrome://s3/content/accounts.js"></script>
   <style type="text/css"> 
-	body {
-	  padding: 10px 20px;
-	  background: #eee;
-	  font-family: Arial, Helvetica, sans-serif;
-	  font-size: 10px;
-	}
+  body {
+    padding: 10px 20px;
+    background: #eee;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+  }
 
-	table {
-	  width: 100%;
-		padding: 20px;
-		background: #fff;
-	  -moz-border-radius: 10px;
-	  border: 1px solid #ddd;
-	}
+  table {
+    width: 100%;
+    padding: 20px;
+    background: #fff;
+    -moz-border-radius: 10px;
+    border: 1px solid #ddd;
+  }
 
-	tr th {
-	  text-align: left;
-	}
+  tr th {
+    text-align: left;
+  }
 
   #account {
     border: 1px solid #333;
@@ -66,7 +66,7 @@
   <br />
   <br />
   <br />
-	<div id="account" style="display:none">
+  <div id="account" style="display:none">
     <div>
       <label>&nbsp;</label>
       <h2>Your Amazon Access Keys</h2>
@@ -83,11 +83,11 @@
       <label>&nbsp;</label>
       <input type="button" value="Save" onclick="s3_controller.save()" />
     </div>
-	</div>
+  </div>
 
 
   <h2>Your S3 Buckets</h2>
-	<table id="buckets"></table> 
+  <table id="buckets"></table> 
 
   <br/>
   <br/>
@@ -95,13 +95,13 @@
   <br/>
   <a href="#" id="setup" onclick="setkeys(); return false">Setup S3 Credentials</a>
 
-	<script type="application/x-javascript">
+  <script type="application/x-javascript">
     function setkeys() {
       document.getElementById('account').style.display='block';
     }
 
-		var s3_controller = new s3Control();
+    var s3_controller = new s3Control();
     s3_controller.setup();
-	</script>
+  </script>
 </body>
 </html>
