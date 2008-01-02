@@ -30,9 +30,9 @@
       const PREFS = Cc['@mozilla.org/preferences-service;1']
                       .getService(Ci.nsIPrefService)
                       .getBranch('extension.s3.');
-      // 
-      // const mimeSVC = Cc['@mozilla.org/mime;1']
-      //                   .createInstance(Ci.nsIMIMEService);
+
+      const mimeSVC = Cc['@mozilla.org/mime;1']
+                        .getService(Ci.nsIMIMEService);
 
       var $ = function(x) { return document.getElementById(x) };
 
@@ -87,7 +87,7 @@
           var file = fileProtocol.getFileFromURLSpec("file://" + filename);
           var params = {};
           try {
-            // params.content_type = mimeSVC.getTypeFromFile(file);
+            params.content_type = mimeSVC.getTypeFromFile(file);
             // TODO: if this fails, we should do our own lookup ... instead of just defaulting to text/plain
           } catch(e) {};
           var tmpInputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
