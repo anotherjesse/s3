@@ -142,7 +142,7 @@ S3Ajax = {
     */
     deleteKey: function(bucket, key, cb, err_cb) {
         return this.httpClient({
-            method:'DELETE', resource: '/'+bucket+'/'+key, load:cb, error:err_cb
+            method:'DELETE', resource: '/'+bucket+'/'+encodeURIComponent(key), load:cb, error:err_cb
         });
     },
 
