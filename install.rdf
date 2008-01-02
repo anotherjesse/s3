@@ -6,7 +6,9 @@
     <em:id>s3@overstimulate.com</em:id>
     <em:version>0.01</em:version>
     <em:description>S3 protocol</em:description>
-    <em:creator>Jesse Andrews; http://overstimulate.com</em:creator>
+    <em:developer>Jesse Andrews; http://overstimulate.com</em:developer>
+    <em:developer>Manish Singh; http://yosh.org</em:developer>
+    <em:contributor>Joshua McKenty; http://bountyup.com</em:contributor>
 
     <!-- firefox -->
     <em:targetApplication>
