@@ -1,0 +1,14 @@
+v 0.1 release:
+  make sure copyright/contributers info is correct
+  uploading should have a progress meter/stylize uploaded
+  linkify location info (so you can go down directories)
+  logo?
+
+future:
+  deleting a bucket
+  adding a bucket / setting privilidges on a bucket
+  setting priviledges on a key
+  file size should show in page info
+  do xslt/key list in channel instead of on page so it is cached
+  support the logging of buckets feature
+  DND onto the page to upload
