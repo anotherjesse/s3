@@ -46,6 +46,10 @@
     background: #fff;
   }
 
+  #account h2 {
+    text-align: center;
+  }
+
   #account label {
     font-weight: bold;
     font-size: 1.25em;
@@ -68,16 +72,13 @@
   <br />
   <br />
   <div id="account" style="display:none">
+    <h2>Your Amazon Access Keys</h2>
     <div>
-      <label>&nbsp;</label>
-      <h2>Your Amazon Access Keys</h2>
-    </div>
-    <div>
-      <label>AWS Access Key</label>
+      <label for="s3-key">AWS Access Key</label>
       <input type="text" id="s3-key" />
     </div>
     <div>
-      <label>S3 Secret Key</label>
+      <label for="s3-secret-key">S3 Secret Key</label>
       <input type="password" id="s3-secret-key" />
     </div>
     <div>
