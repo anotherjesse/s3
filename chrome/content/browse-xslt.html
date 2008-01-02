@@ -30,8 +30,12 @@
       const PREFS = Cc['@mozilla.org/preferences-service;1']
                       .getService(Ci.nsIPrefService)
                       .getBranch('extension.s3.');
+      // 
+      // const mimeSVC = Cc['@mozilla.org/mime;1']
+      //                   .createInstance(Ci.nsIMIMEService);
 
       var $ = function(x) { return document.getElementById(x) };
+
       var bucket, prefix;
       var xslt = new XSLTProcessor();
 
@@ -61,7 +65,7 @@
         listKeys: function() {
           S3Ajax.listKeys(bucket,
             {prefix: prefix, delimiter: '/'},
-            function(req) {
+            function (req) {
               var keylist = $('keylist');
               if (keylist) {
                 keylist.parentNode.removeChild(keylist);
@@ -74,7 +78,7 @@
         delete: function(keyObj) {
           S3Ajax.deleteKey( bucket, keyObj.getAttribute('key'), function() {
             keyObj.parentNode.parentNode.parentNode.removeChild( keyObj.parentNode.parentNode );
-          } );
+          });
         },
 
         upload: function() {
@@ -83,7 +87,7 @@
           var file = fileProtocol.getFileFromURLSpec("file://" + filename);
           var params = {};
           try {
-            params.content_type = Cc['@mozilla.org/mime;1'].createInstance(Ci.nsIMIMEService).getTypeFromFile(file);
+            // params.content_type = mimeSVC.getTypeFromFile(file);
             // TODO: if this fails, we should do our own lookup ... instead of just defaulting to text/plain
           } catch(e) {};
           var tmpInputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
