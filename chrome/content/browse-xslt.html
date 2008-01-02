@@ -23,47 +23,53 @@
     <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/sha1.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"></script>
-    <script language="javascript">
+    <script type="application/x-javascript">
 
-      const PREFS = Components.classes['@mozilla.org/preferences-service;1']
-                      .getService(Components.interfaces.nsIPrefService)
+      var Cc = Components.classes;
+      var Ci = Components.interfaces;
+      const PREFS = Cc['@mozilla.org/preferences-service;1']
+                      .getService(Ci.nsIPrefService)
                       .getBranch('extension.s3.');
 
       var $ = function(x) { return document.getElementById(x) };
-      var CC = Components.classes;
-      var CI = Components.interfaces;
-      var bucket = null;
-      var prefix = null;
+      var bucket, prefix;
+      var xslt = new XSLTProcessor();
+
       var fm = {
-         init: function() {
-            try {
-              S3Ajax.KEY_ID = PREFS.getCharPref('key');
-              S3Ajax.SECRET_KEY = PREFS.getCharPref('secret_key');
-              document.body.removeAttribute("unauth");
-            } catch (e) {
-              // if the keys aren't set proceed without them
-              // S3Ajax will do anonymous calls
-              document.body.setAttribute("unauth", true);
-            }
+        init: function() {
+          try {
+            S3Ajax.KEY_ID = PREFS.getCharPref('key');
+            S3Ajax.SECRET_KEY = PREFS.getCharPref('secret_key');
+            document.body.removeAttribute("unauth");
+          } catch (e) {
+            // if the keys aren't set proceed without them
+            // S3Ajax will do anonymous calls
+            document.body.setAttribute("unauth", true);
+          }
 
-            var req = new XMLHttpRequest();
-            req.open("GET", "chrome://s3/content/keys.xsl", false);
-            req.send(null);
+          var req = new XMLHttpRequest();
+          req.open("GET", "chrome://s3/content/keys.xsl", false);
+          req.send(null);
 
-            var xslt = new XSLTProcessor();
-            xslt.importStylesheet(req.responseXML);
+          xslt.importStylesheet(req.responseXML);
 
-            bucket = window.location.href.split('/')[2];
-            prefix = window.location.href.slice(6+bucket.length);
+          bucket = window.location.href.split('/')[2];
+          prefix = window.location.href.slice(6+bucket.length);
+          fm.listKeys();
+        },
 
-            S3Ajax.listKeys(bucket,
-              {prefix: prefix, delimiter: '/'},
-              function(req){
-                snoop = req;
-                var fragment = xslt.transformToFragment(req.responseXML, document);
-                document.body.appendChild(fragment);
-              });
-          },
+        listKeys: function() {
+          S3Ajax.listKeys(bucket,
+            {prefix: prefix, delimiter: '/'},
+            function(req) {
+              var keylist = $('keylist');
+              if (keylist) {
+                keylist.parentNode.removeChild(keylist);
+              }
+              var fragment = xslt.transformToFragment(req.responseXML, document);
+              document.body.appendChild(fragment);
+            });
+        },
 
         delete: function(keyObj) {
           S3Ajax.deleteKey( bucket, keyObj.getAttribute('key'), function() {
@@ -73,19 +79,19 @@
 
         upload: function() {
           var filename = $('upload_file').value;
-          var fileProtocol = CC["@mozilla.org/network/protocol;1?name=file"].createInstance(CI.nsIFileProtocolHandler);
+          var fileProtocol = Cc["@mozilla.org/network/protocol;1?name=file"].createInstance(Ci.nsIFileProtocolHandler);
           var file = fileProtocol.getFileFromURLSpec("file://" + filename);
           var params = {};
           try {
-            params.content_type = CC['@mozilla.org/mime;1'].createInstance(CI.nsIMIMEService).getTypeFromFile(file);
+            params.content_type = Cc['@mozilla.org/mime;1'].createInstance(Ci.nsIMIMEService).getTypeFromFile(file);
             // TODO: if this fails, we should do our own lookup ... instead of just defaulting to text/plain
           } catch(e) {};
-          var tmpInputStream = CC["@mozilla.org/network/file-input-stream;1"].createInstance(CI.nsIFileInputStream);
+          var tmpInputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
           tmpInputStream.init(file, 1, 0644, 0);
-          var tmpInputBufferStream = CC["@mozilla.org/network/buffered-input-stream;1"].createInstance(CI.nsIBufferedInputStream);
+          var tmpInputBufferStream = Cc["@mozilla.org/network/buffered-input-stream;1"].createInstance(Ci.nsIBufferedInputStream);
           tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
           S3Ajax.put(bucket, escape(file.leafName), tmpInputBufferStream, params, function() {
-            // FIXME: relist the keys
+            fm.listKeys();
           });
         }
       }

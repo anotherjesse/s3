@@ -18,7 +18,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <xsl:template match="/">
-  <table cellspacing="0">
+  <table cellspacing="0" id="keylist">
     <thead>
       <tr>
         <th align="left">Key</th>
