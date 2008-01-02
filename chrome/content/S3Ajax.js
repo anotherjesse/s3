@@ -20,19 +20,7 @@ S3Ajax = {
     // Default content-type to use in uploading keys.
     DEFAULT_CONTENT_TYPE: 'text/plain',
 
-    /**
-        DANGER WILL ROBINSON - Do NOT fill in your KEY_ID and SECRET_KEY
-        here.  These should be supplied by client-side code, and not
-        stored in any server-side files.  Failure to protect your S3
-        credentials will result in surly people doing nasty things
-        on your tab.
-
-        For example, scoop values up from un-submitted form fields like so:
-
-    */
     URL:        'http://s3.amazonaws.com',
-    KEY_ID:     '',
-    SECRET_KEY: '',
 
     // Flip this to true to potentially get lots of wonky logging.
     DEBUG: false,
@@ -44,13 +32,8 @@ S3Ajax = {
         return this.httpClient({
             method:   'GET',
             resource: '/' + bucket + '/' + key,
-            load: function(req, obj) {
-                if (cb)     return cb(req, req.responseText);
-            },
-            error: function(req, obj) {
-                if (err_cb) return err_cb(req, obj);
-                if (cb)     return cb(req, req.responseText);
-            }
+            load:     cb,
+            error:    err_cb
         })
     },
 
@@ -61,13 +44,8 @@ S3Ajax = {
         return this.httpClient({
             method:   'HEAD',
             resource: '/' + bucket + '/' + key,
-            load: function(req, obj) {
-                if (cb)     return cb(req, req.responseText);
-            },
-            error: function(req, obj) {
-                if (err_cb) return err_cb(req, obj);
-                if (cb)     return cb(req, req.responseText);
-            }
+            load:     cb,
+            error:    err_cb
         })
     },
 
@@ -87,13 +65,8 @@ S3Ajax = {
             content_type: params.content_type,
             meta:         params.meta,
             acl:          params.acl,
-            load: function(req, obj) {
-                if (cb)     return cb(req);
-            },
-            error: function(req, obj) {
-                if (err_cb) return err_cb(req, obj);
-                if (cb)     return cb(req, obj);
-            }
+            load:         cb,
+            error:        err_cb
         });
     },
 
@@ -237,71 +210,21 @@ S3Ajax = {
         req.onreadystatechange = function() {
             if (req.readyState == 4) {
 
-                // Pre-digest the XML if needed.
-                var obj = null;
-                if (req.responseXML && kwArgs.parseXML != false)
-                    obj = _this.xmlToObj(req.responseXML, kwArgs.force_lists);
-
                 // Stash away the last request details, if DEBUG active.
                 if (_this.DEBUG) {
                     window._lastreq = req;
-                    window._lastobj = obj;
                 }
 
                 // Dispatch to appropriate handler callback
-                if ( (req.status >= 400 || (obj && obj.Error) ) && kwArgs.error)
-                    return kwArgs.error(req, obj);
-                else
-                    return kwArgs.load(req, obj);
-
+                // FIXME: also check if responseXML contains an error
+                if ( (req.status >= 400) && kwArgs.error)
+                    return kwArgs.error(req);
+                else if (kwArgs.load)
+                    return kwArgs.load(req);
             }
         }
         req.send(kwArgs.content);
         return req;
-    },
-
-    /**
-        Turn a simple structure of nested XML elements into a
-        JavaScript object.
-
-        TODO: Handle attributes?
-    */
-    xmlToObj: function(parent, force_lists, path) {
-        var obj = {};
-        var cdata = '';
-        var is_struct = false;
-
-        for(var i=0,node; node=parent.childNodes[i]; i++) {
-            if (3 == node.nodeType) {
-                cdata += node.nodeValue;
-            } else {
-                is_struct = true;
-                var name  = node.nodeName;
-                var cpath = (path) ? path+'.'+name : name;
-                var val   = arguments.callee(node, force_lists, cpath);
-
-                if (!obj[name]) {
-                    var do_force_list = false;
-                    if (force_lists) {
-                        for (var j=0,item; item=force_lists[j]; j++) {
-                            if (item == cpath) {
-                                do_force_list=true; break;
-                            }
-                        }
-                    }
-                    obj[name] = (do_force_list) ? [ val ] : val;
-                } else if (obj[name].length) {
-                    // This is a list of values to append this one to the end.
-                    obj[name].push(val);
-                } else {
-                    // Has been a single value up till now, so convert to list.
-                    obj[name] = [ obj[name], val ];
-                }
-            }
-        }
-
-        // If any subnodes were found, return a struct - else return cdata.
-        return (is_struct) ? obj : cdata;
     },
 
     /**
