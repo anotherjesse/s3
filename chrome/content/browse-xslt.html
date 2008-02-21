@@ -24,6 +24,8 @@
     <script type="application/x-javascript" src="chrome://s3/content/sha1.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/dnd.js"></script>
+    <script type="application/x-javascript" src="chrome://s3/content/vendor/jquery-1.2.3.min.js"></script>
+    <script type="application/x-javascript" src="chrome://s3/content/vendor/jquery.blockUI.js"></script>
     <script type="application/x-javascript">
 
       var Cc = Components.classes;
@@ -34,8 +36,6 @@
 
       const mimeSVC = Cc['@mozilla.org/mime;1']
                         .getService(Ci.nsIMIMEService);
-
-      var $ = function(x) { return document.getElementById(x) };
 
       var bucket, prefix;
       var xslt = new XSLTProcessor();
@@ -73,15 +73,17 @@
         },
 
         listKeys: function() {
+          $.blockUI('<h3><img src="chrome://s3/skin/spinner.gif" /> querying amazon...</h3>'); 
           S3Ajax.listKeys(bucket,
             {prefix: prefix, delimiter: '/'},
             function (req) {
-              var keylist = $('keylist');
+              var keylist = $('#keylist')[0];
               if (keylist) {
                 keylist.parentNode.removeChild(keylist);
               }
               var fragment = xslt.transformToFragment(req.responseXML, document);
               document.body.appendChild(fragment);
+              $.unblockUI();
             });
         },
 
@@ -93,7 +95,7 @@
 
         upload: function() {
           var fileProtocol = Cc["@mozilla.org/network/protocol;1?name=file"].createInstance(Ci.nsIFileProtocolHandler);
-          var filename = $('upload_file').value;
+          var filename = $('#upload_file').val();
           var file = fileProtocol.getFileFromURLSpec("file://" + filename);
           S3Ajax.upload(bucket, file.leafName, file);
         }
@@ -110,8 +112,10 @@
         tmpInputStream.init(file, 1, 0644, 0);
         var tmpInputBufferStream = Cc["@mozilla.org/network/buffered-input-stream;1"].createInstance(Ci.nsIBufferedInputStream);
         tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
+        $.blockUI('<h3><img src="chrome://s3/skin/spinner.gif" /> uploading...</h3>'); 
         S3Ajax.put(bucket, key, tmpInputBufferStream, params, function() {
           fm.listKeys();
+          $.unblockUI();
         });
       }
 
