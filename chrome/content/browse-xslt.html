@@ -23,6 +23,7 @@
     <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/sha1.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"></script>
+    <script type="application/x-javascript" src="chrome://s3/content/dnd.js"></script>
     <script type="application/x-javascript">
 
       var Cc = Components.classes;
@@ -39,8 +40,15 @@
       var bucket, prefix;
       var xslt = new XSLTProcessor();
 
+      var dropListener = {
+        handleEvent: function(event) {
+          nsDragAndDrop.drop(event, dnd);
+        }
+      }
+
       var fm = {
         init: function() {
+          document.addEventListener('dragdrop', dropListener, true);
           document.getElementById('location').innerHTML = document.title = window.location.href;
 
           try {
