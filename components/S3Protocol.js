@@ -201,12 +201,14 @@ function s3_auth(channel, resource) {
     var KEY = PREFS.getCharPref('key');
     var SECRET_KEY = PREFS.getCharPref('secret_key');
 
-    var http_date = (new Date()).toUTCString();
+    if ((KEY != '') && (SECRET_KEY != '')) {
+      var http_date = (new Date()).toUTCString();
 
-    var s = "GET\n\n\n" + http_date + "\n" + resource;
-    var signature = hmacSHA1(s, SECRET_KEY);
-    channel.setRequestHeader("Date", http_date, false);
-    channel.setRequestHeader("Authorization", "AWS "+KEY+":"+signature, false);
+      var s = "GET\n\n\n" + http_date + "\n" + resource;
+      var signature = hmacSHA1(s, SECRET_KEY);
+      channel.setRequestHeader("Date", http_date, false);
+      channel.setRequestHeader("Authorization", "AWS "+KEY+":"+signature, false);
+    }
   } catch (ex) {
     // if the key or secret key isn't set, we don't need
     // to set any headers, make the call anonymously
