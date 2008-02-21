@@ -1,16 +1,24 @@
 v 0.1 release:
   make sure copyright/contributers info is correct
-  uploading should have a progress meter/stylize uploaded
   linkify location info (so you can go down directories)
   logo?
-  spinny on loading keys/buckets instead of just blank
+  don't show your buckets section without creditals
+  create a bucket
+  links to torrent/http
 
 future:
   deleting a bucket
   adding a bucket / setting privilidges on a bucket
   setting priviledges on a key
+  uploading should have a progress meter
   file size should show in page info
   do xslt/key list in channel instead of on page so it is cached
   support the logging of buckets feature
-  DND onto the page to upload
   right click handlers for creating url/torrent/...
+  create time limited url for key
+  support adding people to buckets via email addresses
+
+bugs:
+  s3://twitter_production/profile_background_images/1001042/ -- cannot click the contained thing
+  s3://twitter_production/profile_background_images/ -- css breaks (the background stops) about 2/3 down
+
