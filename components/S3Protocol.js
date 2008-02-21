@@ -1,4 +1,4 @@
-// Copyright Jesse Andrews, 2005-2007
+// Copyright Jesse Andrews, 2005-2008
 // http://overstimulate.com
 // 
 // This file may be used under the terms of of the
