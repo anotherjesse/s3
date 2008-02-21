@@ -31,6 +31,7 @@
       <xsl:for-each select="S3:ListBucketResult/S3:CommonPrefixes">
         <tr class="s3dir">
           <td><a><xsl:attribute name="href">/<xsl:value-of select="S3:Prefix"/></xsl:attribute><xsl:value-of select="S3:Prefix"/></a></td>
+          <td colspan="3"></td>
         </tr>
       </xsl:for-each>
       <xsl:for-each select="S3:ListBucketResult/S3:Contents">

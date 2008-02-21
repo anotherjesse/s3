@@ -39,7 +39,15 @@
       }
       if (PREFS.getPrefType('secret_key')) {
         $('s3-secret-key').value = PREFS.getCharPref('secret_key');
-        inst.load();
+        if ($('s3-secret-key').value != '') {
+          inst.load();
+        }
+        else {
+          setkeys();
+        }
+      }
+      else {
+        setkeys();
       }
     }
     
