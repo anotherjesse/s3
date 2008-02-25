@@ -1,14 +1,15 @@
 v 0.1 release:
-  make sure copyright/contributers info is correct
-  linkify location info (so you can go down directories)
-  logo?
   don't show your buckets section without creditals
-  create a bucket
-  links to torrent/http
-
-future:
   deleting a bucket
   adding a bucket / setting privilidges on a bucket
+  create a bucket / bucket management
+  handle dnd of multiple files gracefully
+  links to torrent/http
+  linkify location info (so you can go down directories)
+  make sure copyright/contributers info is correct
+  logo?
+
+future:
   setting priviledges on a key
   uploading should have a progress meter
   file size should show in page info
