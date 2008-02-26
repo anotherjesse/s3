@@ -24,7 +24,7 @@
         <th align="left">Key</th>
         <th align="left">Last Modified</th>
         <th align="left">Size</th>
-        <th align="left" class="delete_button">Action</th>
+        <th align="left" class="delete_button" width="80">Action</th>
       </tr>
     </thead>
     <tbody>
