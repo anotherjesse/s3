@@ -3,7 +3,6 @@ v 0.1 release:
   deleting a bucket
   adding a bucket / setting privilidges on a bucket
   create a bucket / bucket management
-  handle dnd of multiple files gracefully
   links to torrent/http
   linkify location info (so you can go down directories)
   make sure copyright/contributers info is correct
@@ -18,6 +17,7 @@ future:
   right click handlers for creating url/torrent/...
   create time limited url for key
   support adding people to buckets via email addresses
+  when S3Ajax.upload fails add a dialog to ask what mime type the user wants to use?
 
 bugs:
   s3://twitter_production/profile_background_images/1001042/ -- cannot click the contained thing

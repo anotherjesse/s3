@@ -131,6 +131,7 @@
         add: function(bucket, file) {
           var key = escape(prefix + file.leafName);
           Uploader.queue.push([bucket, key, file]);
+          $('#queue_size').html(Uploader.queue.length + ' remaining in queue.');
           if (!Uploader.working) {
             Uploader.upload();
           }
@@ -138,10 +139,13 @@
         upload: function() {
           Uploader.working = true;
           var cur = Uploader.queue.shift();
-          var status = '<h3><img src="chrome://s3/skin/spinner.gif" /> uploading...</h3><h6>' + cur[1] + '</h6>';
+          var status = '<h3><img src="chrome://s3/skin/spinner.gif" /> uploading...</h3>' +
+            '<h6>' + cur[1] + '</h6>' +
+            '<p id="queue_size">';
           if (Uploader.queue.length > 0) {
-            status += '<p>' + Uploader.queue.length + ' remaining in queue.</p>'
+            status += Uploader.queue.length + ' remaining in queue.'
           }
+          status += '</p>'
           $.blockUI(status);
           S3Ajax.upload(cur[0], cur[1], cur[2], Uploader.uploadComplete);
         },
