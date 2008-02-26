@@ -100,13 +100,12 @@
           picker.init(window, 'Choose file to upload to S3', Components.interfaces.nsIFilePicker.modeOpen);
 
           if (picker.show() == Components.interfaces.nsIFilePicker.returnOK && picker.file) {
-            S3Ajax.upload(bucket, picker.file.leafName, picker.file);
+            Uploader.add(bucket, picker.file);
           }
         }
       }
       
-      S3Ajax.upload = function(bucket, key, file) {
-        var full_key = escape(prefix + key);
+      S3Ajax.upload = function(bucket, key, file, cb) {
         var params = {};
         try {
           params.content_type = mimeSVC.getTypeFromFile(file);
@@ -116,11 +115,41 @@
         tmpInputStream.init(file, 1, 0644, 0);
         var tmpInputBufferStream = Cc["@mozilla.org/network/buffered-input-stream;1"].createInstance(Ci.nsIBufferedInputStream);
         tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
-        $.blockUI('<h3><img src="chrome://s3/skin/spinner.gif" /> uploading...</h3><h6>' + key + '</h6>'); 
-        S3Ajax.put(bucket, full_key, tmpInputBufferStream, params, function() {
-          fm.listKeys();
-          $.unblockUI();
+        S3Ajax.put(bucket, key, tmpInputBufferStream, params, function() {
+          cb();
         });
+      }
+
+      var Uploader = {
+        working: false,
+        queue: [],
+        add: function(bucket, file) {
+          var key = escape(prefix + file.leafName);
+          Uploader.queue.push([bucket, key, file]);
+          if (!Uploader.working) {
+            Uploader.upload();
+          }
+        },
+        upload: function() {
+          Uploader.working = true;
+          var cur = Uploader.queue.shift();
+          var status = '<h3><img src="chrome://s3/skin/spinner.gif" /> uploading...</h3><h6>' + cur[1] + '</h6>';
+          if (Uploader.queue.length > 0) {
+            status += '<p>' + Uploader.queue.length + ' remaining in queue.</p>'
+          }
+          $.blockUI(status);
+          S3Ajax.upload(cur[0], cur[1], cur[2], Uploader.uploadComplete);
+        },
+        uploadComplete: function() {
+          if (Uploader.queue.length > 0) {
+            Uploader.upload();
+          }
+          else {
+            Uploader.working = false;
+            $.unblockUI();
+            fm.listKeys();
+          }
+        }
       }
 
       window.onload = fm.init;

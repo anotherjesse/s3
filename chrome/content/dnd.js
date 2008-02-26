@@ -27,7 +27,7 @@ var dnd = {
           var file = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
           file.initWithPath( aDropData.dataList[c].dataList[0].data.path );
-          S3Ajax.upload(bucket, file.leafName, file);
+          Uploader.add(bucket, file);
           break;
         case "text/x-moz-url":
           var url = aDropData.dataList[c].dataList[0].data;
@@ -35,7 +35,7 @@ var dnd = {
             var file = Components.classes["@mozilla.org/file/local;1"]
               .createInstance(Components.interfaces.nsILocalFile);
             file.initWithPath( aDropData.dataList[c].dataList[0].data.slice(7) );
-            S3Ajax.upload(bucket, file.leafName, file);
+            Uploader.add(bucket, file);
           }
           else {
             alert('need to write code to upload the contents of url');
