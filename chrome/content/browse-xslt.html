@@ -97,10 +97,15 @@
           var picker = Components.classes["@mozilla.org/filepicker;1"]
             .createInstance(Components.interfaces.nsIFilePicker);
 
-          picker.init(window, 'Choose file to upload to S3', Components.interfaces.nsIFilePicker.modeOpen);
+          picker.init(window, 'Choose file(s) to upload to S3', Components.interfaces.nsIFilePicker.modeOpenMultiple);
 
-          if (picker.show() == Components.interfaces.nsIFilePicker.returnOK && picker.file) {
-            Uploader.add(bucket, picker.file);
+          if (picker.show() == Components.interfaces.nsIFilePicker.returnOK) {
+            var enum = picker.files;
+            while (enum.hasMoreElements()) {
+              var file = enum.getNext();
+              file.QueryInterface(Components.interfaces.nsIFile);
+              Uploader.add(bucket, file);
+            }
           }
         }
       }
