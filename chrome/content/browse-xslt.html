@@ -73,7 +73,7 @@
         },
 
         listKeys: function() {
-          $.blockUI('<h3><img src="chrome://s3/skin/spinner.gif" /> refreshing key list...</h3>'); 
+          $.blockUI('<h3><img src="chrome://s3/skin/spinner.gif" /> refreshing key list</h3>');
           S3Ajax.listKeys(bucket,
             {prefix: prefix, delimiter: '/'},
             function (req) {
@@ -109,7 +109,7 @@
           }
         }
       }
-      
+
       S3Ajax.upload = function(bucket, key, file, cb) {
         var params = {};
         try {

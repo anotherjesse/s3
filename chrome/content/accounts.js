@@ -34,7 +34,9 @@ function s3Control() {
   }
 
   function list() {
+    $('#active').hide();
     $('#buckets').empty();
+    $.blockUI('<h3><img src="chrome://s3/skin/spinner.gif" /> refreshing bucket list</h3>');
 
     S3Ajax.listBuckets(
       function(xml, objs) {
@@ -43,6 +45,7 @@ function s3Control() {
           addBucket(buckets[i].getElementsByTagName('Name')[0].textContent);
         }
         $('#active').show();
+        $.unblockUI();
       });
   }
 
@@ -54,7 +57,7 @@ function s3Control() {
     }
     catch(e) {};
   }
-    
+
   this.save = function() {
     function set_pref(key, val) {
       try {
@@ -70,13 +73,13 @@ function s3Control() {
       }
       catch (e) {}
     }
-    
+
     set_pref('key', $('#s3-key').val());
     set_pref('secret_key', $('#s3-secret-key').val());
     load();
     $('#account').hide();
   }
-  
+
   if (PREFS.getPrefType('key')) {
     $('#s3-key').val(PREFS.getCharPref('key'));
   }
