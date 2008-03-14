@@ -16,68 +16,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
       <head>
+  <link rel="stylesheet" href="chrome://s3/skin/accounts.css" />
   <script type="application/x-javascript" src="chrome://s3/content/sha1.js"></script>
   <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"></script>
   <script type="application/x-javascript" src="chrome://s3/content/accounts.js"></script>
   <style type="text/css">
-  body {
-    padding: 10px 20px;
-    background: #eee;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10px;
-  }
 
-  table {
-    width: 100%;
-  }
-
-  tr th {
-    text-align: left;
-  }
-
-  #account {
-    border: 1px solid #333;
-    width: 400px;
-    margin: 10px auto;
-    background: #fff;
-  }
-
-  h2 {
-    text-align: center;
-  }
-
-  #account label {
-    font-weight: bold;
-    font-size: 1.25em;
-    width: 150px;
-    padding-right: 10px;
-    text-align: right;
-    display: block;
-    float: left;
-  }
-
-  #account div {
-    padding-bottom: 10px;
-  }
-
-  #active {
-    background: #fff;
-    -moz-border-radius: 10px;
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin: 20px 0;
-  }
-  
-  #active h2 {
-    float: right;
-    color: #888;
-    font-weight: normal;
-  }
-  
-  #setup {
-    background: url(chrome://s3/skin/16-security-key.png) no-repeat center left;
-    padding: 4px 20px;
-  }
 </style>
 
 </head>
@@ -106,14 +50,5 @@
   </div>
 
   <a href="#" id="setup" onclick="setkeys(); return false">Setup S3 Credentials</a>
-
-  <script type="application/x-javascript">
-    function setkeys() {
-      document.getElementById('account').style.display='block';
-    }
-
-    var s3_controller = new s3Control();
-    s3_controller.setup();
-  </script>
 </body>
 </html>

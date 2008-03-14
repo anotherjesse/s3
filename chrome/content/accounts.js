@@ -10,14 +10,12 @@
 // for the specific language governing rights and limitations under the
 // License.
 
-var $ = function(x) { return document.getElementById(x) };
-var CC = Components.classes;
-var CI = Components.interfaces;
-
 function s3Control() {
   var inst = this;
+  var $ = function(x) { return document.getElementById(x) };
 
-  const PREFS = CC['@mozilla.org/preferences-service;1'].getService(CI.nsIPrefService).getBranch('extension.s3.');
+  const PREFS = Components.classes['@mozilla.org/preferences-service;1']
+    .getService(Components.interfaces.nsIPrefService).getBranch('extension.s3.');
 
   function set(key, val) {
     try {
@@ -95,3 +93,13 @@ function s3Control() {
       });
   }
 }
+
+function setkeys() {
+  document.getElementById('account').style.display='block';
+}
+
+var s3_controller = new s3Control();
+window.onload = function() {
+  s3_controller.setup();
+}
+
