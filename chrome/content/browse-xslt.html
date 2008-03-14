@@ -13,12 +13,11 @@
      License.
 -->
 
-<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<?xml-stylesheet type="text/css" href="chrome://s3/skin/style.css"?>
-
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <head>
+    <link rel="stylesheet" href="chrome://s3/skin/style.css" />
+    <link rel="stylesheet" href="chrome://s3/content/vendor/humanmsg.css" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/sha1.js"></script>
@@ -26,6 +25,8 @@
     <script type="application/x-javascript" src="chrome://s3/content/dnd.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/vendor/jquery-1.2.3.min.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/vendor/jquery.blockUI.js"></script>
+    <script type="application/x-javascript" src="chrome://s3/content/vendor/jquery.easing.js"></script>
+    <script type="application/x-javascript" src="chrome://s3/content/vendor/humanmsg.js"></script>
     <script type="application/x-javascript">
 
       var Cc = Components.classes;
@@ -84,12 +85,19 @@
               var fragment = xslt.transformToFragment(req.responseXML, document);
               document.body.appendChild(fragment);
               $.unblockUI();
+            }, function(req) {
+              $.unblockUI();
+              humanMsg.displayMsg('Listing in <strong>' + bucket + '</strong>: ' +
+                req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
             });
         },
 
         delete: function(keyObj) {
           S3Ajax.deleteKey( bucket, keyObj.getAttribute('key'), function() {
             keyObj.parentNode.parentNode.parentNode.removeChild( keyObj.parentNode.parentNode );
+          }, function(req) {
+            humanMsg.displayMsg('Deletion in <strong>' + bucket + '</strong>: ' +
+              req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
           });
         },
 
@@ -121,6 +129,10 @@
         var tmpInputBufferStream = Cc["@mozilla.org/network/buffered-input-stream;1"].createInstance(Ci.nsIBufferedInputStream);
         tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
         S3Ajax.put(bucket, key, tmpInputBufferStream, params, function() {
+          cb();
+        }, function(req) {
+          humanMsg.displayMsg('Upload to <strong>' + bucket + '</strong>: ' +
+            req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent);
           cb();
         });
       }
