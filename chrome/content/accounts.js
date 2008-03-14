@@ -19,6 +19,16 @@ function s3Control() {
   const PREFS = Components.classes['@mozilla.org/preferences-service;1']
     .getService(Components.interfaces.nsIPrefService).getBranch('extension.s3.');
 
+
+  $('#createBucket').click(function() {
+    var bucket = prompt('Bucket Name?');
+    if (bucket) {
+      S3Ajax.createBucket(bucket, list);
+    }
+
+    return false;
+  })
+
   function addBucket( bucket ) {
     var tr=document.createElement('tr');
     tr.setAttribute('id', bucket);
@@ -30,7 +40,21 @@ function s3Control() {
     td.appendChild( a );
     tr.appendChild( td );
 
+    var td=document.createElement('td');
+    var a=document.createElement('a');
+    a.appendChild( document.createTextNode('[delete]') );
+    a.setAttribute('href', '#')
+    a.setAttribute("bucket", bucket);
+    td.appendChild( a );
+    tr.appendChild( td );
+
     document.getElementById('buckets').appendChild(tr);
+    $(a).click(function() {
+      S3Ajax.deleteBucket(this.getAttribute('bucket'), function() {
+        list()
+      });
+      return false;
+    })
   }
 
   function list() {
