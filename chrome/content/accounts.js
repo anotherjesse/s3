@@ -90,6 +90,7 @@ function s3Control() {
         var buckets = xml.responseXML.getElementsByTagName('Bucket');
         for (var i=0; i<buckets.length; i++) {
           inst.addDir(buckets[i].getElementsByTagName('Name')[0].textContent);
+          $('active').style.display = '';
         }
       });
   }

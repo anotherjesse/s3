@@ -29,10 +29,6 @@
 
   table {
     width: 100%;
-    padding: 20px;
-    background: #fff;
-    -moz-border-radius: 10px;
-    border: 1px solid #ddd;
   }
 
   tr th {
@@ -42,11 +38,11 @@
   #account {
     border: 1px solid #333;
     width: 400px;
-    margin: 0 auto;
+    margin: 10px auto;
     background: #fff;
   }
 
-  #account h2 {
+  h2 {
     text-align: center;
   }
 
@@ -63,14 +59,36 @@
   #account div {
     padding-bottom: 10px;
   }
+
+  #active {
+    background: #fff;
+    -moz-border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 20px 0;
+  }
+  
+  #active h2 {
+    float: right;
+    color: #888;
+    font-weight: normal;
+  }
+  
+  #setup {
+    background: url(chrome://s3/skin/16-security-key.png) no-repeat center left;
+    padding: 4px 20px;
+  }
 </style>
 
 </head>
 <body>
   <h1>S3 Browser</h1>
-  <br />
-  <br />
-  <br />
+
+  <div id="active" style="display:none">
+    <table id="buckets"></table>
+    <h2>Your S3 Buckets</h2>
+  </div>
+
   <div id="account" style="display:none">
     <h2>Your Amazon Access Keys</h2>
     <div>
@@ -87,14 +105,6 @@
     </div>
   </div>
 
-
-  <h2>Your S3 Buckets</h2>
-  <table id="buckets"></table>
-
-  <br/>
-  <br/>
-  <br/>
-  <br/>
   <a href="#" id="setup" onclick="setkeys(); return false">Setup S3 Credentials</a>
 
   <script type="application/x-javascript">
