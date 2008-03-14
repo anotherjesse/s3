@@ -23,7 +23,10 @@ function s3Control() {
   $('#createBucket').click(function() {
     var bucket = prompt('Bucket Name?');
     if (bucket) {
-      S3Ajax.createBucket(bucket, list);
+      S3Ajax.createBucket(bucket, list, function(req) {
+        humanMsg.displayMsg('<strong>' + bucket + '</strong>: ' +
+          req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
+      });
     }
 
     return false;
@@ -50,8 +53,9 @@ function s3Control() {
 
     document.getElementById('buckets').appendChild(tr);
     $(a).click(function() {
-      S3Ajax.deleteBucket(this.getAttribute('bucket'), function() {
-        list()
+      S3Ajax.deleteBucket(this.getAttribute('bucket'), list, function(req) {
+        humanMsg.displayMsg('<strong>' + bucket + '</strong>: ' +   
+          req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
       });
       return false;
     })
