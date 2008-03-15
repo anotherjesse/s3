@@ -51,6 +51,11 @@
         init: function() {
           document.addEventListener('dragdrop', dropListener, true);
           document.getElementById('location').innerHTML = document.title = window.location.href;
+          
+          $('.upload').click(function() {
+            fm.upload();
+            return false;
+          })
 
           try {
             S3Ajax.KEY_ID = PREFS.getCharPref('key');
@@ -195,7 +200,7 @@
   <body>
     <h2 id="location"></h2>
     <div class="upload_box">
-      <input type="button" id="upload_button" onclick="fm.upload()" value=" Upload "/>
+      <a href="#" class="upload">Upload</a>
     </div>
   </div>
   </body>

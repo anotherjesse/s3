@@ -52,3 +52,17 @@ table {
   border-color: #000;
   color: #f00;
 }
+
+.upload {
+  text-decoration: none;
+  background: #fff url(arrow_up.png) no-repeat center left;
+  padding: 2px 4px 2px 20px;
+  border: 1px solid #888;
+  font-size: 18px;
+  color: #888;
+}
+
+.upload:hover {
+  border-color: #000;
+  color: #080;
+}
