@@ -20,6 +20,12 @@ function s3Control() {
     .getService(Components.interfaces.nsIPrefService).getBranch('extension.s3.');
 
 
+  $('#updateCredentials').click(function() {
+    $.blockUI($('#credentials'))
+    
+    return false;
+  });
+
   $('#createBucket').click(function() {
     var bucket = prompt('Bucket Name?');
     if (bucket) {
@@ -30,7 +36,7 @@ function s3Control() {
     }
 
     return false;
-  })
+  });
 
   function addBucket( bucket ) {
     var tr=document.createElement('tr');
@@ -62,18 +68,23 @@ function s3Control() {
   }
 
   function list() {
-    $('#active').hide();
-    $('#buckets').empty();
-    $.blockUI('<h3><img src="chrome://s3/skin/spinner.gif" /> refreshing bucket list</h3>');
-
+    $('#active').show();
+    $('#active').addClass('busy')
+    $('#buckets').hide().empty();
+    
     S3Ajax.listBuckets(
       function(xml, objs) {
         var buckets = xml.responseXML.getElementsByTagName('Bucket');
         for (var i=0; i<buckets.length; i++) {
           addBucket(buckets[i].getElementsByTagName('Name')[0].textContent);
         }
-        $('#active').show();
-        $.unblockUI();
+        $('#buckets').show();
+        $('#createBucket').animate({opacity: 'show'});
+        $('#active').removeClass('busy');
+      },
+      function(req) {
+        humanMsg.displayMsg(req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
+        $('#active').removeClass('busy');
       });
   }
 
@@ -105,7 +116,7 @@ function s3Control() {
     set_pref('key', $('#s3-key').val());
     set_pref('secret_key', $('#s3-secret-key').val());
     load();
-    $('#account').hide();
+    $.unblockUI();
   }
 
   if (PREFS.getPrefType('key')) {

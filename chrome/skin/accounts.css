@@ -2,39 +2,28 @@ body {
   padding: 10px 20px;
   background: #eee;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10px;
+  font-size: 12px;
 }
 
-table {
-  width: 100%;
+#active table {
+  width: 100%
 }
 
 tr th {
   text-align: left;
 }
 
-#account {
-  border: 1px solid #333;
-  width: 400px;
-  margin: 10px auto;
-  background: #fff;
-}
-
 h2 {
   text-align: center;
 }
 
-#account label {
-  font-weight: bold;
-  font-size: 1.25em;
-  width: 150px;
-  padding-right: 10px;
-  text-align: right;
+#credentials label {
   display: block;
-  float: left;
+  margin: 0 auto;
+  padding-right: 10px;
 }
 
-#account div {
+#credentials div {
   padding-bottom: 10px;
 }
 
@@ -44,6 +33,7 @@ h2 {
   border: 1px solid #ddd;
   padding: 10px;
   margin: 20px 0;
+  min-height: 100px;
 }
 
 #active h2 {
@@ -52,7 +42,30 @@ h2 {
   font-weight: normal;
 }
 
-#setup {
-  background: url(16-security-key.png) no-repeat center left;
+#help {
+  background: url(help.png) no-repeat center left;
   padding: 4px 20px;
+}
+
+#updateCredentials {
+  background: url(key.png) no-repeat center left;
+  padding: 4px 20px;
+}
+
+#createBucket {
+  background: url(add.png) no-repeat center left;
+  padding: 4px 20px;
+}
+
+#active.busy {
+  background: #fff url(big-spinner.gif) no-repeat center center;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  display: inline;
 }

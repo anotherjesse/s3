@@ -84,6 +84,22 @@
               }
               var fragment = xslt.transformToFragment(req.responseXML, document);
               document.body.appendChild(fragment);
+
+              $('tr').hover(function() {
+                var element = this;
+                var key = this.getAttribute('key');
+                var deleteButton = $('<a href="#" class="delete">delete<a>')
+                deleteButton.click(function() {
+                  if (confirm('Are you sure you want to delete:\n' + key + '?')) { 
+                    fm.delete( key, element );
+                  } 
+                  return false;
+                });
+                $('.actions', this).append(deleteButton)
+              }, function() {
+                $('.actions', this).empty();
+              })
+
               $.unblockUI();
             }, function(req) {
               $.unblockUI();
@@ -92,9 +108,9 @@
             });
         },
 
-        delete: function(keyObj) {
-          S3Ajax.deleteKey( bucket, keyObj.getAttribute('key'), function() {
-            keyObj.parentNode.parentNode.parentNode.removeChild( keyObj.parentNode.parentNode );
+        delete: function(key, element) {
+          S3Ajax.deleteKey( bucket, key, function() {
+            $(element).remove();
           }, function(req) {
             humanMsg.displayMsg('Deletion in <strong>' + bucket + '</strong>: ' +
               req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
@@ -172,55 +188,13 @@
           }
         }
       }
-
-      window.onload = fm.init;
+      
+      $(fm.init);
     </script>
-    <style>
-      body {
-        background: #eee;
-        padding: 20px;
-      }
-
-      body[unauth] .delete_button{
-        display: none;
-      }
-
-      table {
-        padding: 20px;
-        margin-top: 10px;
-        background: #fff;
-        -moz-border-radius: 10px;
-        border: 1px solid #ddd;
-        width: 100%;
-      }
-
-      #keylist td {
-        padding: 3px 0;
-      }
-
-      #keylist tr:hover {
-        background-color:#f8f8f8;
-      }
-
-      .upload_label {
-        font-weight: bold;
-      }
-
-      .upload_box {
-        position: absolute;
-        top: 20px;
-        padding: 10px;
-        right: 20px;
-      }
-
-      .upload_box input {
-        font-weight: bold;
-      }
-    </style>
   </head>
   <body>
     <h2 id="location"></h2>
-    <div class="delete_button upload_box">
+    <div class="upload_box">
       <input type="button" id="upload_button" onclick="fm.upload()" value=" Upload "/>
     </div>
   </div>

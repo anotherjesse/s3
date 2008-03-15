@@ -27,15 +27,19 @@
   <script type="application/x-javascript" src="chrome://s3/content/accounts.js"></script>
 </head>
 <body>
-  <h1>S3 Browser</h1>
+  <h1>S3 Buckets</h1>
+
+  <ul>
+    <li><a href="#" id="help">Help / About</a></li>
+    <li><a href="#" id="updateCredentials">Setup S3 Credentials</a></li>
+    <li><a href="#" id="createBucket" style="display:none">Add Bucket</a></li>
+  </ul>
 
   <div id="active" style="display:none">
     <table id="buckets"></table>
-    <p><a href="#" id="createBucket">Create New Bucket</a></p>
-    <h2>Your S3 Buckets</h2>
   </div>
 
-  <div id="account" style="display:none">
+  <div id="credentials" style="display:none">
     <h2>Your Amazon Access Keys</h2>
     <div>
       <label for="s3-key">AWS Access Key</label>
@@ -47,10 +51,9 @@
     </div>
     <div>
       <label>&nbsp;</label>
-      <input type="button" value="Save" onclick="s3_controller.save()" />
+      <input type="button" id="saveButton" value="Save" onclick="s3_controller.save()" />
     </div>
   </div>
 
-  <a href="#" id="setup" onclick="setkeys(); return false">Setup S3 Credentials</a>
 </body>
 </html>

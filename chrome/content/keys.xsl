@@ -36,12 +36,11 @@
       </xsl:for-each>
       <xsl:for-each select="S3:ListBucketResult/S3:Contents">
         <tr>
+          <xsl:attribute name="key"><xsl:value-of select="S3:Key"/></xsl:attribute>
           <td><a><xsl:attribute name="href">/<xsl:value-of select="S3:Key"/></xsl:attribute><xsl:value-of select="S3:Key"/></a></td>
           <td><xsl:value-of select="S3:LastModified"/></td>
           <td><xsl:value-of select="S3:Size"/></td>
-          <td class="delete_button"><a href="#">
-          <xsl:attribute name="key"><xsl:value-of select="S3:Key"/></xsl:attribute>
-          <xsl:attribute name="onclick"><![CDATA[ if (confirm('Are you sure you want to delete:\n' + this.getAttribute('key') + '?')) { fm.delete( this ); } return false; ]]></xsl:attribute>[delete]</a></td>
+          <td class="actions"></td>
         </tr>
       </xsl:for-each>
     </tbody>

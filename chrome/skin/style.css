@@ -1,12 +1,54 @@
-#s3bar-setup {
-    list-style-image: url("16-security-key.png");
+body {
+  background: #eee;
+  padding: 20px;
 }
 
-#s3bar-refresh {
-    list-style-image: url("arrow_refresh.png");
+body[unauth] .delete_button{
+  display: none;
 }
 
-#s3bar-refresh label,
-#s3bar-setup label {
-    display: none;
+table {
+  padding: 20px;
+  margin-top: 10px;
+  background: #fff;
+  -moz-border-radius: 10px;
+  border: 1px solid #ddd;
+  width: 100%;
+}
+
+#keylist td {
+  padding: 3px 0;
+}
+
+#keylist tr:hover td {
+  background-color:#f8f8f8;
+}
+
+.upload_label {
+  font-weight: bold;
+}
+
+.upload_box {
+  position: absolute;
+  top: 20px;
+  padding: 10px;
+  right: 20px;
+}
+
+.upload_box input {
+  font-weight: bold;
+}
+
+.delete {
+  text-decoration: none;
+  background: #fff url(delete.png) no-repeat center left;
+  padding: 2px 4px 2px 20px;
+  border: 1px solid #888;
+  font-size: 12px;
+  color: #888;
+}
+
+.delete:hover {
+  border-color: #000;
+  color: #f00;
 }
