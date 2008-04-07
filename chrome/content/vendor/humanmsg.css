@@ -4,26 +4,23 @@
 	home - http://humanmsg.googlecode.com
 */
 
-html, body {
-	height: 100%; /* Damn you IE! */
-}
-
 .humanMsg {
-	font: normal 20px/50px Helvetica, Arial, Sans-Serif;
+	font: normal 18px/45px Helvetica, Arial, Sans-Serif;
 	letter-spacing: -1px;
 	position: fixed;
 	top: 130px;
-	left: 25%;
-	width: 50%;
+	left: 15%;
+	width: 70%;
 	color: white;
 	background-color: black;
 	text-align: center; 
 	display: none;
 	opacity: 0;
 	z-index: 100000;
+	-moz-border-radius: 10px;
 }
 
-.humanMsg .round {
+.humanMsg .around {
     border-left: solid 2px white;
 	border-right: solid 2px white;
     font-size: 1px; height: 2px;

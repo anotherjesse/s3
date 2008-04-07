@@ -31,7 +31,7 @@ function s3Control() {
     if (bucket) {
       S3Ajax.createBucket(bucket, list, function(req) {
         humanMsg.displayMsg('<strong>' + bucket + '</strong>: ' +
-          req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
+          req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent.split('.')[0])
       });
     }
 
@@ -51,13 +51,16 @@ function s3Control() {
 
     var td=document.createElement('td');
     var a=document.createElement('a');
-    a.appendChild( document.createTextNode('[delete]') );
-    a.setAttribute('href', '#')
+    a.appendChild( document.createTextNode('delete') );
+    a.setAttribute('class', 'delete');
+    a.setAttribute('style', 'display: none');
+    a.setAttribute('href', '#');
     a.setAttribute("bucket", bucket);
     td.appendChild( a );
     tr.appendChild( td );
 
     document.getElementById('buckets').appendChild(tr);
+
     $(a).click(function() {
       S3Ajax.deleteBucket(this.getAttribute('bucket'), list, function(req) {
         humanMsg.displayMsg('<strong>' + bucket + '</strong>: ' +   
@@ -115,8 +118,7 @@ function s3Control() {
 
     set_pref('key', $('#s3-key').val());
     set_pref('secret_key', $('#s3-secret-key').val());
-    load();
-    $.unblockUI();
+    window.location = window.location.href;
   }
 
   if (PREFS.getPrefType('key')) {

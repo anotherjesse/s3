@@ -50,7 +50,7 @@
       var fm = {
         init: function() {
           document.addEventListener('dragdrop', dropListener, true);
-          document.getElementById('location').innerHTML = document.title = window.location.href;
+          document.title = window.location.href;
           
           $('.upload').click(function() {
             fm.upload();
@@ -75,11 +75,12 @@
 
           bucket = window.location.host;
           prefix = unescape(window.location.pathname.slice(1));
+          $('#location').html("<a href='s3://'>s3</a>://<a href='s3://"+bucket+"'>"+bucket+"</a>/"+prefix)
           fm.listKeys();
         },
 
         listKeys: function() {
-          $.blockUI('<h3><img src="chrome://s3/skin/spinner.gif" /> refreshing key list</h3>');
+          $('#active').addClass('busy')
           S3Ajax.listKeys(bucket,
             {prefix: prefix, delimiter: '/'},
             function (req) {
@@ -88,7 +89,7 @@
                 keylist.parentNode.removeChild(keylist);
               }
               var fragment = xslt.transformToFragment(req.responseXML, document);
-              document.body.appendChild(fragment);
+              $('#active')[0].appendChild(fragment);
 
               $('tr').hover(function() {
                 var element = this;
@@ -105,9 +106,9 @@
                 $('.actions', this).empty();
               })
 
-              $.unblockUI();
+              $('#active').removeClass('busy');
             }, function(req) {
-              $.unblockUI();
+              $('#active').removeClass('busy');
               humanMsg.displayMsg('Listing in <strong>' + bucket + '</strong>: ' +
                 req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
             });
@@ -202,6 +203,7 @@
     <div class="upload_box">
       <a href="#" class="upload">Upload</a>
     </div>
-  </div>
+
+    <div id="active"></div>
   </body>
 </html>

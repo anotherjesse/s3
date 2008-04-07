@@ -1,19 +1,23 @@
 body {
   background: #eee;
-  padding: 20px;
-}
-
-body[unauth] .delete_button{
-  display: none;
+  margin: 20px;
 }
 
 table {
-  padding: 20px;
-  margin-top: 10px;
+  width: 100%;
+}
+
+#active {
   background: #fff;
   -moz-border-radius: 10px;
   border: 1px solid #ddd;
-  width: 100%;
+  padding: 10px;
+  margin: 20px 0;
+  min-height: 100px;
+}
+
+#active.busy {
+  background: #fff url(big-spinner.gif) no-repeat center center;
 }
 
 #keylist td {
