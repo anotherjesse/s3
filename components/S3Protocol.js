@@ -41,7 +41,7 @@ function (URI) {
   else {
     var key = real.slice(6+bucket.length);
 
-    if (key == '') {
+    if (key == '' || key[key.length-1] == '/') {
       var channel = ios.newChannel("chrome://s3/content/browse-xslt.html", null, null);
     }
     else {
