@@ -4,11 +4,11 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest">
     <em:name>s3://</em:name>
     <em:id>s3@overstimulate.com</em:id>
-    <em:version>0.02</em:version>
+    <em:version>0.03</em:version>
     <em:description>S3 protocol</em:description>
     <em:developer>Jesse Andrews; http://overstimulate.com</em:developer>
     <em:developer>Manish Singh; http://yosh.org</em:developer>
-    <em:contributor>Joshua McKenty; http://bountyup.com</em:contributor>
+    <em:contributor>Joshua McKenty; http://www.cognition.ca</em:contributor>
 
     <!-- firefox -->
     <em:targetApplication>
