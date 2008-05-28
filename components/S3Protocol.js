@@ -53,7 +53,7 @@ function (URI) {
 
 s3Handler.prototype.newURI =
 function (spec, originCharset, baseURI) {
-  return new s3URI(spec, originCharset, baseURI);
+  return new s3URL(spec, originCharset, baseURI);
 }
 
 /******************************************************************************
@@ -84,7 +84,7 @@ function (aIID) {
  * URI implementation
  ******************************************************************************/
 
-function s3URI(spec, originCharset, baseURI) {
+function s3URL(spec, originCharset, baseURI) {
   var prePath = spec.match(/^s3:\/\/[^\/]+/);
 
   if (baseURI) {
@@ -119,7 +119,7 @@ function s3URI(spec, originCharset, baseURI) {
   this._spec = this._prePath + this._sURL.path;
 }
 
-s3URI.prototype = {
+s3URL.prototype = {
   set spec(spec) {
     var prePath = spec.match(/^s3:\/\/[^\/]+/);
 
@@ -174,7 +174,7 @@ s3URI.prototype = {
   },
 
   clone: function() {
-    return new s3URI(this._spec, null, null);
+    return new s3URL(this._spec, null, null);
   },
 
   resolve: function(relativePath) {
@@ -230,8 +230,25 @@ s3URI.prototype = {
     return this._sURL.getRelativeBaseSpec(aURIToCompare);
   },
 
+  getInterfaces: function(aCount) {
+    var interfaces = [Components.interfaces.nsIClassInfo,
+                      Components.interfaces.nsIURI,
+                      Components.interfaces.nsIURL];
+    aCount.value = interfaces.length;
+    return interfaces;
+  },
+
+  getHelperForLanguage: function(aLanguage) { return null },
+
+  get contractID() { return "" },
+  get classDescription() { return "S3 URL" },
+  get classID() { return "" },
+  get implementationLanguage() { return Components.interfaces.nsIProgrammingLanguage.JAVASCRIPT },
+  get flags() { return 0 },
+
   QueryInterface: function(aIID) {
     if (!aIID.equals(Components.interfaces.nsISupports) &&
+        !aIID.equals(Components.interfaces.nsIClassInfo) &&
         !aIID.equals(Components.interfaces.nsIURI) &&
         !aIID.equals(Components.interfaces.nsIURL))
       throw Components.results.NS_ERROR_NO_INTERFACE;
