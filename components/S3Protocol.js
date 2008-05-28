@@ -53,11 +53,7 @@ function (URI) {
 
 s3Handler.prototype.newURI =
 function (spec, originCharset, baseURI) {
-  var cls = Components.classes['@mozilla.org/network/standard-url;1'];
-  var url = cls.createInstance(Components.interfaces.nsIStandardURL);
-  url.init(Components.interfaces.nsIStandardURL.URLTYPE_STANDARD, 80, spec, originCharset, baseURI);
-
-  return url.QueryInterface(Components.interfaces.nsIURI);
+  return new s3URI(spec, originCharset, baseURI);
 }
 
 /******************************************************************************
@@ -83,6 +79,138 @@ function (aIID) {
     throw Components.results.NS_ERROR_NO_INTERFACE;
   return this;
 }
+
+/******************************************************************************
+ * URI implementation
+ ******************************************************************************/
+
+function s3URI(spec, originCharset, baseURI) {
+  var prePath = spec.match(/^s3:\/\/[^\/]+/);
+
+  if (baseURI) {
+    var basePrePath = baseURI.spec.match(/^s3:\/\/[^\/]+/);
+    if (!basePrePath) {
+      throw Components.results.NS_ERROR_INVALID_ARG;
+    }
+  }
+
+  if (!prePath && !basePrePath) {
+    throw Components.results.NS_ERROR_INVALID_ARG;
+  }
+
+  this._sURL = Components.classes["@mozilla.org/network/standard-url;1"]
+                         .createInstance(Components.interfaces.nsIStandardURL);
+  this._sURL.init(Components.interfaces.nsIStandardURL.URLTYPE_STANDARD, 80,
+                  spec, originCharset, baseURI);
+  this._sURL.QueryInterface(Components.interfaces.nsIURL);
+
+  var newPrePath = this._sURL.prePath;
+
+  if (prePath) {
+    var re = new RegExp("^" + prePath, "i");
+    this._prePath = newPrePath.replace(re, prePath);
+  } else {
+    var re = new RegExp("^" + basePrePath, "i");
+    this._prePath = newPrePath.replace(re, basePrePath);
+  }
+
+  this._host = this._prePath.replace(/^s3:\/\//, "");
+
+  this._spec = this._prePath + this._sURL.path;
+}
+
+s3URI.prototype = {
+  set spec(spec) {
+    var prePath = spec.match(/^s3:\/\/[^\/]+/);
+
+    if (!prePath) {
+      throw Components.results.NS_ERROR_INVALID_ARG;
+    }
+
+    this._spec = spec;
+    this._prePath = prePath;
+    this._host = this._prePath.replace(/^s3:\/\//, "");
+    this._sURL.spec = spec;
+  },
+
+  get spec() { return this._spec },
+  get prePath() { return this._prePath },
+  get scheme() { return "s3" },
+  get userPass() { return "" },
+  get username() { return "" },
+  get password() { return "" },
+  get hostPort() { return this._host },
+  get host() { return this._host },
+  get port() { return -1; },
+  get path() { return this._sURL.path },
+
+  equals: function(other) {
+    return this.spec == other.spec;
+  },
+
+  schemeIs: function(scheme) {
+    return scheme == "s3";
+  },
+
+  clone: function() {
+    return new s3URI(this._spec, null, null);
+  },
+
+  resolve: function(relativePath) {
+    var res = this._sURL.resolve(relativePath);
+    var re = new RegExp("^" + this._prePath, "i");
+    return res.replace(re, this._prePath);
+  },
+
+  get asciiSpec() {
+    var path = this._sURL.asciiSpec.replace(/^s3:\/\/[^\/]+/, "");
+    return "s3://" + this.asciiHost + path;
+  },
+
+  get asciiHost() {
+    var host = "";
+    for (i = 0; i < this._host.length; i++) {
+      var c = this._host.charCodeAt(i);
+      if (c > 0x7f) {
+        host += "%" + c.toString(16);
+      } else {
+        host += this._host[i];
+      }
+    }
+
+    return host;
+  },
+
+  get originCharset() { return this._sURL.originCharset },
+
+  get filePath() { return this._sURL.filePath },
+  get param() { return this._sURL.param },
+  get query() { return this._sURL.query },
+  get ref() { return this._sURL.ref },
+  get directory() { return this._sURL.directory },
+  get fileName() { return this._sURL.fileName },
+  get fileBaseName() { return this._sURL.fileBaseName },
+  get fileExtension() { return this._sURL.fileExtension },
+
+  // XXX: need to implement setters too
+
+  getCommonBaseSpec: function(aURIToCompare) {
+    // XXX: this is not correct, host part is case sensitive
+    return this._sURL.getCommonBaseSpec(aURIToCompare);
+  },
+  getRelativeSpec: function(aURIToCompare) {
+    // XXX: this is not correct, host part is case sensitive
+    return this._sURL.getRelativeBaseSpec(aURIToCompare);
+  },
+
+  QueryInterface: function(aIID) {
+    if (!aIID.equals(Components.interfaces.nsISupports) &&
+        !aIID.equals(Components.interfaces.nsIURI) &&
+        !aIID.equals(Components.interfaces.nsIURL))
+      throw Components.results.NS_ERROR_NO_INTERFACE;
+    return this;
+  }
+};
 
 /******************************************************************************
  * Channel implementation
