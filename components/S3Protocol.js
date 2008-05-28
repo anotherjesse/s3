@@ -144,6 +144,27 @@ s3URI.prototype = {
   get port() { return -1; },
   get path() { return this._sURL.path },
 
+  set scheme(scheme) {
+    if (scheme != "s3") {
+      throw Components.results.NS_ERROR_ABORT;
+    }
+  },
+
+  set userPass(userPass) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED },
+  set username(username) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED },
+  set password(password) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED },
+  set hostPort(hostPort) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED },
+
+  set host(host) { this._host = host },
+
+  set port(port) {
+    if (port != -1) {
+      throw Components.results.NS_ERROR_ABORT;
+    }
+  },
+
+  set path(path) { this._sURL.path = path },
+
   equals: function(other) {
     return this.spec == other.spec;
   },
@@ -192,7 +213,13 @@ s3URI.prototype = {
   get fileBaseName() { return this._sURL.fileBaseName },
   get fileExtension() { return this._sURL.fileExtension },
 
-  // XXX: need to implement setters too
+  set filePath(filePath) { this._sURL.filePath = filePath },
+  set param(param) { this._sURL.param = param },
+  set ref(ref) { this._sURL.ref = ref },
+  set directory(directory) { this._sURL.directory = directory },
+  set fileName(fileName) { this._sURL.fileName = fileName },
+  set fileBaseName(fileBaseName) { this._sURL.fileBaseName = fileBaseName },
+  set fileExtension(fileExtension) { this._sURL.fileExtension = fileExtension },
 
   getCommonBaseSpec: function(aURIToCompare) {
     // XXX: this is not correct, host part is case sensitive
