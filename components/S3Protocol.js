@@ -53,7 +53,11 @@ function (URI) {
 
 s3Handler.prototype.newURI =
 function (spec, originCharset, baseURI) {
-  return new s3URL(spec, originCharset, baseURI);
+  try {
+    return new s3URL(spec, originCharset, baseURI);
+  } catch (ex) {
+    dump("XXXXXXXXXXXXXXXX: " + ex + "\n");
+  }
 }
 
 /******************************************************************************
@@ -87,15 +91,9 @@ function (aIID) {
 function s3URL(spec, originCharset, baseURI) {
   var prePath = spec.match(/^s3:\/\/[^\/]+/);
 
+  var basePrePath = null;
   if (baseURI) {
-    var basePrePath = baseURI.spec.match(/^s3:\/\/[^\/]+/);
-    if (!basePrePath) {
-      throw Components.results.NS_ERROR_INVALID_ARG;
-    }
-  }
-
-  if (!prePath && !basePrePath) {
-    throw Components.results.NS_ERROR_INVALID_ARG;
+    basePrePath = baseURI.spec.match(/^s3:\/\/[^\/]+/);
   }
 
   this._sURL = Components.classes["@mozilla.org/network/standard-url;1"]
@@ -109,9 +107,11 @@ function s3URL(spec, originCharset, baseURI) {
   if (prePath) {
     var re = new RegExp("^" + prePath, "i");
     this._prePath = newPrePath.replace(re, prePath);
-  } else {
+  } else if (basePrePath) {
     var re = new RegExp("^" + basePrePath, "i");
     this._prePath = newPrePath.replace(re, basePrePath);
+  } else {
+    this._prePath = newPrePath;
   }
 
   this._host = this._prePath.replace(/^s3:\/\//, "");
