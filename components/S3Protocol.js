@@ -174,7 +174,7 @@ s3URL.prototype = {
   },
 
   clone: function() {
-    return new s3URL(this._spec, null, null);
+    return new s3URL(this._spec, this._sURL.originCharset, null);
   },
 
   resolve: function(relativePath) {
