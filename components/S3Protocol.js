@@ -1,10 +1,10 @@
 // Copyright Jesse Andrews, 2005-2008
 // http://overstimulate.com
-// 
+//
 // This file may be used under the terms of of the
 // GNU General Public License Version 2 or later (the "GPL"),
 // http://www.gnu.org/licenses/gpl.html
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
@@ -27,12 +27,12 @@ function s3Handler() {}
 s3Handler.prototype.scheme = 's3';
 s3Handler.prototype.defaultPort = -1;
 s3Handler.prototype.protocolFlags = 0;
-s3Handler.prototype.allowPort = function (port, scheme) { return false; }
+s3Handler.prototype.allowPort = function (port, scheme) { return false; };
 s3Handler.prototype.newChannel =
 function (URI) {
   var ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
 
-  var real = URI.spec.split('#')[0].split('?')[0]
+  var real = URI.spec.split('#')[0].split('?')[0];
   var bucket = real.split('/')[2];
 
   if (bucket == '') {
@@ -49,12 +49,12 @@ function (URI) {
     }
   }
   return channel;
-}
+};
 
 s3Handler.prototype.newURI =
 function (spec, originCharset, baseURI) {
   return new s3URL(spec, originCharset, baseURI);
-}
+};
 
 /******************************************************************************
  * nsIClassInfo
@@ -65,9 +65,9 @@ function (aCount) {
   var interfaces = [Components.interfaces.nsIProtocolHandler, Components.interfaces.nsIClassInfo];
   aCount.value = interfaces.length;
   return interfaces;
-}
+};
 
-s3Handler.prototype.getHelperForLanguage = function (aLanguage) { return null; }
+s3Handler.prototype.getHelperForLanguage = function (aLanguage) { return null; };
 s3Handler.prototype.contractID = CONTRACT_ID;
 s3Handler.prototype.classDescription = CLASS_NAME;
 s3Handler.prototype.classID = CLASS_ID;
@@ -78,7 +78,7 @@ function (aIID) {
   if (!aIID.equals(Components.interfaces.nsISupports) && !aIID.equals(Components.interfaces.nsIProtocolHandler) && !aIID.equals(Components.interfaces.nsIClassInfo))
     throw Components.results.NS_ERROR_NO_INTERFACE;
   return this;
-}
+};
 
 /******************************************************************************
  * URI implementation
@@ -133,16 +133,16 @@ s3URL.prototype = {
     this._sURL.spec = spec;
   },
 
-  get spec() { return this._spec },
-  get prePath() { return this._prePath },
-  get scheme() { return "s3" },
-  get userPass() { return "" },
-  get username() { return "" },
-  get password() { return "" },
-  get hostPort() { return this._host },
-  get host() { return this._host },
+  get spec() { return this._spec; },
+  get prePath() { return this._prePath; },
+  get scheme() { return "s3"; },
+  get userPass() { return ""; },
+  get username() { return ""; },
+  get password() { return ""; },
+  get hostPort() { return this._host; },
+  get host() { return this._host; },
   get port() { return -1; },
-  get path() { return this._sURL.path },
+  get path() { return this._sURL.path; },
 
   set scheme(scheme) {
     if (scheme != "s3") {
@@ -150,12 +150,12 @@ s3URL.prototype = {
     }
   },
 
-  set userPass(userPass) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED },
-  set username(username) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED },
-  set password(password) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED },
-  set hostPort(hostPort) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED },
+  set userPass(userPass) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; },
+  set username(username) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; },
+  set password(password) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; },
+  set hostPort(hostPort) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; },
 
-  set host(host) { this._host = host },
+  set host(host) { this._host = host; },
 
   set port(port) {
     if (port != -1) {
@@ -163,7 +163,7 @@ s3URL.prototype = {
     }
   },
 
-  set path(path) { this._sURL.path = path },
+  set path(path) { this._sURL.path = path; },
 
   equals: function(other) {
     return this.spec == other.spec;
@@ -202,24 +202,24 @@ s3URL.prototype = {
     return host;
   },
 
-  get originCharset() { return this._sURL.originCharset },
+  get originCharset() { return this._sURL.originCharset; },
 
-  get filePath() { return this._sURL.filePath },
-  get param() { return this._sURL.param },
-  get query() { return this._sURL.query },
-  get ref() { return this._sURL.ref },
-  get directory() { return this._sURL.directory },
-  get fileName() { return this._sURL.fileName },
-  get fileBaseName() { return this._sURL.fileBaseName },
-  get fileExtension() { return this._sURL.fileExtension },
+  get filePath() { return this._sURL.filePath; },
+  get param() { return this._sURL.param; },
+  get query() { return this._sURL.query; },
+  get ref() { return this._sURL.ref; },
+  get directory() { return this._sURL.directory; },
+  get fileName() { return this._sURL.fileName; },
+  get fileBaseName() { return this._sURL.fileBaseName; },
+  get fileExtension() { return this._sURL.fileExtension; },
 
-  set filePath(filePath) { this._sURL.filePath = filePath },
-  set param(param) { this._sURL.param = param },
-  set ref(ref) { this._sURL.ref = ref },
-  set directory(directory) { this._sURL.directory = directory },
-  set fileName(fileName) { this._sURL.fileName = fileName },
-  set fileBaseName(fileBaseName) { this._sURL.fileBaseName = fileBaseName },
-  set fileExtension(fileExtension) { this._sURL.fileExtension = fileExtension },
+  set filePath(filePath) { this._sURL.filePath = filePath; },
+  set param(param) { this._sURL.param = param; },
+  set ref(ref) { this._sURL.ref = ref; },
+  set directory(directory) { this._sURL.directory = directory; },
+  set fileName(fileName) { this._sURL.fileName = fileName; },
+  set fileBaseName(fileBaseName) { this._sURL.fileBaseName = fileBaseName; },
+  set fileExtension(fileExtension) { this._sURL.fileExtension = fileExtension; },
 
   getCommonBaseSpec: function(aURIToCompare) {
     // XXX: this is not correct, host part is case sensitive
@@ -238,13 +238,13 @@ s3URL.prototype = {
     return interfaces;
   },
 
-  getHelperForLanguage: function(aLanguage) { return null },
+  getHelperForLanguage: function(aLanguage) { return null; },
 
-  get contractID() { return "" },
-  get classDescription() { return "S3 URL" },
-  get classID() { return "" },
-  get implementationLanguage() { return Components.interfaces.nsIProgrammingLanguage.JAVASCRIPT },
-  get flags() { return 0 },
+  get contractID() { return ""; },
+  get classDescription() { return "S3 URL"; },
+  get classID() { return ""; },
+  get implementationLanguage() { return Components.interfaces.nsIProgrammingLanguage.JAVASCRIPT; },
+  get flags() { return 0; },
 
   QueryInterface: function(aIID) {
     if (!aIID.equals(Components.interfaces.nsISupports) &&
@@ -293,7 +293,7 @@ function s3Channel__redirectChannel(aSpec) {
 
   this._listener = null;
   this._context = null;
-}
+};
 
 /******************************************************************************
  * nsIChannel
@@ -390,7 +390,7 @@ function s3_auth(channel, resource) {
 s3Channel.prototype.open =
 function s3Channel_open() {
   throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-}
+};
 
 /******************************************************************************
  * nsIHttpChannel
@@ -458,42 +458,42 @@ function s3Channel_getter_requestSucceeded() {
 s3Channel.prototype.getRequestHeader =
 function s3Channel_getRequestHeader(aHeader) {
   return this._subChannel.getRequestHeader(aHeader);
-}
+};
 
 s3Channel.prototype.setRequestHeader =
 function s3Channel_setRequestHeader(aHeader, aValue, aMerge) {
   this._subChannel.setRequestHeader(aHeader, aValue, aMerge);
-}
+};
 
 s3Channel.prototype.visitRequestHeaders =
 function s3Channel_visitRequestHeaders(aVisitor) {
   this._subChannel.visitRequestHeaders(aVisitor);
-}
+};
 
 s3Channel.prototype.getResponseHeader =
 function s3Channel_getResponseHeader(aHeader) {
   return this._subChannel.getResponseHeader(aHeader);
-}
+};
 
 s3Channel.prototype.setResponseHeader =
 function s3Channel_setResponseHeader(aHeader, aValue, aMerge) {
   this._subChannel.setResponseHeader(aHeader, aValue, aMerge);
-}
+};
 
 s3Channel.prototype.visitResponseHeaders =
 function s3Channel_visitResponseHeaders(aVisitor) {
   this._subChannel.visitResponseHeaders(aVisitor);
-}
+};
 
 s3Channel.prototype.isNoStoreResponse =
 function s3Channel_isNoStoreResponse() {
   return this._subChannel.isNoStoreResponse();
-}
+};
 
 s3Channel.prototype.isNoCacheResponse =
 function s3Channel_isNoCacheResponse() {
   return this._subChannel.isNoCacheResponse();
-}
+};
 
 /******************************************************************************
  * nsIHttpChannelInternal
@@ -517,17 +517,17 @@ function s3Channel_getter_proxyInfo() {
 s3Channel.prototype.getRequestVersion =
 function s3Channel_getRequestVersion(aMajor, aMinor) {
   this._subChannel.getRequestVersion(aMajor, aMinor);
-}
+};
 
 s3Channel.prototype.getResponseVersion =
 function s3Channel_getResponseVersion(aMajor, aMinor) {
   this._subChannel.getResponseVersion(aMajor, aMinor);
-}
+};
 
 s3Channel.prototype.setCookie =
 function s3Channel_setCookie(aCookieHeader) {
   this._subChannel.setCookie(aCookieHeader);
-}
+};
 
 /******************************************************************************
  * nsICachingChannel
@@ -571,7 +571,7 @@ function s3Channel_getter_cacheFile() {
 s3Channel.prototype.isFromCache =
 function s3Channel_isFromCache() {
   return this._subChannel.isFromCache();
-}
+};
 
 /******************************************************************************
  * nsIRequest
@@ -610,22 +610,22 @@ function s3Channel_getter_status() {
 s3Channel.prototype.cancel =
 function s3Channel_cancel(status) {
   this._subChannel.cancel(status);
-}
+};
 
 s3Channel.prototype.isPending =
 function s3Channel_isPending() {
   return this._subChannel.isPending();
-}
+};
 
 s3Channel.prototype.resume =
 function s3Channel_resume() {
   this._subChannel.resume();
-}
+};
 
 s3Channel.prototype.suspend =
 function s3Channel_suspend() {
   this._subChannel.suspend();
-}
+};
 
 /******************************************************************************
  * nsIStreamListener
@@ -634,7 +634,7 @@ function s3Channel_suspend() {
 s3Channel.prototype.onDataAvailable =
 function s3Channel_onDataAvailable(aRequest, aContext, aInputStream, aOffset, aCount) {
   this._listener.onDataAvailable(aRequest, this._context, aInputStream, aOffset, aCount);
-}
+};
 
 /******************************************************************************
  * nsIRequestObserver
@@ -648,14 +648,14 @@ function s3Channel_onStartRequest(aRequest, aContext) {
   }
 
   this._redirectChannel("chrome://s3/content/browse-xslt.html");
-}
+};
 
 s3Channel.prototype.onStopRequest =
 function s3Channel_onStopRequest(aRequest, aContext, aStatusCode) {
   if (this._listener) {
     this._listener.onStopRequest(aRequest, this._context, aStatusCode);
   }
-}
+};
 
 /******************************************************************************
  * nsIClassInfo
@@ -673,9 +673,9 @@ function (aCount) {
                     Components.interfaces.nsIClassInfo];
   aCount.value = interfaces.length;
   return interfaces;
-}
+};
 
-s3Channel.prototype.getHelperForLanguage = function (aLanguage) { return null; }
+s3Channel.prototype.getHelperForLanguage = function (aLanguage) { return null; };
 s3Channel.prototype.contractID = CONTRACT_ID;
 s3Channel.prototype.classDescription = CLASS_NAME;
 s3Channel.prototype.classID = CLASS_ID;
@@ -694,7 +694,7 @@ function (aIID) {
       !aIID.equals(Components.interfaces.nsIClassInfo))
     throw Components.results.NS_ERROR_NO_INTERFACE;
   return this;
-}
+};
 
 
 
@@ -752,7 +752,7 @@ function hmacSHA1(data, secret) {
     return b64_hmac_sha1(secret, data)+'=';
 }
 
-// FIXME: use firefox's built in crypto stuff
+// XXX: use firefox's built in crypto stuff
 
 
 /*
@@ -957,4 +957,3 @@ function binb2b64(binarray)
   }
   return str;
 }
-
