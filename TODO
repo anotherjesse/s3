@@ -1,31 +1,33 @@
-v 0.1 release:
-  make sure copyright/contributers info is correct
-  exception/feedback tool
-  help/about section
-  logo?
-  "accounts"
-    setting priviledges on a bucket
-    button styling
-  
-  "keys"
-    upload button
-    links to torrent/http
-    linkify location info (so you can go up directories)
-    date format sucks
 
-future:
-  setting priviledges on a key
-  uploading should have a progress meter
-  file size should show in page info
-  do xslt/key list in channel instead of on page so it is cached
-  support the logging of buckets feature
-  right click handlers for creating url/torrent/...
-  create time limited url for key
-  support adding people to buckets via email addresses
-  when S3Ajax.upload fails add a dialog to ask what mime type the user wants to use?
+* 0.1 release [0/3]
+ - [ ] fix copyright/contributors info
+ - [ ] s3 logo
+ - [ ] help/about section
+ - [ ] allow mixed case bucket names s3://MaBukket
 
-bugs:
-  s3://twitter_production/profile_background_images/1001042/ -- cannot click the contained thing
-  s3://twitter_production/profile_background_images/ -- css breaks (the background stops) about 2/3 down
-  s3://what/ -- acts weird
-  setup credentials only works once due to blockUI
+* future:
+** exception/feedback tool
+** setting ACL for a bucket
+** setting ACL on a key
+** have a progress meter for uploads
+** Tools -> Page Info should have accurate information (s3 specific?)
+** cache the key listing info at the channel layer
+** support logging
+** right click handler for copy url/torrent
+** create time limited url for key
+** support renaming/copying keys
+** deal with undetected mime-types (ask user?)
+** linkify key directories/paths (ala initial designs for awesome bar)
+** a good date format on key list
+** support adding people to buckets via email addresses
+** specify if bucket should be created in US or Europe
+** transfer over SSL?
+** Handle uploading of folders via DND
+** emulate "create folder" system that others use?
+
+* bugs
+** s3://twitter_production/profile_background_images/1001042/ -- cannot click the contained thing
+** s3://twitter_production/profile_background_images/ -- css breaks (the background stops) about 2/3 down
+** s3://what/ -- acts weird
+** setup credentials only works once due to blockUI
+
