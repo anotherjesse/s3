@@ -21,8 +21,8 @@ function s3Control() {
 
 
   $('#updateCredentials').click(function() {
-    $.blockUI($('#credentials'))
-    
+    $.blockUI($('#credentials'));
+
     return false;
   });
 
@@ -31,7 +31,7 @@ function s3Control() {
     if (bucket) {
       S3Ajax.createBucket(bucket, list, function(req) {
         humanMsg.displayMsg('<strong>' + bucket + '</strong>: ' +
-          req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent.split('.')[0])
+	  req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent.split('.')[0]);
       });
     }
 
@@ -63,18 +63,18 @@ function s3Control() {
 
     $(a).click(function() {
       S3Ajax.deleteBucket(this.getAttribute('bucket'), list, function(req) {
-        humanMsg.displayMsg('<strong>' + bucket + '</strong>: ' +   
-          req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
+        humanMsg.displayMsg('<strong>' + bucket + '</strong>: ' +
+	  req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent);
       });
       return false;
-    })
+    });
   }
 
   function list() {
     $('#active').show();
-    $('#active').addClass('busy')
+    $('#active').addClass('busy');
     $('#buckets').hide().empty();
-    
+
     S3Ajax.listBuckets(
       function(xml, objs) {
         var buckets = xml.responseXML.getElementsByTagName('Bucket');
@@ -86,7 +86,7 @@ function s3Control() {
         $('#active').removeClass('busy');
       },
       function(req) {
-        humanMsg.displayMsg(req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
+        humanMsg.displayMsg(req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent);
         $('#active').removeClass('busy');
       });
   }
@@ -107,7 +107,7 @@ function s3Control() {
           val = val.replace(/^\s+|\s+$/g, '');
         }
         if (val && val.length > 0) {
-          PREFS.setCharPref(key, val)
+          PREFS.setCharPref(key, val);
         }
         else {
           PREFS.clearUserPref(key)
@@ -119,7 +119,7 @@ function s3Control() {
     set_pref('key', $('#s3-key').val());
     set_pref('secret_key', $('#s3-secret-key').val());
     window.location = window.location.href;
-  }
+  };
 
   if (PREFS.getPrefType('key')) {
     $('#s3-key').val(PREFS.getCharPref('key'));
@@ -135,4 +135,3 @@ function s3Control() {
 $(function() {
   s3_controller = new s3Control();
 });
-
