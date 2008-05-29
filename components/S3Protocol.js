@@ -53,11 +53,7 @@ function (URI) {
 
 s3Handler.prototype.newURI =
 function (spec, originCharset, baseURI) {
-  try {
-    return new s3URL(spec, originCharset, baseURI);
-  } catch (ex) {
-    dump("XXXXXXXXXXXXXXXX: " + ex + "\n");
-  }
+  return new s3URL(spec, originCharset, baseURI);
 }
 
 /******************************************************************************
