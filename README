@@ -1,0 +1,39 @@
+S3:// is a "psuedo protocol" for Amazon's S3 service.
+
+Interact with S3 in the same way you do with HTTP, through your URL bar.
+
+TODO:
+
+* 0.1 release [0/4]
+ - [ ] fix copyright/contributors info
+ - [ ] s3 logo
+ - [ ] help/about section
+ - [ ] allow mixed case bucket names s3://
+
+BUGS:
+
+* s3://twitter_production/profile_background_images/1001042/ -- cannot click the contained thing
+* s3://twitter_production/profile_background_images/ -- css breaks (the background stops) about 2/3 down
+* s3://what/ -- acts weird
+* setup credentials only works once due to blockUI
+
+FUTURE/IDEAS:
+
+* exception/feedback tool
+* setting ACL for a bucket
+* setting ACL on a key
+* have a progress meter for uploads
+* Tools -> Page Info should have accurate information (s3 specific?)
+* cache the key listing info at the channel layer
+* support logging
+* right click handler for copy url/torrent
+* create time limited url for key
+* support renaming/copying keys
+* deal with undetected mime-types (ask user?)
+* linkify key directories/paths (ala initial designs for awesome bar)
+* a good date format on key list
+* support adding people to buckets via email addresses
+* specify if bucket should be created in US or Europe
+* transfer over SSL?
+* Handle uploading of folders via DND
+* emulate "create folder" system that others use?
