@@ -45,7 +45,7 @@ function s3Control() {
     var td=document.createElement('td');
     var a=document.createElement('a');
     a.appendChild( document.createTextNode(bucket) );
-    a.setAttribute("href", "s3://" + bucket);
+    a.setAttribute("href", "s3://" + bucket + "/");
     td.appendChild( a );
     tr.appendChild( td );
 
@@ -110,7 +110,7 @@ function s3Control() {
           PREFS.setCharPref(key, val);
         }
         else {
-          PREFS.clearUserPref(key)
+          PREFS.clearUserPref(key);
         }
       }
       catch (e) {}
