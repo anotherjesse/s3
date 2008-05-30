@@ -20,21 +20,23 @@ S3Ajax = {
     // Default content-type to use in uploading keys.
     DEFAULT_CONTENT_TYPE: 'text/plain',
 
-    URL:        'http://s3.amazonaws.com',
-
     // Flip this to true to potentially get lots of wonky logging.
     DEBUG: false,
+
+    // Test if a bucket can use the subdomain s3 url (required for EU)
+    SUBDOMAINABLE: new RegExp("^[a-z0-9]+(\.[a-z0-9]+)*$"),
 
     /**
         Get contents of a key in a bucket.
     */
     get: function(bucket, key, cb, err_cb) {
         return this.httpClient({
-            method:   'GET',
-            resource: '/' + bucket + '/' + key,
-            load:     cb,
-            error:    err_cb
-	});
+				 method: 'GET',
+				 bucket: bucket,
+				 key:    key,
+				 load:   cb,
+				 error:  err_cb
+			       });
     },
 
     /**
@@ -42,11 +44,12 @@ S3Ajax = {
     */
     head: function(bucket, key, cb, err_cb) {
         return this.httpClient({
-            method:   'HEAD',
-            resource: '/' + bucket + '/' + key,
-            load:     cb,
-            error:    err_cb
-	});
+				 method: 'HEAD',
+				 bucket: bucket,
+				 key:    key,
+				 load:   cb,
+				 error:  err_cb
+			       });
     },
 
     /**
@@ -59,15 +62,16 @@ S3Ajax = {
             params.acl = this.DEFAULT_ACL;
 
         return this.httpClient({
-            method:       'PUT',
-            resource:     '/' + bucket + '/' + key,
-            content:      content,
-            content_type: params.content_type,
-            meta:         params.meta,
-            acl:          params.acl,
-            load:         cb,
-            error:        err_cb
-        });
+				 method:       'PUT',
+				 bucket:       bucket,
+				 key:          key,
+				 content:      content,
+				 content_type: params.content_type,
+				 meta:         params.meta,
+				 acl:          params.acl,
+				 load:         cb,
+				 error:        err_cb
+			       });
     },
 
     /**
@@ -75,10 +79,12 @@ S3Ajax = {
     */
     listBuckets: function(cb, err_cb) {
         return this.httpClient({
-            method:'GET', resource:'/',
-            force_lists: [ 'ListAllMyBucketsResult.Buckets.Bucket' ],
-            load: cb, error:err_cb
-        });
+				 method:      'GET',
+				 resource:    '/',
+				 force_lists: [ 'ListAllMyBucketsResult.Buckets.Bucket' ],
+				 load:        cb,
+				 error:       err_cb
+			       });
     },
 
     /**
@@ -86,8 +92,11 @@ S3Ajax = {
     */
     createBucket: function(bucket, cb, err_cb) {
         return this.httpClient({
-            method:'PUT', resource:'/'+bucket, load:cb, error:err_cb
-        });
+				 method: 'PUT',
+				 bucket: bucket,
+				 load:   cb,
+				 error:  err_cb
+			       });
     },
 
     /**
@@ -95,8 +104,11 @@ S3Ajax = {
     */
     deleteBucket: function(bucket, cb, err_cb) {
         return this.httpClient({
-            method:'DELETE', resource:'/'+bucket, load:cb, error:err_cb
-        });
+				 method: 'DELETE',
+				 bucket: bucket,
+				 load:   cb,
+				 error:  err_cb
+			       });
     },
 
     /**
@@ -104,10 +116,13 @@ S3Ajax = {
     */
     listKeys: function(bucket, params, cb, err_cb) {
         return this.httpClient({
-            method:'GET', resource: '/'+bucket,
-            force_lists: [ 'ListBucketResult.Contents' ],
-            params:params, load:cb, error:err_cb
-        });
+				 method:      'GET',
+				 bucket:      bucket,
+				 force_lists: [ 'ListBucketResult.Contents' ],
+				 params:      params,
+				 load:        cb,
+				 error:       err_cb
+			       });
     },
 
     /**
@@ -115,8 +130,12 @@ S3Ajax = {
     */
     deleteKey: function(bucket, key, cb, err_cb) {
         return this.httpClient({
-            method:'DELETE', resource: '/'+bucket+'/'+encodeURIComponent(key), load:cb, error:err_cb
-        });
+				 method: 'DELETE',
+				 bucket: bucket,
+				 key:    key,
+				 load:   cb,
+				 error:  err_cb
+			       });
     },
 
     /**
@@ -124,7 +143,7 @@ S3Ajax = {
         for each deleted key and when list deletion is complete.
     */
     deleteKeys: function(bucket, list, one_cb, all_cb) {
-        var _this = this;
+        var inst = this;
 
         // If the list is empty, then fire off the callback.
         if (!list.length && all_cb) return all_cb();
@@ -134,7 +153,7 @@ S3Ajax = {
         var key = list.shift();
         this.deleteKey(bucket, key, function() {
             if (one_cb) one_cb(key);
-            _this.deleteKeys(bucket, list, one_cb, all_cb);
+            inst.deleteKeys(bucket, list, one_cb, all_cb);
         });
     },
 
@@ -142,7 +161,25 @@ S3Ajax = {
         Perform an authenticated S3 HTTP query.
     */
     httpClient: function(kwArgs) {
-        var _this = this;
+
+        if (kwArgs.resource) {
+	  var domain = "//s3.amazonaws.com";
+	  var path = kwArgs.resource;
+	  var resource = kwArgs.resource;
+	}
+	else {
+	  if (kwArgs.bucket.match(this.SUBDOMAINABLE)) {
+	    var domain = kwArgs.bucket+'.s3.amazonaws.com';
+	    var path = '/' + (kwArgs.key || '');
+	  }
+	  else {
+	    var domain = 's3.amazonaws.com';
+	    var path = '/' + kwArgs.bucket + '/' + (kwArgs.key || '');
+	  }
+	  var resource = '/' + kwArgs.bucket + '/' + (kwArgs.key || '');
+	}
+
+        var inst = this;
 
         // If need to defeat cache, toss in a date param on GET.
         if (this.DEFEAT_CACHE && ( kwArgs.method == "GET" || kwArgs.method == "HEAD" ) ) {
@@ -152,7 +189,7 @@ S3Ajax = {
 
         // Prepare the query string and URL for this request.
         var qs   = (kwArgs.params) ? '?'+queryString(kwArgs.params) : '';
-        var url  = this.URL + kwArgs.resource + qs;
+        var url  = 'http://' + domain + path + qs;
         var hdrs = {};
 
         // Handle Content-Type header
@@ -196,7 +233,7 @@ S3Ajax = {
             s += http_date + "\n";
             s += acl_header_to_sign;
             s += meta_to_sign;
-            s += kwArgs.resource;
+            s += resource;
 
             // Sign the string with our SECRET_KEY.
             var signature = this.hmacSHA1(s, this.SECRET_KEY);
@@ -204,14 +241,15 @@ S3Ajax = {
         }
 
         // Perform the HTTP request.
-        var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance(Components.interfaces.nsIXMLHttpRequest);
+        var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1']
+		    .createInstance(Components.interfaces.nsIXMLHttpRequest);
         req.open(kwArgs.method, url, true);
         for (var k in hdrs) req.setRequestHeader(k, hdrs[k]);
         req.onreadystatechange = function() {
             if (req.readyState == 4) {
 
                 // Stash away the last request details, if DEBUG active.
-                if (_this.DEBUG) {
+                if (inst.DEBUG) {
                     window._lastreq = req;
                 }
 
