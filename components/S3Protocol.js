@@ -256,13 +256,21 @@ s3URL.prototype = {
  * Channel implementation
  ******************************************************************************/
 
+var subdomainable = new RegExp("^[a-z0-9]+(\.[a-z0-9]+)*$");
+
 function s3Channel(aURI) {
   this._uri = aURI;
   this.originalURI = aURI;
 
   var bucket = aURI.spec.split('/')[2];
-  var resource = '/' + bucket + '/' + aURI.spec.slice(6+bucket.length).split('?')[0];
-  var url = 'http://s3.amazonaws.com' + resource;
+  var key = aURI.spec.slice(6+bucket.length).split('?')[0];
+
+  if (bucket.match(subdomainable)) {
+    var url = 'http://'+bucket+'.s3.amazonaws.com/' + key;
+  }
+  else {
+    var url = 'http://s3.amazonaws.com/' + bucket + '/' + key;
+  }
 
   var ios = Components.classes["@mozilla.org/network/io-service;1"]
                       .getService(Components.interfaces.nsIIOService);
@@ -272,7 +280,7 @@ function s3Channel(aURI) {
   this._subChannel.QueryInterface(Components.interfaces.nsIHttpChannelInternal);
   this._subChannel.QueryInterface(Components.interfaces.nsICachingChannel);
 
-  s3_auth(this._subChannel, resource);
+  s3_auth(this._subChannel, '/'+bucket+'/'+key);
 }
 
 s3Channel.prototype._redirectChannel =
