@@ -34,7 +34,7 @@ S3Ajax = {
             resource: '/' + bucket + '/' + key,
             load:     cb,
             error:    err_cb
-        })
+	});
     },
 
     /**
@@ -46,7 +46,7 @@ S3Ajax = {
             resource: '/' + bucket + '/' + key,
             load:     cb,
             error:    err_cb
-        })
+	});
     },
 
     /**
@@ -222,7 +222,7 @@ S3Ajax = {
                 else if (kwArgs.load)
                     return kwArgs.load(req);
             }
-        }
+        };
         req.send(kwArgs.content);
         return req;
     },
@@ -233,13 +233,13 @@ S3Ajax = {
     hmacSHA1: function(data, secret) {
         // TODO: Alternate Dojo implementation?
         return b64_hmac_sha1(secret, data)+'=';
-    },
+    }
 };
 
 // Swiped from MochiKit
 function queryString(params) {
     var l = [];
     for (k in params)
-        l.push(k+'='+encodeURIComponent(params[k]))
+      l.push(k+'='+encodeURIComponent(params[k]));
     return l.join("&");
 }
