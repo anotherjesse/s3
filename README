@@ -22,6 +22,7 @@ FUTURE/IDEAS:
 ** right click -> "Save As" is broken
 ** exception/feedback tool
 ** setting ACL for a bucket
+** recursive deletion of a folder
 ** setting ACL on a key
 ** have a progress meter for uploads
 ** Tools -> Page Info should have accurate information (s3 specific?)
