@@ -16,10 +16,6 @@ function setkeys() {
 }
 
 function s3Control() {
-  const PREFS = Components.classes['@mozilla.org/preferences-service;1']
-    .getService(Components.interfaces.nsIPrefService).getBranch('extension.s3.');
-
-
   $('#updateCredentials').click(function() {
     $.blockUI($('#credentials'));
 
@@ -93,40 +89,39 @@ function s3Control() {
 
   function load() {
     try {
-      S3Ajax.KEY_ID = PREFS.getCharPref('key');
-      S3Ajax.SECRET_KEY = PREFS.getCharPref('secret_key');
+      var creds = s3.auth.get();
+      S3Ajax.KEY_ID = creds.key;
+      S3Ajax.SECRET_KEY = creds.secret;
       list();
     }
     catch(e) {};
   }
 
   this.save = function() {
-    function set_pref(key, val) {
-      try {
-        if (val) {
-          val = val.replace(/^\s+|\s+$/g, '');
-        }
-        if (val && val.length > 0) {
-          PREFS.setCharPref(key, val);
-        }
-        else {
-          PREFS.clearUserPref(key);
-        }
+    function trim(val) {
+      if (val) {
+        return val.replace(/^\s+|\s+$/g, '');
       }
-      catch (e) {}
     }
 
-    set_pref('key', $('#s3-key').val());
-    set_pref('secret_key', $('#s3-secret-key').val());
+    var key = trim($('#s3-key').val());
+    var secret = trim($('#s3-secret-key').val());
+
+    if (key && key.length > 0) {
+      s3.auth.set(key, secret);
+    }
+    else {
+      s3.auth.clear();
+    }
+
     window.location = window.location.href;
   };
 
-  if (PREFS.getPrefType('key')) {
-    $('#s3-key').val(PREFS.getCharPref('key'));
-  }
+  var creds = s3.auth.get();
 
-  if (PREFS.getPrefType('secret_key')) {
-    $('#s3-secret-key').val(PREFS.getCharPref('secret_key'));
+  if (creds) {
+    $('#s3-key').val(creds.key);
+    $('#s3-secret-key').val(creds.secret);
   }
 
   load();
