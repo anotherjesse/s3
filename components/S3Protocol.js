@@ -19,78 +19,67 @@ const CI = Components.interfaces;
 const CR = Components.results;
 const CU = Components.utils;
 
+CU.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const PREFS = Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefService)
-                .getBranch('extension.s3.');
+const PREFS = CC['@mozilla.org/preferences-service;1']
+              .getService(CI.nsIPrefService)
+              .getBranch('extension.s3.');
 
-function s3Handler() {}
+function S3Handler() {
+}
 
-/******************************************************************************
- * nsIProtocolHandler
- ******************************************************************************/
+S3Handler.prototype = {
+  // nsIProtocolHandler
+  scheme: "s3",
+  defaultPort: -1,
+  protocolFlags: CI.nsIProtocolHandler.URI_NOAUTH,
 
-s3Handler.prototype.scheme = 's3';
-s3Handler.prototype.defaultPort = -1;
-s3Handler.prototype.protocolFlags = 0;
-s3Handler.prototype.allowPort = function (port, scheme) { return false; };
-s3Handler.prototype.newChannel =
-function (URI) {
-  var ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+  allowPort: function S3H_allowPort(port, scheme) false,
 
-  var real = URI.spec.split('#')[0].split('?')[0];
-  var bucket = real.split('/')[2];
+  newChannel: function S3H_newChannel(aURI) {
+    var ios = CC["@mozilla.org/network/io-service;1"]
+              .getService(CI.nsIIOService);
 
-  if (bucket == '') {
-    var channel = ios.newChannel("chrome://s3/content/accounts.html", null, null);
-  }
-  else {
-    var key = real.slice(6+bucket.length);
+    var real = aURI.spec.split('#')[0].split('?')[0];
+    var bucket = real.split('/')[2];
 
-    if (key == '' || key[key.length-1] == '/') {
-      var channel = ios.newChannel("chrome://s3/content/browse-xslt.html", null, null);
+    var channel;
+    if (bucket == '') {
+      channel = ios.newChannel("chrome://s3/content/accounts.html", null, null);
+    } else {
+      var key = real.slice(6 + bucket.length);
+
+      if (key == '' || key[key.length-1] == '/') {
+        channel = ios.newChannel("chrome://s3/content/browse-xslt.html", null, null);
+      } else {
+        channel = new s3Channel(aURI);
+      }
     }
-    else {
-      var channel = new s3Channel(URI);
-    }
-  }
-  return channel;
+    return channel;
+  },
+
+  newURI: function S3H_newURI(aSpec, aOriginCharset, aBaseURI) {
+    return new S3URL(aSpec, aOriginCharset, aBaseURI);
+  },
+
+  // nsIClassInfo
+  getInterfaces: function S3H_getInterfaces(aCount) {
+    var interfaces = [CI.nsIProtocolHandler, CI.nsIClassInfo];
+    aCount.value = interfaces.length;
+    return interfaces;
+  },
+  getHelperForLanguage: function S3H_getHelperForLanguage(aLanguage) null,
+  contractID: CONTRACT_ID,
+  classDescription: CLASS_NAME,
+  classID: CLASS_ID,
+  implementationLanguage: CI.nsIProgrammingLanguage.JAVASCRIPT,
+  flags: 0,
+
+  QueryInterface: XPCOMUtils.generateQI([CI.nsIProtocolHandler,
+                                         CI.nsIClassInfo])
 };
 
-s3Handler.prototype.newURI =
-function (spec, originCharset, baseURI) {
-  return new s3URL(spec, originCharset, baseURI);
-};
-
-/******************************************************************************
- * nsIClassInfo
- ******************************************************************************/
-
-s3Handler.prototype.getInterfaces =
-function (aCount) {
-  var interfaces = [Components.interfaces.nsIProtocolHandler, Components.interfaces.nsIClassInfo];
-  aCount.value = interfaces.length;
-  return interfaces;
-};
-
-s3Handler.prototype.getHelperForLanguage = function (aLanguage) { return null; };
-s3Handler.prototype.contractID = CONTRACT_ID;
-s3Handler.prototype.classDescription = CLASS_NAME;
-s3Handler.prototype.classID = CLASS_ID;
-s3Handler.prototype.implementationLanguage = Components.interfaces.nsIProgrammingLanguage.JAVASCRIPT;
-s3Handler.prototype.flags = null;
-s3Handler.prototype.QueryInterface =
-function (aIID) {
-  if (!aIID.equals(Components.interfaces.nsISupports) && !aIID.equals(Components.interfaces.nsIProtocolHandler) && !aIID.equals(Components.interfaces.nsIClassInfo))
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  return this;
-};
-
-/******************************************************************************
- * URI implementation
- ******************************************************************************/
-
-function s3URL(spec, originCharset, baseURI) {
+function S3URL(spec, originCharset, baseURI) {
   var prePath = spec.match(/^s3:\/\/[^\/]+/);
 
   var basePrePath = null;
@@ -98,11 +87,11 @@ function s3URL(spec, originCharset, baseURI) {
     basePrePath = baseURI.spec.match(/^s3:\/\/[^\/]+/);
   }
 
-  this._sURL = Components.classes["@mozilla.org/network/standard-url;1"]
-                         .createInstance(Components.interfaces.nsIStandardURL);
-  this._sURL.init(Components.interfaces.nsIStandardURL.URLTYPE_STANDARD, 80,
+  this._sURL = CC["@mozilla.org/network/standard-url;1"]
+               .createInstance(CI.nsIStandardURL);
+  this._sURL.init(CI.nsIStandardURL.URLTYPE_STANDARD, 80,
                   spec, originCharset, baseURI);
-  this._sURL.QueryInterface(Components.interfaces.nsIURL);
+  this._sURL.QueryInterface(CI.nsIURL);
 
   var newPrePath = this._sURL.prePath;
 
@@ -121,12 +110,12 @@ function s3URL(spec, originCharset, baseURI) {
   this._spec = this._prePath + this._sURL.path;
 }
 
-s3URL.prototype = {
+S3URL.prototype = {
   set spec(spec) {
     var prePath = spec.match(/^s3:\/\/[^\/]+/);
 
     if (!prePath) {
-      throw Components.results.NS_ERROR_INVALID_ARG;
+      throw CR.NS_ERROR_INVALID_ARG;
     }
 
     this._spec = spec;
@@ -148,20 +137,20 @@ s3URL.prototype = {
 
   set scheme(scheme) {
     if (scheme != "s3") {
-      throw Components.results.NS_ERROR_ABORT;
+      throw CR.NS_ERROR_ABORT;
     }
   },
 
-  set userPass(userPass) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; },
-  set username(username) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; },
-  set password(password) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; },
-  set hostPort(hostPort) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; },
+  set userPass(userPass) { throw CR.NS_ERROR_NOT_IMPLEMENTED; },
+  set username(username) { throw CR.NS_ERROR_NOT_IMPLEMENTED; },
+  set password(password) { throw CR.NS_ERROR_NOT_IMPLEMENTED; },
+  set hostPort(hostPort) { throw CR.NS_ERROR_NOT_IMPLEMENTED; },
 
   set host(host) { this._host = host; },
 
   set port(port) {
     if (port != -1) {
-      throw Components.results.NS_ERROR_ABORT;
+      throw CR.NS_ERROR_ABORT;
     }
   },
 
@@ -176,7 +165,7 @@ s3URL.prototype = {
   },
 
   clone: function() {
-    return new s3URL(this._spec, this._sURL.originCharset, null);
+    return new S3URL(this._spec, this._sURL.originCharset, null);
   },
 
   resolve: function(relativePath) {
@@ -233,29 +222,20 @@ s3URL.prototype = {
   },
 
   getInterfaces: function(aCount) {
-    var interfaces = [Components.interfaces.nsIClassInfo,
-                      Components.interfaces.nsIURI,
-                      Components.interfaces.nsIURL];
+    var interfaces = [CI.nsIURL, CI.nsIURI, CI.nsIClassInfo];
     aCount.value = interfaces.length;
     return interfaces;
   },
 
-  getHelperForLanguage: function(aLanguage) { return null; },
+  getHelperForLanguage: function(aLanguage) null,
 
   get contractID() { return ""; },
   get classDescription() { return "S3 URL"; },
   get classID() { return ""; },
-  get implementationLanguage() { return Components.interfaces.nsIProgrammingLanguage.JAVASCRIPT; },
+  get implementationLanguage() { return CI.nsIProgrammingLanguage.JAVASCRIPT; },
   get flags() { return 0; },
 
-  QueryInterface: function(aIID) {
-    if (!aIID.equals(Components.interfaces.nsISupports) &&
-        !aIID.equals(Components.interfaces.nsIClassInfo) &&
-        !aIID.equals(Components.interfaces.nsIURI) &&
-        !aIID.equals(Components.interfaces.nsIURL))
-      throw Components.results.NS_ERROR_NO_INTERFACE;
-    return this;
-  }
+  QueryInterface: XPCOMUtils.generateQI([CI.nsIURL, CI.nsIURI, CI.nsIClassInfo])
 };
 
 /******************************************************************************
@@ -278,13 +258,12 @@ function s3Channel(aURI) {
     var url = 'http://s3.amazonaws.com/' + bucket + '/' + key;
   }
 
-  var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                      .getService(Components.interfaces.nsIIOService);
+  var ios = CC["@mozilla.org/network/io-service;1"].getService(CI.nsIIOService);
   this._subChannel = ios.newChannel(url, null, null);
 
-  this._subChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
-  this._subChannel.QueryInterface(Components.interfaces.nsIHttpChannelInternal);
-  this._subChannel.QueryInterface(Components.interfaces.nsICachingChannel);
+  this._subChannel.QueryInterface(CI.nsIHttpChannel);
+  this._subChannel.QueryInterface(CI.nsIHttpChannelInternal);
+  this._subChannel.QueryInterface(CI.nsICachingChannel);
 
   s3_auth(this._subChannel, '/'+bucket+'/'+key);
 }
@@ -292,8 +271,8 @@ function s3Channel(aURI) {
 s3Channel.prototype._redirectChannel =
 function s3Channel__redirectChannel(aSpec) {
   const NS_BINDING_REDIRECTED = 0x804b0003;
-  var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                      .getService(Components.interfaces.nsIIOService);
+  var ios = CC["@mozilla.org/network/io-service;1"]
+                      .getService(CI.nsIIOService);
   var channel = ios.newChannel(aSpec, null, null);
 
   channel.asyncOpen(this._listener, this._context);
@@ -399,7 +378,7 @@ function s3_auth(channel, resource) {
 
 s3Channel.prototype.open =
 function s3Channel_open() {
-  throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+  throw CR.NS_ERROR_NOT_IMPLEMENTED;
 };
 
 /******************************************************************************
@@ -416,7 +395,7 @@ function s3Channel_setter_requestMethod(aValue) {
   if (aValue == "GET" || aValue == "HEAD") {
     this._subChannel.requestMethod = aValue;
   } else {
-    throw Components.results.NS_ERROR_INVALID_ARG;
+    throw CR.NS_ERROR_INVALID_ARG;
   }
 });
 
@@ -673,14 +652,14 @@ function s3Channel_onStopRequest(aRequest, aContext, aStatusCode) {
 
 s3Channel.prototype.getInterfaces =
 function (aCount) {
-  var interfaces = [Components.interfaces.nsIRequest,
-                    Components.interfaces.nsIChannel,
-                    Components.interfaces.nsIHttpChannel,
-                    Components.interfaces.nsIHttpChannelInternal,
-                    Components.interfaces.nsICachingChannel,
-                    Components.interfaces.nsIStreamListener,
-                    Components.interfaces.nsIRequestObserver,
-                    Components.interfaces.nsIClassInfo];
+  var interfaces = [CI.nsIRequest,
+                    CI.nsIChannel,
+                    CI.nsIHttpChannel,
+                    CI.nsIHttpChannelInternal,
+                    CI.nsICachingChannel,
+                    CI.nsIStreamListener,
+                    CI.nsIRequestObserver,
+                    CI.nsIClassInfo];
   aCount.value = interfaces.length;
   return interfaces;
 };
@@ -689,64 +668,27 @@ s3Channel.prototype.getHelperForLanguage = function (aLanguage) { return null; }
 s3Channel.prototype.contractID = CONTRACT_ID;
 s3Channel.prototype.classDescription = CLASS_NAME;
 s3Channel.prototype.classID = CLASS_ID;
-s3Channel.prototype.implementationLanguage = Components.interfaces.nsIProgrammingLanguage.JAVASCRIPT;
+s3Channel.prototype.implementationLanguage = CI.nsIProgrammingLanguage.JAVASCRIPT;
 s3Channel.prototype.flags = null;
 s3Channel.prototype.QueryInterface =
 function (aIID) {
-  if (!aIID.equals(Components.interfaces.nsISupports) &&
-      !aIID.equals(Components.interfaces.nsIRequest) &&
-      !aIID.equals(Components.interfaces.nsIChannel) &&
-      !aIID.equals(Components.interfaces.nsIHttpChannel) &&
-      !aIID.equals(Components.interfaces.nsIHttpChannelInternal) &&
-      !aIID.equals(Components.interfaces.nsICachingChannel) &&
-      !aIID.equals(Components.interfaces.nsIStreamListener) &&
-      !aIID.equals(Components.interfaces.nsIRequestObserver) &&
-      !aIID.equals(Components.interfaces.nsIClassInfo))
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+  if (!aIID.equals(CI.nsISupports) &&
+      !aIID.equals(CI.nsIRequest) &&
+      !aIID.equals(CI.nsIChannel) &&
+      !aIID.equals(CI.nsIHttpChannel) &&
+      !aIID.equals(CI.nsIHttpChannelInternal) &&
+      !aIID.equals(CI.nsICachingChannel) &&
+      !aIID.equals(CI.nsIStreamListener) &&
+      !aIID.equals(CI.nsIRequestObserver) &&
+      !aIID.equals(CI.nsIClassInfo))
+    throw CR.NS_ERROR_NO_INTERFACE;
   return this;
 };
 
 
-
-/******************************************************************************
- * XPCOM Functions for construction and registration
- ******************************************************************************/
-var Module = {
-  _firstTime: true,
-  registerSelf: function(aCompMgr, aFileSpec, aLocation, aType) {
-    if (this._firstTime) {
-      this._firstTime = false;
-      throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-    }
-    aCompMgr = aCompMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    aCompMgr.registerFactoryLocation(CLASS_ID, CLASS_NAME, CONTRACT_ID, aFileSpec, aLocation, aType);
-  },
-
-  unregisterSelf: function(aCompMgr, aLocation, aType) {
-    aCompMgr = aCompMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    aCompMgr.unregisterFactoryLocation(CLASS_ID, aLocation);
-  },
-
-  getClassObject: function(aCompMgr, aCID, aIID) {
-    if (!aIID.equals(Components.interfaces.nsIFactory))
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-    if (aCID.equals(CLASS_ID))
-      return Factory;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  },
-
-  canUnload: function(aCompMgr) { return true; }
-};
-
-var Factory = {
-  createInstance: function(aOuter, aIID) {
-    if (aOuter != null)
-      throw Components.results.NS_ERROR_NO_AGGREGATION;
-    return (new s3Handler ()).QueryInterface(aIID);
-  }
-};
-
-function NSGetModule(aCompMgr, aFileSpec) { return Module; }
+function NSGetModule(aCompMgr, aFileSpec) {
+  return XPCOMUtils.generateModule([S3Handler]);
+}
 
 
 function hmacSHA1(data, secret) {
