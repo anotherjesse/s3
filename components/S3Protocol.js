@@ -52,7 +52,7 @@ S3Handler.prototype = {
       if (key == '' || key[key.length-1] == '/') {
         channel = ios.newChannel("chrome://s3/content/browse-xslt.html", null, null);
       } else {
-        channel = new s3Channel(aURI);
+        channel = new S3Channel(aURI);
       }
     }
     return channel;
@@ -224,117 +224,126 @@ S3URL.prototype = {
 
 var subdomainable = new RegExp("^[a-z0-9]+(\.[a-z0-9]+)*$");
 
-function s3Channel(aURI) {
+function S3Channel(aURI) {
   this._uri = aURI;
   this.originalURI = aURI;
 
   var bucket = aURI.spec.split('/')[2];
-  var key = aURI.spec.slice(6+bucket.length).split('?')[0];
+  var key = aURI.spec.slice(6 + bucket.length).split('?')[0];
 
+  var url;
   if (bucket.match(subdomainable)) {
-    var url = 'http://'+bucket+'.s3.amazonaws.com/' + key;
-  }
-  else {
-    var url = 'http://s3.amazonaws.com/' + bucket + '/' + key;
+    url = 'http://' + bucket + '.s3.amazonaws.com/' + key;
+  } else {
+    url = 'http://s3.amazonaws.com/' + bucket + '/' + key;
   }
 
-  var ios = CC["@mozilla.org/network/io-service;1"].getService(CI.nsIIOService);
+  var ios = CC["@mozilla.org/network/io-service;1"]
+            .getService(CI.nsIIOService);
   this._subChannel = ios.newChannel(url, null, null);
 
   this._subChannel.QueryInterface(CI.nsIHttpChannel);
   this._subChannel.QueryInterface(CI.nsIHttpChannelInternal);
   this._subChannel.QueryInterface(CI.nsICachingChannel);
 
-  s3_auth(this._subChannel, '/'+bucket+'/'+key);
+  this.__proto__.__proto__ = this._subChannel;
+
+  s3_auth(this._subChannel, '/' + bucket + '/' + key);
 }
 
-s3Channel.prototype._redirectChannel =
-function s3Channel__redirectChannel(aSpec) {
-  const NS_BINDING_REDIRECTED = 0x804b0003;
-  var ios = CC["@mozilla.org/network/io-service;1"]
-                      .getService(CI.nsIIOService);
-  var channel = ios.newChannel(aSpec, null, null);
+S3Channel.prototype = {
+  _redirectChannel: function S3C__redirectChannel(aSpec) {
+    var ios = CC["@mozilla.org/network/io-service;1"]
+              .getService(CI.nsIIOService);
+    var channel = ios.newChannel(aSpec, null, null);
 
-  channel.asyncOpen(this._listener, this._context);
-  this.cancel(NS_BINDING_REDIRECTED);
+    channel.asyncOpen(this._listener, this._context);
+    this.cancel(CR.NS_BINDING_REDIRECTED);
 
-  channel.originalURI = this._uri;
+    channel.originalURI = this._uri;
 
-  this._listener = null;
-  this._context = null;
+    this._listener = null;
+    this._context = null;
+  },
+
+  // nsIChannel
+  get URI() { return this._uri },
+
+  asyncOpen: function S3C_asyncOpen(aListener, aContext) {
+    this._listener = aListener;
+    this._context = aContext;
+
+    this._subChannel.asyncOpen(this, null);
+    this._subChannel.originalURI = this._uri;
+  },
+
+  open: function S3C_open() { throw CR.NS_ERROR_NOT_IMPLEMENTED; },
+
+  // nsIHttpChannel
+  get requestMethod() { return this._subChannel.requestMethod; },
+  set requestMethod(aValue) {
+    if (aValue == "GET" || aValue == "HEAD") {
+      this._subChannel.requestMethod = aValue;
+    } else {
+      throw CR.NS_ERROR_INVALID_ARG;
+    }
+  },
+
+  // nsIRequest
+  get name() { return this._uri.spec; },
+
+  // nsIStreamListener
+  onDataAvailable: function S3C_onDataAvailable(aRequest, aContext,
+                                                aInputStream, aOffset, aCount)
+  {
+    this._listener.onDataAvailable(aRequest, this._context, aInputStream,
+                                   aOffset, aCount);
+  },
+
+  // nsIRequestObserver
+  onStartRequest: function S3C_onStartRequest(aRequest, aContext) {
+    if (this._subChannel.responseStatus == 200) {
+      this._listener.onStartRequest(aRequest, this._context);
+      return;
+    }
+
+    this._redirectChannel("chrome://s3/content/browse-xslt.html");
+  },
+
+  onStopRequest: function S3C_onStopRequest(aRequest, aContext, aStatusCode) {
+    if (this._listener) {
+      this._listener.onStopRequest(aRequest, this._context, aStatusCode);
+    }
+  },
+
+  // nsIClassInfo
+  getInterfaces: function S3C_getInterfaces(aCount) {
+    var interfaces = [CI.nsIRequest, CI.nsIChannel, CI.nsIHttpChannel,
+                      CI.nsIHttpChannelInternal, CI.nsICachingChannel,
+                      CI.nsIStreamListener, CI.nsIRequestObserver,
+                      CI.nsIClassInfo];
+    aCount.value = interfaces.length;
+    return interfaces;
+  },
+  getHelperForLanguage: function S3C_getHelperForLanguage(aLanguage) null,
+  contractID: "",
+  classDescription: "S3 Channel",
+  classID: "",
+  implementationLanguage: CI.nsIProgrammingLanguage.JAVASCRIPT,
+  flags: 0,
+
+  QueryInterface: XPCOMUtils.generateQI([CI.nsIRequest, CI.nsIChannel,
+                                         CI.nsIHttpChannel,
+                                         CI.nsIHttpChannelInternal,
+                                         CI.nsICachingChannel,
+                                         CI.nsIStreamListener,
+                                         CI.nsIRequestObserver,
+                                         CI.nsIClassInfo])
 };
 
-/******************************************************************************
- * nsIChannel
- ******************************************************************************/
 
-s3Channel.prototype.__defineGetter__("URI",
-function s3Channel_getter_URI() {
-  return this._uri;
-});
-
-s3Channel.prototype.__defineGetter__("owner",
-function s3Channel_getter_owner() {
-  return this._subChannel.owner;
-});
-
-s3Channel.prototype.__defineSetter__("owner",
-function s3Channel_setter_owner(aValue) {
-  this._subChannel.owner = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("notificationCallbacks",
-function s3Channel_getter_notificationCallbacks() {
-  return this._subChannel.notificationCallbacks;
-});
-
-s3Channel.prototype.__defineSetter__("notificationCallbacks",
-function s3Channel_setter_notificationCallbacks(aValue) {
-  this._subChannel.notificationCallbacks = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("securityInfo",
-function s3Channel_getter_securityInfo() {
-  return this._subChannel.securityInfo;
-});
-
-s3Channel.prototype.__defineGetter__("contentType",
-function s3Channel_getter_contentType() {
-  return this._subChannel.contentType;
-});
-
-s3Channel.prototype.__defineSetter__("contentType",
-function s3Channel_setter_contentType(aValue) {
-  this._subChannel.contentType = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("contentCharset",
-function s3Channel_getter_contentCharset() {
-  return this._subChannel.contentCharset;
-});
-
-s3Channel.prototype.__defineSetter__("contentCharset",
-function s3Channel_setter_contentCharset(aValue) {
-  this._subChannel.contentCharset = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("contentLength",
-function s3Channel_getter_contentLength() {
-  return this._subChannel.contentLength;
-});
-
-s3Channel.prototype.__defineSetter__("contentLength",
-function s3Channel_setter_contentLength(aValue) {
-  this._subChannel.contentLength = aValue;
-});
-
-s3Channel.prototype.asyncOpen =
-function s3Channel_asyncOpen(aListener, aContext) {
-  this._listener = aListener;
-  this._context = aContext;
-
-  this._subChannel.asyncOpen(this, null);
-  this._subChannel.originalURI = this._uri;
+function NSGetModule(aCompMgr, aFileSpec) {
+  return XPCOMUtils.generateModule([S3Handler]);
 }
 
 function s3_auth(channel, resource) {
@@ -354,320 +363,6 @@ function s3_auth(channel, resource) {
     // if the key or secret key isn't set, we don't need
     // to set any headers, make the call anonymously
   }
-}
-
-s3Channel.prototype.open =
-function s3Channel_open() {
-  throw CR.NS_ERROR_NOT_IMPLEMENTED;
-};
-
-/******************************************************************************
- * nsIHttpChannel
- ******************************************************************************/
-
-s3Channel.prototype.__defineGetter__("requestMethod",
-function s3Channel_getter_requestMethod() {
-  return this._subChannel.requestMethod;
-});
-
-s3Channel.prototype.__defineSetter__("requestMethod",
-function s3Channel_setter_requestMethod(aValue) {
-  if (aValue == "GET" || aValue == "HEAD") {
-    this._subChannel.requestMethod = aValue;
-  } else {
-    throw CR.NS_ERROR_INVALID_ARG;
-  }
-});
-
-s3Channel.prototype.__defineGetter__("referrer",
-function s3Channel_getter_referrer() {
-  return this._subChannel.referrer;
-});
-
-s3Channel.prototype.__defineSetter__("referrer",
-function s3Channel_setter_referrer(aValue) {
-  this._subChannel.referrer = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("allowPipelining",
-function s3Channel_getter_allowPipelining() {
-  return this._subChannel.allowPipelining;
-});
-
-s3Channel.prototype.__defineSetter__("allowPipelining",
-function s3Channel_setter_allowPipelining(aValue) {
-  this._subChannel.allowPipelining = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("redirectionLimit",
-function s3Channel_getter_redirectionLimit() {
-  return this._subChannel.redirectionLimit;
-});
-
-s3Channel.prototype.__defineSetter__("redirectionLimit",
-function s3Channel_setter_redirectionLimit(aValue) {
-  this._subChannel.redirectionLimit = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("responseStatus",
-function s3Channel_getter_responseStatus() {
-  return this._subChannel.responseStatus;
-});
-
-s3Channel.prototype.__defineGetter__("responseStatusText",
-function s3Channel_getter_responseStatusText() {
-  return this._subChannel.responseStatusText;
-});
-
-s3Channel.prototype.__defineGetter__("requestSucceeded",
-function s3Channel_getter_requestSucceeded() {
-  return this._subChannel.requestSucceeded;
-});
-
-s3Channel.prototype.getRequestHeader =
-function s3Channel_getRequestHeader(aHeader) {
-  return this._subChannel.getRequestHeader(aHeader);
-};
-
-s3Channel.prototype.setRequestHeader =
-function s3Channel_setRequestHeader(aHeader, aValue, aMerge) {
-  this._subChannel.setRequestHeader(aHeader, aValue, aMerge);
-};
-
-s3Channel.prototype.visitRequestHeaders =
-function s3Channel_visitRequestHeaders(aVisitor) {
-  this._subChannel.visitRequestHeaders(aVisitor);
-};
-
-s3Channel.prototype.getResponseHeader =
-function s3Channel_getResponseHeader(aHeader) {
-  return this._subChannel.getResponseHeader(aHeader);
-};
-
-s3Channel.prototype.setResponseHeader =
-function s3Channel_setResponseHeader(aHeader, aValue, aMerge) {
-  this._subChannel.setResponseHeader(aHeader, aValue, aMerge);
-};
-
-s3Channel.prototype.visitResponseHeaders =
-function s3Channel_visitResponseHeaders(aVisitor) {
-  this._subChannel.visitResponseHeaders(aVisitor);
-};
-
-s3Channel.prototype.isNoStoreResponse =
-function s3Channel_isNoStoreResponse() {
-  return this._subChannel.isNoStoreResponse();
-};
-
-s3Channel.prototype.isNoCacheResponse =
-function s3Channel_isNoCacheResponse() {
-  return this._subChannel.isNoCacheResponse();
-};
-
-/******************************************************************************
- * nsIHttpChannelInternal
- ******************************************************************************/
-
-s3Channel.prototype.__defineGetter__("documentURI",
-function s3Channel_getter_documentURI() {
-  return this._subChannel.documentURI;
-});
-
-s3Channel.prototype.__defineSetter__("documentURI",
-function s3Channel_setter_documentURI(aValue) {
-  this._subChannel.documentURI = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("proxyInfo",
-function s3Channel_getter_proxyInfo() {
-  return this._subChannel.proxyInfo;
-});
-
-s3Channel.prototype.getRequestVersion =
-function s3Channel_getRequestVersion(aMajor, aMinor) {
-  this._subChannel.getRequestVersion(aMajor, aMinor);
-};
-
-s3Channel.prototype.getResponseVersion =
-function s3Channel_getResponseVersion(aMajor, aMinor) {
-  this._subChannel.getResponseVersion(aMajor, aMinor);
-};
-
-s3Channel.prototype.setCookie =
-function s3Channel_setCookie(aCookieHeader) {
-  this._subChannel.setCookie(aCookieHeader);
-};
-
-/******************************************************************************
- * nsICachingChannel
- ******************************************************************************/
-
-s3Channel.prototype.__defineGetter__("cacheToken",
-function s3Channel_getter_cacheToken() {
-  return this._subChannel.cacheToken;
-});
-
-s3Channel.prototype.__defineSetter__("cacheToken",
-function s3Channel_setter_cacheToken(aValue) {
-  this._subChannel.cacheToken = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("cacheKey",
-function s3Channel_getter_cacheKey() {
-  return this._subChannel.cacheKey;
-});
-
-s3Channel.prototype.__defineSetter__("cacheKey",
-function s3Channel_setter_cacheKey(aValue) {
-  this._subChannel.cacheKey = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("cacheAsFile",
-function s3Channel_getter_cacheAsFile() {
-  return this._subChannel.cacheAsFile;
-});
-
-s3Channel.prototype.__defineSetter__("cacheAsFile",
-function s3Channel_setter_cacheAsFile(aValue) {
-  this._subChannel.cacheAsFile = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("cacheFile",
-function s3Channel_getter_cacheFile() {
-  return this._subChannel.cacheFile;
-});
-
-s3Channel.prototype.isFromCache =
-function s3Channel_isFromCache() {
-  return this._subChannel.isFromCache();
-};
-
-/******************************************************************************
- * nsIRequest
- ******************************************************************************/
-
-s3Channel.prototype.__defineGetter__("loadGroup",
-function s3Channel_getter_loadGroup() {
-  return this._subChannel.loadGroup;
-});
-
-s3Channel.prototype.__defineSetter__("loadGroup",
-function s3Channel_setter_loadGroup(aValue) {
-  this._subChannel.loadGroup = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("loadFlags",
-function s3Channel_getter_loadFlags() {
-  return this._subChannel.loadFlags;
-});
-
-s3Channel.prototype.__defineSetter__("loadFlags",
-function s3Channel_setter_loadFlags(aValue) {
-  this._subChannel.loadFlags = aValue;
-});
-
-s3Channel.prototype.__defineGetter__("name",
-function s3Channel_getter_name() {
-  return this._uri.spec;
-});
-
-s3Channel.prototype.__defineGetter__("status",
-function s3Channel_getter_status() {
-  return this._subChannel.status;
-});
-
-s3Channel.prototype.cancel =
-function s3Channel_cancel(status) {
-  this._subChannel.cancel(status);
-};
-
-s3Channel.prototype.isPending =
-function s3Channel_isPending() {
-  return this._subChannel.isPending();
-};
-
-s3Channel.prototype.resume =
-function s3Channel_resume() {
-  this._subChannel.resume();
-};
-
-s3Channel.prototype.suspend =
-function s3Channel_suspend() {
-  this._subChannel.suspend();
-};
-
-/******************************************************************************
- * nsIStreamListener
- ******************************************************************************/
-
-s3Channel.prototype.onDataAvailable =
-function s3Channel_onDataAvailable(aRequest, aContext, aInputStream, aOffset, aCount) {
-  this._listener.onDataAvailable(aRequest, this._context, aInputStream, aOffset, aCount);
-};
-
-/******************************************************************************
- * nsIRequestObserver
- ******************************************************************************/
-
-s3Channel.prototype.onStartRequest =
-function s3Channel_onStartRequest(aRequest, aContext) {
-  if (this._subChannel.responseStatus == 200) {
-    this._listener.onStartRequest(aRequest, this._context);
-    return;
-  }
-
-  this._redirectChannel("chrome://s3/content/browse-xslt.html");
-};
-
-s3Channel.prototype.onStopRequest =
-function s3Channel_onStopRequest(aRequest, aContext, aStatusCode) {
-  if (this._listener) {
-    this._listener.onStopRequest(aRequest, this._context, aStatusCode);
-  }
-};
-
-/******************************************************************************
- * nsIClassInfo
- ******************************************************************************/
-
-s3Channel.prototype.getInterfaces =
-function (aCount) {
-  var interfaces = [CI.nsIRequest,
-                    CI.nsIChannel,
-                    CI.nsIHttpChannel,
-                    CI.nsIHttpChannelInternal,
-                    CI.nsICachingChannel,
-                    CI.nsIStreamListener,
-                    CI.nsIRequestObserver,
-                    CI.nsIClassInfo];
-  aCount.value = interfaces.length;
-  return interfaces;
-};
-
-s3Channel.prototype.getHelperForLanguage = function (aLanguage) { return null; };
-s3Channel.prototype.contractID = CONTRACT_ID;
-s3Channel.prototype.classDescription = CLASS_NAME;
-s3Channel.prototype.classID = CLASS_ID;
-s3Channel.prototype.implementationLanguage = CI.nsIProgrammingLanguage.JAVASCRIPT;
-s3Channel.prototype.flags = null;
-s3Channel.prototype.QueryInterface =
-function (aIID) {
-  if (!aIID.equals(CI.nsISupports) &&
-      !aIID.equals(CI.nsIRequest) &&
-      !aIID.equals(CI.nsIChannel) &&
-      !aIID.equals(CI.nsIHttpChannel) &&
-      !aIID.equals(CI.nsIHttpChannelInternal) &&
-      !aIID.equals(CI.nsICachingChannel) &&
-      !aIID.equals(CI.nsIStreamListener) &&
-      !aIID.equals(CI.nsIRequestObserver) &&
-      !aIID.equals(CI.nsIClassInfo))
-    throw CR.NS_ERROR_NO_INTERFACE;
-  return this;
-};
-
-
-function NSGetModule(aCompMgr, aFileSpec) {
-  return XPCOMUtils.generateModule([S3Handler]);
 }
 
 
