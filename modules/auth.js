@@ -1,34 +1,36 @@
-var s3 = s3 || {};
+var EXPORTED_SYMBOLS = ['s3_auth'];
 
-s3.auth = new (function() {
-  var loginManager = Components.classes["@mozilla.org/login-manager;1"]
-                       .getService(Components.interfaces.nsILoginManager), 
+var loginManager = Components.classes["@mozilla.org/login-manager;1"]
+                     .getService(Components.interfaces.nsILoginManager);
 
-  var nsLoginInfo = new Components.Constructor("@mozilla.org/login-manager/loginInfo;1",
-					       Components.interfaces.nsILoginInfo,
-					       "init");
-  function getLogins() {
-    return loginManager.findLogins({}, 'chrome://s3', null, 'chrome://s3');
-  }
-  
-  this.clear = function() {
+var nsLoginInfo = new Components.Constructor("@mozilla.org/login-manager/loginInfo;1",
+                                             Components.interfaces.nsILoginInfo,
+					     "init");
+
+function getLogins() {
+  return loginManager.findLogins({}, 'chrome://s3', null, 'chrome://s3');
+}
+
+
+var s3_auth = {
+  clear: function s3_auth_clear() {
     var logins = getLogins();
-      
+
     for (var i = 0; i < logins.length; i++) {
       loginManager.removeLogin(logins[i]);
     }
-  }
+  },
 
-  this.get = function() {
+  get: function s3_auth_get() {
     var logins = getLogins();
 
     // return just the first entry until we deal with multiple accounts
-    for (var i = 0; i < logins.length; i++) {
+    if (logins.length > 0) {
       return {key: logins[0].username, secret: logins[0].password};
     }
-  }
+  },
 
-  this.set = function(key, secret) {
+  set: function s3_auth_set(key, secret) {
     var logins = getLogins();
 
     var newLogin = new nsLoginInfo('chrome://s3',
@@ -41,4 +43,5 @@ s3.auth = new (function() {
       loginManager.addLogin(newLogin);
     }
   }
-})();
+};
+

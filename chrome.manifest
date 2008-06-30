@@ -3,3 +3,4 @@ skin	s3 classic/1.0	chrome/skin/
 
 overlay chrome://browser/content/browser.xul    chrome://s3/content/browserOverlay.xul
 
+resource s3 modules/

@@ -10,6 +10,7 @@
 // for the specific language governing rights and limitations under the
 // License.
 
+Components.utils.import("resource://s3/auth.js");
 
 function setkeys() {
   $('#account').show();
@@ -89,7 +90,7 @@ function s3Control() {
 
   function load() {
     try {
-      var creds = s3.auth.get();
+      var creds = s3_auth.get();
       S3Ajax.KEY_ID = creds.key;
       S3Ajax.SECRET_KEY = creds.secret;
       list();
@@ -108,16 +109,16 @@ function s3Control() {
     var secret = trim($('#s3-secret-key').val());
 
     if (key && key.length > 0) {
-      s3.auth.set(key, secret);
+      s3_auth.set(key, secret);
     }
     else {
-      s3.auth.clear();
+      s3_auth.clear();
     }
 
     window.location = window.location.href;
   };
 
-  var creds = s3.auth.get();
+  var creds = s3_auth.get();
 
   if (creds) {
     $('#s3-key').val(creds.key);
