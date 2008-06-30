@@ -275,7 +275,7 @@ function S3Channel(aURI) {
 
   this.__proto__.__proto__ = this._subChannel;
 
-  s3_auth(this._subChannel, '/' + bucket + '/' + key);
+  authS3(this._subChannel, '/' + bucket + '/' + key);
 }
 
 S3Channel.prototype = {
@@ -330,7 +330,7 @@ function NSGetModule(aCompMgr, aFileSpec) {
   return XPCOMUtils.generateModule([S3Handler]);
 }
 
-function s3_auth(channel, resource) {
+function authS3(channel, resource) {
   CU.import("resource://s3/auth.js");
 
   var creds = s3_auth.get();
