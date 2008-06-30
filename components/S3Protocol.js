@@ -21,9 +21,6 @@ const CU = Components.utils;
 
 CU.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const PREFS = CC['@mozilla.org/preferences-service;1']
-              .getService(CI.nsIPrefService)
-              .getBranch('extension.s3.');
 
 function S3Handler() {
 }
@@ -334,24 +331,20 @@ function NSGetModule(aCompMgr, aFileSpec) {
 }
 
 function s3_auth(channel, resource) {
-  try {
-    var KEY = PREFS.getCharPref('key');
-    var SECRET_KEY = PREFS.getCharPref('secret_key');
+  CU.import("resource://s3/auth.js");
 
-    if ((KEY != '') && (SECRET_KEY != '')) {
-      var http_date = (new Date()).toUTCString();
+  var creds = s3_auth.get();
+  if (creds) {
+    var http_date = (new Date()).toUTCString();
 
-      var s = "GET\n\n\n" + http_date + "\n" + resource;
-      var signature = hmacSHA1(s, SECRET_KEY);
-      channel.setRequestHeader("Date", http_date, false);
-      channel.setRequestHeader("Authorization", "AWS "+KEY+":"+signature, false);
-    }
-  } catch (ex) {
-    // if the key or secret key isn't set, we don't need
-    // to set any headers, make the call anonymously
+    var s = "GET\n\n\n" + http_date + "\n" + resource;
+    var signature = hmacSHA1(s, creds.secret);
+    var authString = "AWS " + creds.key + ":" + signature;
+
+    channel.setRequestHeader("Date", http_date, false);
+    channel.setRequestHeader("Authorization", authString, false);
   }
 }
-
 
 function hmacSHA1(data, secret) {
   var uconv = CC["@mozilla.org/intl/scriptableunicodeconverter"]
