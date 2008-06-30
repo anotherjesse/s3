@@ -355,7 +355,7 @@ function hmacSHA1(data, secret) {
 
   var keyObject = CC["@mozilla.org/security/keyobjectfactory;1"]
                   .getService(CI.nsIKeyObjectFactory)
-                  .keyFromString(CI.nsIKeyObject.HMAC, key);
+                  .keyFromString(CI.nsIKeyObject.HMAC, secret);
 
   var cryptoHMAC = CC["@mozilla.org/security/hmac;1"]
                    .createInstance(CI.nsICryptoHMAC);
