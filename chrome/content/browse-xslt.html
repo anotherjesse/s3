@@ -29,11 +29,10 @@
     <script type="application/x-javascript" src="chrome://s3/content/vendor/humanmsg.js"></script>
     <script type="application/x-javascript">
 
+      Components.utils.import("resource://s3/auth.js");
+
       var Cc = Components.classes;
       var Ci = Components.interfaces;
-      const PREFS = Cc['@mozilla.org/preferences-service;1']
-                      .getService(Ci.nsIPrefService)
-                      .getBranch('extension.s3.');
 
       const mimeSVC = Cc['@mozilla.org/mime;1']
                         .getService(Ci.nsIMIMEService);
@@ -57,11 +56,13 @@
             return false;
           })
 
-          try {
-            S3Ajax.KEY_ID = PREFS.getCharPref('key');
-            S3Ajax.SECRET_KEY = PREFS.getCharPref('secret_key');
+          var creds = s3_auth.get();
+          if (creds) {
+            S3Ajax.KEY_ID = creds.key;
+            S3Ajax.SECRET_KEY = creds.secret;
             document.body.removeAttribute("unauth");
-          } catch (e) {
+          } 
+          else {
             // if the keys aren't set proceed without them
             // S3Ajax will do anonymous calls
             document.body.setAttribute("unauth", true);

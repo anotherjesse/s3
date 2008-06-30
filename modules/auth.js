@@ -8,7 +8,7 @@ var nsLoginInfo = new Components.Constructor("@mozilla.org/login-manager/loginIn
 					     "init");
 
 function getLogins() {
-  return loginManager.findLogins({}, 'chrome://s3', null, 'chrome://s3');
+  return loginManager.findLogins({}, 'chrome://s3', 'S3 Credentials', null);
 }
 
 
