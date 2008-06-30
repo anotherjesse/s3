@@ -45,3 +45,24 @@ var s3_auth = {
   }
 };
 
+(function s3_upgrade_credentials() {
+   const PREFS = Components.classes['@mozilla.org/preferences-service;1']
+                   .getService(Components.interfaces.nsIPrefService)
+                   .getBranch('extension.s3.');
+
+   try {
+     var key = PREFS.getCharPref('key');
+     var secret = PREFS.getCharPref('secret_key');
+     s3_auth.set(key, secret);
+   } catch(e) {}
+
+   // always delete prefs with key/secret_key
+
+   try {
+     PREFS.clearUserPref('key');
+   } catch(e) {}
+
+   try {
+     PREFS.clearUserPref('secret_key');
+   } catch(e) {}
+ })();
