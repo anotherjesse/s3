@@ -224,6 +224,36 @@ S3URL.prototype = {
 
 var subdomainable = new RegExp("^[a-z0-9]+(\.[a-z0-9]+)*$");
 
+function S3StreamListener(aListener, aContext) {
+  this._listener = aListener;
+  this._context = aContext;
+
+  this.__proto__.__proto__ = aListener;
+}
+
+S3StreamListener.prototype = {
+  onStartRequest: function S3C_onStartRequest(aRequest, aContext) {
+    var httpChannel = aRequest.QueryInterface(CI.nsIHttpChannel);
+    if (httpChannel.responseStatus == 200) {
+      this._listener.onStartRequest(aRequest, this._context);
+    } else {
+      this._redirectChannel(httpChannel,
+                            "chrome://s3/content/browse-xslt.html");
+    }
+  },
+
+  _redirectChannel: function S3SL__redirectChannel(aOldChannel, aSpec) {
+    var ios = CC["@mozilla.org/network/io-service;1"]
+              .getService(CI.nsIIOService);
+    var channel = ios.newChannel(aSpec, null, null);
+
+    channel.asyncOpen(this._listener, this._context);
+    aOldChannel.cancel(CR.NS_BINDING_REDIRECTED);
+
+    channel.originalURI = aOldChannel.originalURI;
+  }
+};
+
 function S3Channel(aURI) {
   this._uri = aURI;
   this.originalURI = aURI;
@@ -252,28 +282,12 @@ function S3Channel(aURI) {
 }
 
 S3Channel.prototype = {
-  _redirectChannel: function S3C__redirectChannel(aSpec) {
-    var ios = CC["@mozilla.org/network/io-service;1"]
-              .getService(CI.nsIIOService);
-    var channel = ios.newChannel(aSpec, null, null);
-
-    channel.asyncOpen(this._listener, this._context);
-    this.cancel(CR.NS_BINDING_REDIRECTED);
-
-    channel.originalURI = this._uri;
-
-    this._listener = null;
-    this._context = null;
-  },
-
   // nsIChannel
   get URI() { return this._uri },
 
   asyncOpen: function S3C_asyncOpen(aListener, aContext) {
-    this._listener = aListener;
-    this._context = aContext;
-
-    this._subChannel.asyncOpen(this, null);
+    var listener = new S3StreamListener(aListener, aContext);
+    this._subChannel.asyncOpen(listener, aContext);
     this._subChannel.originalURI = this._uri;
   },
 
@@ -292,35 +306,10 @@ S3Channel.prototype = {
   // nsIRequest
   get name() { return this._uri.spec; },
 
-  // nsIStreamListener
-  onDataAvailable: function S3C_onDataAvailable(aRequest, aContext,
-                                                aInputStream, aOffset, aCount)
-  {
-    this._listener.onDataAvailable(aRequest, this._context, aInputStream,
-                                   aOffset, aCount);
-  },
-
-  // nsIRequestObserver
-  onStartRequest: function S3C_onStartRequest(aRequest, aContext) {
-    if (this._subChannel.responseStatus == 200) {
-      this._listener.onStartRequest(aRequest, this._context);
-      return;
-    }
-
-    this._redirectChannel("chrome://s3/content/browse-xslt.html");
-  },
-
-  onStopRequest: function S3C_onStopRequest(aRequest, aContext, aStatusCode) {
-    if (this._listener) {
-      this._listener.onStopRequest(aRequest, this._context, aStatusCode);
-    }
-  },
-
   // nsIClassInfo
   getInterfaces: function S3C_getInterfaces(aCount) {
     var interfaces = [CI.nsIRequest, CI.nsIChannel, CI.nsIHttpChannel,
                       CI.nsIHttpChannelInternal, CI.nsICachingChannel,
-                      CI.nsIStreamListener, CI.nsIRequestObserver,
                       CI.nsIClassInfo];
     aCount.value = interfaces.length;
     return interfaces;
@@ -336,8 +325,6 @@ S3Channel.prototype = {
                                          CI.nsIHttpChannel,
                                          CI.nsIHttpChannelInternal,
                                          CI.nsICachingChannel,
-                                         CI.nsIStreamListener,
-                                         CI.nsIRequestObserver,
                                          CI.nsIClassInfo])
 };
 
