@@ -244,19 +244,32 @@ var subdomainable = new RegExp("^[a-z0-9]+(\.[a-z0-9]+)*$");
 function S3StreamListener(aListener, aContext) {
   this._listener = aListener;
   this._context = aContext;
-
-  this.__proto__.__proto__ = aListener;
 }
 
 S3StreamListener.prototype = {
-  onStartRequest: function S3C_onStartRequest(aRequest, aContext) {
+  // nsIRequestObserver
+  onStartRequest: function S3SL_onStartRequest(aRequest, aContext) {
     var httpChannel = aRequest.QueryInterface(CI.nsIHttpChannel);
     if (httpChannel.responseStatus == 200) {
       this._listener.onStartRequest(aRequest, this._context);
+      this.__proto__ = this._listener;
     } else {
       this._redirectChannel(httpChannel,
                             "chrome://s3/content/browse-xslt.html");
     }
+  },
+
+  onStopRequest: function S3SL_onStopRequest(aRequest, aContext, aStatusCode) {
+    this._listener.onStopRequest(aRequest, aContext, aStatusCode);
+  },
+
+  // nsIStreamListener
+  onDataAvailable: function S3SL_onDataAvailable(aRequest, aContext,
+                                                 aInputStream,
+                                                 aOffset, aCount)
+  {
+    this._listener.onDataAvailable(aRequest, aContext, aInputStream,
+                                   aOffset, aCount);
   },
 
   _redirectChannel: function S3SL__redirectChannel(aOldChannel, aSpec) {
@@ -268,7 +281,10 @@ S3StreamListener.prototype = {
     aOldChannel.cancel(CR.NS_BINDING_REDIRECTED);
 
     channel.originalURI = aOldChannel.originalURI;
-  }
+  },
+
+  QueryInterface: XPCOMUtils.generateQI([CI.nsIStreamListener,
+                                         CI.nsIRequestObserver])
 };
 
 function S3Channel(aURI) {
@@ -312,7 +328,7 @@ S3Channel.prototype = {
   set contentLength(aValue) this._subChannel.contentLength = aValue,
 
   asyncOpen: function S3C_asyncOpen(aListener, aContext) {
-    var listener = new S3StreamListener(aListener, aContext);
+    var listener = aListener ? new S3StreamListener(aListener, aContext) : null;
     this._subChannel.asyncOpen(listener, aContext);
     this._subChannel.originalURI = this._uri;
   },
