@@ -105,8 +105,6 @@ function S3URL(spec, originCharset, baseURI) {
   this._host = this._prePath.replace(/^s3:\/\//, "");
 
   this._spec = this._prePath + this._sURL.path;
-
-  this.__proto__.__proto__ = this._sURL;
 }
 
 S3URL.prototype = {
@@ -132,6 +130,7 @@ S3URL.prototype = {
   get hostPort() { return this._host; },
   get host() { return this._host; },
   get port() { return -1; },
+  get path() { return this._sURL.path; },
 
   set scheme(scheme) {
     if (scheme != "s3") {
@@ -151,6 +150,8 @@ S3URL.prototype = {
       throw CR.NS_ERROR_ABORT;
     }
   },
+
+  set path(path) { this._sURL.path = path; },
 
   equals: function(other) {
     return this.spec == other.spec;
@@ -188,6 +189,25 @@ S3URL.prototype = {
 
     return host;
   },
+
+  get originCharset() { return this._sURL.originCharset; },
+
+  get filePath() { return this._sURL.filePath; },
+  get param() { return this._sURL.param; },
+  get query() { return this._sURL.query; },
+  get ref() { return this._sURL.ref; },
+  get directory() { return this._sURL.directory; },
+  get fileName() { return this._sURL.fileName; },
+  get fileBaseName() { return this._sURL.fileBaseName; },
+  get fileExtension() { return this._sURL.fileExtension; },
+
+  set filePath(filePath) { this._sURL.filePath = filePath; },
+  set param(param) { this._sURL.param = param; },
+  set ref(ref) { this._sURL.ref = ref; },
+  set directory(directory) { this._sURL.directory = directory; },
+  set fileName(fileName) { this._sURL.fileName = fileName; },
+  set fileBaseName(fileBaseName) { this._sURL.fileBaseName = fileBaseName; },
+  set fileExtension(fileExtension) { this._sURL.fileExtension = fileExtension; },
 
   getCommonBaseSpec: function(aURIToCompare) {
     // XXX: this is not correct, host part is case sensitive
