@@ -43,7 +43,12 @@ table {
   font-weight: bold;
 }
 
-.delete {
+tr .delete {
+    display: none;
+}
+
+tr:hover .delete {
+  display: inline;
   text-decoration: none;
   background: #fff url(delete.png) no-repeat center left;
   padding: 2px 4px 2px 20px;
@@ -70,3 +75,4 @@ table {
   border-color: #000;
   color: #080;
 }
+

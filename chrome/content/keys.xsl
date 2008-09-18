@@ -40,7 +40,7 @@
           <td><a><xsl:attribute name="href">/<xsl:value-of select="S3:Key"/></xsl:attribute><xsl:value-of select="S3:Key"/></a></td>
           <td><xsl:value-of select="S3:LastModified"/></td>
           <td><xsl:value-of select="S3:Size"/></td>
-          <td class="actions"></td>
+          <td class="actions"><a href="#" class="delete" onclick="deleteKey(this.parentNode.parentNode)">delete</a></td>
         </tr>
       </xsl:for-each>
     </tbody>

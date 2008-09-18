@@ -51,6 +51,13 @@
         }
       }
 
+      function deleteKey(node) {
+        var key = node.getAttribute('key');
+        if (confirm('Are you sure you want to delete:\n' + key)) {
+          fm.delete( key, node );
+        }
+      }
+
       var fm = {
         init: function() {
           document.addEventListener('dragdrop', dropListener, true);
@@ -96,21 +103,6 @@
               }
               var fragment = xslt.transformToFragment(req.responseXML, document);
               $('#active')[0].appendChild(fragment);
-
-              $('tr').hover(function() {
-                var element = this;
-                var key = this.getAttribute('key');
-                var deleteButton = $('<a href="#" class="delete">delete<a>')
-                deleteButton.click(function() {
-                  if (confirm('Are you sure you want to delete:\n' + key + '?')) { 
-                    fm.delete( key, element );
-                  } 
-                  return false;
-                });
-                $('.actions', this).append(deleteButton)
-              }, function() {
-                $('.actions', this).empty();
-              })
 
               $('#active').removeClass('busy');
             }, function(req) {
