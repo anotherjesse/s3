@@ -244,19 +244,32 @@ var subdomainable = new RegExp("^[a-z0-9]+(\.[a-z0-9]+)*$");
 function S3StreamListener(aListener, aContext) {
   this._listener = aListener;
   this._context = aContext;
-
-  this.__proto__.__proto__ = aListener;
 }
 
 S3StreamListener.prototype = {
-  onStartRequest: function S3C_onStartRequest(aRequest, aContext) {
+  // nsIRequestObserver
+  onStartRequest: function S3SL_onStartRequest(aRequest, aContext) {
     var httpChannel = aRequest.QueryInterface(CI.nsIHttpChannel);
     if (httpChannel.responseStatus == 200) {
       this._listener.onStartRequest(aRequest, this._context);
+      this.__proto__ = this._listener;
     } else {
       this._redirectChannel(httpChannel,
                             "chrome://s3/content/browse-xslt.html");
     }
+  },
+
+  onStopRequest: function S3SL_onStopRequest(aRequest, aContext, aStatusCode) {
+    this._listener.onStopRequest(aRequest, aContext, aStatusCode);
+  },
+
+  // nsIStreamListener
+  onDataAvailable: function S3SL_onDataAvailable(aRequest, aContext,
+                                                 aInputStream,
+                                                 aOffset, aCount)
+  {
+    this._listener.onDataAvailable(aRequest, aContext, aInputStream,
+                                   aOffset, aCount);
   },
 
   _redirectChannel: function S3SL__redirectChannel(aOldChannel, aSpec) {
@@ -268,7 +281,10 @@ S3StreamListener.prototype = {
     aOldChannel.cancel(CR.NS_BINDING_REDIRECTED);
 
     channel.originalURI = aOldChannel.originalURI;
-  }
+  },
+
+  QueryInterface: XPCOMUtils.generateQI([CI.nsIStreamListener,
+                                         CI.nsIRequestObserver])
 };
 
 function S3Channel(aURI) {
@@ -293,17 +309,26 @@ function S3Channel(aURI) {
   this._subChannel.QueryInterface(CI.nsIHttpChannelInternal);
   this._subChannel.QueryInterface(CI.nsICachingChannel);
 
-  this.__proto__.__proto__ = this._subChannel;
-
   authS3(this._subChannel, '/' + bucket + '/' + key);
 }
 
 S3Channel.prototype = {
   // nsIChannel
-  get URI() { return this._uri },
+  get URI() this._uri,
+  get owner() this._subChannel.owner,
+  set owner(aValue) this._subChannel.owner = aValue,
+  get notificationCallbacks() this._subChannel.notificationCallbacks,
+  set notificationCallbacks(aValue) this._subChannel.notificationCallbacks = aValue,
+  get securityInfo() this._subChannel.securityInfo,
+  get contentType() this._subChannel.contentType,
+  set contentType(aValue) this._subChannel.contentType = aValue,
+  get contentCharset() this._subChannel.contentCharset,
+  set contentCharset(aValue) this._subChannel.contentCharset = aValue,
+  get contentLength() this._subChannel.contentLength,
+  set contentLength(aValue) this._subChannel.contentLength = aValue,
 
   asyncOpen: function S3C_asyncOpen(aListener, aContext) {
-    var listener = new S3StreamListener(aListener, aContext);
+    var listener = aListener ? new S3StreamListener(aListener, aContext) : null;
     this._subChannel.asyncOpen(listener, aContext);
     this._subChannel.originalURI = this._uri;
   },
@@ -311,7 +336,7 @@ S3Channel.prototype = {
   open: function S3C_open() { throw CR.NS_ERROR_NOT_IMPLEMENTED; },
 
   // nsIHttpChannel
-  get requestMethod() { return this._subChannel.requestMethod; },
+  get requestMethod() this._subChannel.requestMethod,
   set requestMethod(aValue) {
     if (aValue == "GET" || aValue == "HEAD") {
       this._subChannel.requestMethod = aValue;
@@ -320,8 +345,84 @@ S3Channel.prototype = {
     }
   },
 
+  get referrer() this._subChannel.referrer,
+  set referrer(aValue) this._subChannel.referrer = aValue,
+  get allowPipelining() this._subChannel.allowPipelining,
+  set allowPipelining(aValue) this._subChannel.allowPipelining = aValue,
+  get redirectionLimit() this._subChannel.redirectionLimit,
+  set redirectionLimit(aValue) this._subChannel.redirectionLimit = aValue,
+  get responseStatus() this._subChannel.responseStatus,
+  get responseStatusText() this._subChannel.responseStatusText,
+  get requestSucceeded() this._subChannel.requestSucceeded,
+
+  getRequestHeader: function S3C_getRequestHeader(aHeader) {
+    return this._subChannel.getRequestHeader(aHeader);
+  },
+  setRequestHeader: function S3C_setRequestHeader(aHeader, aValue, aMerge) {
+    this._subChannel.setRequestHeader(aHeader, aValue, aMerge);
+  },
+  visitRequestHeaders: function S3C_visitRequestHeaders(aVisitor) {
+    this._subChannel.visitRequestHeaders(aVisitor);
+  },
+
+  getResponseHeader: function S3C_getResponseHeader(aHeader) {
+    return this._subChannel.getResponseHeader(aHeader);
+  },
+  setResponseHeader: function S3C_setResponseHeader(aHeader, aValue, aMerge) {
+    this._subChannel.setResponseHeader(aHeader, aValue, aMerge);
+  },
+  visitResponseHeaders: function S3C_visitResponseHeaders(aVisitor) {
+    this._subChannel.visitResponseHeaders(aVisitor);
+  },
+
+  isNoStoreResponse: function S3C_isNoStoreResponse() this._subChannel.isNoStoreResponse(),
+  isNoCacheResponse: function S3C_isNoCacheResponse() this._subChannel.isNoCacheResponse(),
+
+  // nsIHttpChannelInternal
+  get documentURI() this._subChannel.documentURI,
+  set documentURI(aValue) this._subChannel.documentURI = aValue,
+
+  getRequestVersion: function S3C_getRequestVersion(aMajor, aMinor) {
+    return this._subChannel.getRequestVersion(aMajor, aMinor);
+  },
+  getResponseVersion: function S3C_getResponseVersion(aMajor, aMinor) {
+    return this._subChannel.getResponseVersion(aMajor, aMinor);
+  },
+
+  setCookie: function S3C_setCookie(aCookieHeader) {
+    this._subChannel.setCookie(aCookieHeader);
+  },
+
+  // nsICachingChannel
+  get cacheToken() this._subChannel.cacheToken,
+  set cacheToken(aValue) this._subChannel.cacheToken = aValue,
+  get offlineCacheToken() this._subChannel.offlineCacheToken,
+  set offlineCacheToken(aValue) this._subChannel.offlineCacheToken = aValue,
+  get cacheKey() this._subChannel.cacheKey,
+  set cacheKey(aValue) this._subChannel.cacheKey = aValue,
+  get cacheAsFile() this._subChannel.cacheAsFile,
+  set cacheAsFile(aValue) this._subChannel.cacheAsFile = aValue,
+  get cacheForOfflineUse() this._subChannel.cacheForOfflineUse,
+  set cacheForOfflineUse(aValue) this._subChannel.cacheForOfflineUse = aValue,
+  get offlineCacheClientID() this._subChannel.offlineCacheClientID,
+  set offlineCacheClientID(aValue) this._subChannel.offlineCacheClientID = aValue,
+  get cacheFile() this._subChannel.cacheFile,
+
+  isFromCache: function S3C_isFromCache() this._subChannel.isFromCache(),
+
   // nsIRequest
-  get name() { return this._uri.spec; },
+  get name() this._uri.spec,
+  get status() this._subChannel.status,
+
+  get loadGroup() this._subChannel.loadGroup,
+  set loadGroup(aValue) this._subChannel.loadGroup = aValue,
+  get loadFlags() this._subChannel.loadFlags,
+  set loadFlags(aValue) this._subChannel.loadFlags = aValue,
+
+  isPending: function S3C_isPending() this._subChannel.isPending(),
+  cancel: function S3C_cancel(aStatus) this._subChannel.cancel(aStatus),
+  suspend: function S3C_suspend() this._subChannel.suspend(),
+  resume: function S3C_resume() this._subChannel.resume(),
 
   // nsIClassInfo
   getInterfaces: function S3C_getInterfaces(aCount) {
