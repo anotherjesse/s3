@@ -27,7 +27,12 @@
     <script type="application/x-javascript" src="chrome://s3/content/vendor/jquery.blockUI.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/vendor/jquery.easing.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/vendor/humanmsg.js"></script>
+
+
+
     <script type="application/x-javascript">
+
+      document.write("<base href='s3://rww/' target='_top' />");
 
       Components.utils.import("resource://s3/auth.js");
 
@@ -74,8 +79,8 @@
 
           xslt.importStylesheet(req.responseXML);
 
-          bucket = window.location.host;
-          prefix = unescape(window.location.pathname.slice(1));
+          bucket = window.top.location.host;
+          prefix = unescape(window.top.location.pathname.slice(1));
           $('#location').html("<a href='s3://'>s3</a>://<a href='s3://"+bucket+"'>"+bucket+"</a>/"+prefix)
           fm.listKeys();
         },
