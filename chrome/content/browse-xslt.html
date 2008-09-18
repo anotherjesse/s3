@@ -32,7 +32,7 @@
 
     <script type="application/x-javascript">
 
-      document.write("<base href='s3://rww/' target='_top' />");
+      document.write("<base href='s3://" + window.top.location.host + "/' target='_top' />");
 
       Components.utils.import("resource://s3/auth.js");
 
