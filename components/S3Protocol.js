@@ -47,7 +47,7 @@ S3Handler.prototype = {
       var key = real.slice(6 + bucket.length);
 
       if (key == '' || key[key.length-1] == '/') {
-        channel = ios.newChannel("chrome://s3/content/test.html", null, null);
+        channel = ios.newChannel("chrome://s3/content/evil.html", null, null);
       } else {
         channel = new S3Channel(aURI);
       }
