@@ -9,10 +9,6 @@ function createBucket() {
   var acl = document.getElementById('acl').selectedItem.label;
   var location = document.getElementById('location').selectedItem.label;
 
-  location = 'EU';
-  acl = 'private';
-  bucket = 'europa-plz';
-
   function success() {
     window.arguments[0].success = true;
     window.close();
