@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<dialog id="donothing" 
-        title="Create S3 Bucket"
+<dialog title="Create S3 Bucket"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         buttons="accept,cancel"
         buttonlabelcancel="Cancel"
         buttonlabelaccept="Create"
         ondialogaccept="createBucket(); return false;">
 
-  <script type="text/javascript" src="sha1.js"></script>
   <script type="text/javascript" src="S3Ajax.js"></script>
   <script type="text/javascript" src="createBucket.js"></script>
     
