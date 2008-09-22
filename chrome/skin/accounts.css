@@ -9,6 +9,10 @@ body {
   width: 100%
 }
 
+tr:hover td {
+  background-color:#f8f8f8;
+}
+
 tr th {
   text-align: left;
 }
