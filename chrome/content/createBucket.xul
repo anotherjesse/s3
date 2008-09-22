@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<dialog id="donothing" 
+        title="Create S3 Bucket"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        buttons="accept,cancel"
+        buttonlabelcancel="Cancel"
+        buttonlabelaccept="Create"
+        ondialogaccept="createBucket(); return false;">
+
+  <script type="text/javascript" src="sha1.js"></script>
+  <script type="text/javascript" src="S3Ajax.js"></script>
+  <script type="text/javascript" src="createBucket.js"></script>
+    
+  <description id="message" crop="end" style="font-weight: bold">Create Bucket</description>
+  <label value="Bucket Name" control="bucket-name" accesskey="n" />
+  <textbox id="bucket-name" />
+
+  <groupbox>
+    <caption label="Access Policy"/>
+    <description>You can change the access policy at any time</description>
+    <radiogroup id="acl">
+      <radio label="private"
+             selected="true"
+             accesskey="p"
+             tooltiptext="Owner gets FULL_CONTROL. No one else has access rights."/>
+      <radio label="public-read"
+             accesskey="r"
+             tooltiptext="Owner gets FULL_CONTROL and the anonymous principal is granted READ access.  If this policy is used on an object, it can be read from a browser with no authentication."/>
+      <radio label="public-read-write"
+             accesskey="w"
+             tooltiptext="Owner gets FULL_CONTROL, the anonymous principal is granted READ and WRITE access. This is a useful policy to apply to a bucket, if you intend for any anonymous user to PUT objects into the bucket."/>
+      <radio label="authenticated-read" 
+             tooltiptext="Owner gets FULL_CONTROL, and any principal authenticated as a registered Amazon S3 user is granted READ access."/>
+    </radiogroup>
+  </groupbox>
+
+  <groupbox>
+    <caption label="Location Selection"/>
+    <description>You cannot change location after creation</description>
+    <radiogroup id="location">
+      <radio label="US" selected="true" accesskey="u" />
+      <radio label="EU" accesskey="e" />
+    </radiogroup>
+  </groupbox>
+
+
+</dialog>

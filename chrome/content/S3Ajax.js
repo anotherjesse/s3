@@ -90,10 +90,19 @@ S3Ajax = {
     /**
         Create a new bucket for this account.
     */
-    createBucket: function(bucket, cb, err_cb) {
+    createBucket: function(bucket, cb, err_cb, acl, location) {
+        var content;
+        if (location && location != 'US') {
+          content = "<CreateBucketConfiguration>\n"
+            + "<LocationConstraint>" + location +"</LocationConstraint>\n"
+            + "</CreateBucketConfiguration>\n";
+        }
         return this.httpClient({
+                                 acl: acl,
 				 method: 'PUT',
 				 bucket: bucket,
+                                 content: content,
+                                 content_type: 'text/xml; charset=UTF-8',
 				 load:   cb,
 				 error:  err_cb
 			       });
@@ -163,7 +172,7 @@ S3Ajax = {
     httpClient: function(kwArgs) {
 
         if (kwArgs.resource) {
-	  var domain = "//s3.amazonaws.com";
+	  var domain = "s3.amazonaws.com";
 	  var path = kwArgs.resource;
 	  var resource = kwArgs.resource;
 	}

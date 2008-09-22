@@ -24,16 +24,16 @@ function s3Control() {
   });
 
   $('#createBucket').click(function() {
-    var bucket = prompt('Bucket Name?');
-    if (bucket) {
-      S3Ajax.createBucket(bucket, list, function(req) {
-        humanMsg.displayMsg('<strong>' + bucket + '</strong>: ' +
-	  req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent.split('.')[0]);
-      });
-    }
-
-    return false;
-  });
+                             var params = {};
+                             window.openDialog("chrome://s3/content/createBucket.xul",
+                                               "createS3Bucket",
+                                               "centerscreen,chrome,modal",
+                                               params);
+                             if (params.success) {
+                               list();
+                             }
+                             return false;
+                           });
 
   function addBucket( bucket ) {
     var tr=document.createElement('tr');
