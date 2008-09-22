@@ -466,21 +466,3 @@ function authS3(channel, resource) {
     channel.setRequestHeader("Authorization", authString, false);
   }
 }
-
-function hmacSHA1(data, secret) {
-  var uconv = CC["@mozilla.org/intl/scriptableunicodeconverter"]
-              .createInstance(CI.nsIScriptableUnicodeConverter);
-  uconv.charset = "utf-8";
-
-  var dataarray = uconv.convertToByteArray(data, []);
-
-  var keyObject = CC["@mozilla.org/security/keyobjectfactory;1"]
-                  .getService(CI.nsIKeyObjectFactory)
-                  .keyFromString(CI.nsIKeyObject.HMAC, secret);
-
-  var cryptoHMAC = CC["@mozilla.org/security/hmac;1"]
-                   .createInstance(CI.nsICryptoHMAC);
-  cryptoHMAC.init(CI.nsICryptoHMAC.SHA1, keyObject);
-  cryptoHMAC.update(dataarray, dataarray.length);
-  return cryptoHMAC.finish(true);
-}

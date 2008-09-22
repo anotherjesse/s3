@@ -1,4 +1,4 @@
-var EXPORTED_SYMBOLS = ['s3_auth'];
+var EXPORTED_SYMBOLS = ['s3_auth', 'hmacSHA1'];
 
 var loginManager = Components.classes["@mozilla.org/login-manager;1"]
                      .getService(Components.interfaces.nsILoginManager);
@@ -6,6 +6,25 @@ var loginManager = Components.classes["@mozilla.org/login-manager;1"]
 var nsLoginInfo = new Components.Constructor("@mozilla.org/login-manager/loginInfo;1",
                                              Components.interfaces.nsILoginInfo,
 					     "init");
+
+function hmacSHA1(data, secret) {
+  var uconv = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
+              .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+  uconv.charset = "utf-8";
+
+  var dataarray = uconv.convertToByteArray(data, []);
+
+  var keyObject = Components.classes["@mozilla.org/security/keyobjectfactory;1"]
+                  .getService(Components.interfaces.nsIKeyObjectFactory)
+                  .keyFromString(Components.interfaces.nsIKeyObject.HMAC, secret);
+
+  var cryptoHMAC = Components.classes["@mozilla.org/security/hmac;1"]
+                   .createInstance(Components.interfaces.nsICryptoHMAC);
+  cryptoHMAC.init(Components.interfaces.nsICryptoHMAC.SHA1, keyObject);
+  cryptoHMAC.update(dataarray, dataarray.length);
+  return cryptoHMAC.finish(true);
+}
+
 
 function getLogins() {
   return loginManager.findLogins({}, 'chrome://s3', 'S3 Credentials', null);
