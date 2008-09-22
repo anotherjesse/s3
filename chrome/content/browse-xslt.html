@@ -54,7 +54,7 @@
       function deleteKey(node) {
         var key = node.getAttribute('key');
         if (confirm('Are you sure you want to delete:\n' + key)) {
-          fm.delete( key, node );
+          fm.delete( escape(key), node );
         }
       }
 
