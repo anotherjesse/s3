@@ -1,13 +1,16 @@
 /**
-    S3Ajax v0.1 - An AJAX wrapper package for Amazon S3
+    S3Ajax v0.2 - An AJAX wrapper package for Amazon S3
 
     http://decafbad.com/trac/wiki/S3Ajax
     l.m.orchard@pobox.com
     Share and Enjoy.
 
-    Requires:
-        http://pajhome.org.uk/crypt/md5/sha1.js
+    0.1 original version
+    0.2 use FF3's built-in crypto
+
 */
+
+Components.utils.import("resource://s3/auth.js");
 
 S3Ajax = {
 
@@ -245,7 +248,7 @@ S3Ajax = {
             s += resource;
 
             // Sign the string with our SECRET_KEY.
-            var signature = this.hmacSHA1(s, this.SECRET_KEY);
+            var signature = hmacSHA1(s, this.SECRET_KEY);
             hdrs['Authorization'] = "AWS "+this.KEY_ID+":"+signature;
         }
 
@@ -272,14 +275,6 @@ S3Ajax = {
         };
         req.send(kwArgs.content);
         return req;
-    },
-
-    /**
-        Abstract HMAC SHA1 signature calculation.
-    */
-    hmacSHA1: function(data, secret) {
-        // TODO: Alternate Dojo implementation?
-        return b64_hmac_sha1(secret, data)+'=';
     }
 };
 

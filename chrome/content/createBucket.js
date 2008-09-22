@@ -9,14 +9,13 @@ function createBucket() {
   var acl = document.getElementById('acl').selectedItem.label;
   var location = document.getElementById('location').selectedItem.label;
 
-  function success() {
+  function success(req) {
     window.arguments[0].success = true;
     window.close();
   }
 
   function error(req) {
     var msg = req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent.split('.')[0];
-    dump(req.responseText + '\n')
     var node = document.getElementById('message');
     node.value = msg;
     node.hidden = false;
