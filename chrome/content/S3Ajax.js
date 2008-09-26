@@ -11,6 +11,7 @@
 */
 
 Components.utils.import("resource://s3/auth.js");
+const PR_UINT32_MAX = 0xffffffff;
 
 S3Ajax = {
 
@@ -234,7 +235,7 @@ S3Ajax = {
           content_MD5 = ch.finish(true);
 
           tmpInputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
-          tmpInputStream.init(kwArgs.content, 1, 0644, 0);
+          tmpInputStream.init(kwArgs.file, 1, 0644, 0);
           tmpInputBufferStream = Cc["@mozilla.org/network/buffered-input-stream;1"].createInstance(Ci.nsIBufferedInputStream);
           tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
           content = tmpInputBufferStream;
