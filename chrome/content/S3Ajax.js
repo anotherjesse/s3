@@ -58,7 +58,7 @@ S3Ajax = {
     /**
         Put data into a key in a bucket.
     */
-    put: function(bucket, key, content, params, cb, err_cb) {
+    put: function(bucket, key, file, params, cb, err_cb) {
         if (!params.content_type)
             params.content_type = this.DEFAULT_CONTENT_TYPE;
         if (!params.acl)
@@ -68,7 +68,7 @@ S3Ajax = {
 				 method:       'PUT',
 				 bucket:       bucket,
 				 key:          key,
-				 content:      content,
+				 file:         file,
 				 content_type: params.content_type,
 				 meta:         params.meta,
 				 acl:          params.acl,
@@ -217,6 +217,28 @@ S3Ajax = {
         hdrs['Date']  = http_date;
 
         var content_MD5 = '';
+        var content = kwArgs.content;
+
+        if (kwArgs.file) {
+          var tmpInputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
+          tmpInputStream.init(kwArgs.file, 1, 0644, 0);
+          var tmpInputBufferStream = Cc["@mozilla.org/network/buffered-input-stream;1"].createInstance(Ci.nsIBufferedInputStream);
+          tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
+          var ch = Components.classes["@mozilla.org/security/hash;1"]
+                     .createInstance(Components.interfaces.nsICryptoHash);
+
+          ch.init(ch.MD5);
+          // this tells updateFromStream to read the entire ch
+          ch.updateFromStream(tmpInputBufferStream, PR_UINT32_MAX);
+          // pass true here to get base64 digest
+          content_MD5 = ch.finish(true);
+
+          tmpInputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
+          tmpInputStream.init(kwArgs.content, 1, 0644, 0);
+          tmpInputBufferStream = Cc["@mozilla.org/network/buffered-input-stream;1"].createInstance(Ci.nsIBufferedInputStream);
+          tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
+          content = tmpInputBufferStream;
+        }
 
         // Handle the ACL parameter
         var acl_header_to_sign = '';
@@ -273,7 +295,7 @@ S3Ajax = {
                     return kwArgs.load(req);
             }
         };
-        req.send(kwArgs.content);
+        req.send(content);
         return req;
     }
 };
