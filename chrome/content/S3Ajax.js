@@ -239,6 +239,7 @@ S3Ajax = {
           tmpInputBufferStream = Cc["@mozilla.org/network/buffered-input-stream;1"].createInstance(Ci.nsIBufferedInputStream);
           tmpInputBufferStream.init(tmpInputStream, 65536 * 4);
           content = tmpInputBufferStream;
+          hdrs['Content-MD5'] = content_MD5;
         }
 
         // Handle the ACL parameter
