@@ -143,13 +143,16 @@
           params.content_type = mimeSVC.getTypeFromFile(file);
           // TODO: if this fails, we should do our own lookup ... instead of just defaulting to text/plain
         } catch(e) {};
-        S3Ajax.put(bucket, key, file, params, function() {
-          cb();
-        }, function(req) {
-          humanMsg.displayMsg('Upload to <strong>' + bucket + '</strong>: ' +
-            req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent);
-          cb();
-        });
+        var upload_status = document.getElementById('upload_status');
+        params.listener = function(position, total) {
+          upload_status.innerHTML = (Math.floor(1000 * position / total)/10) + "%";
+        }
+        S3Ajax.put(bucket, key, file, params, cb,
+          function(req) {
+            humanMsg.displayMsg('Upload to <strong>' + bucket + '</strong>: ' +
+              req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent);
+            cb();
+          });
       }
 
       var Uploader = {
@@ -167,7 +170,7 @@
           Uploader.working = true;
           var cur = Uploader.queue.shift();
           var status = '<h3><img src="chrome://s3/skin/spinner.gif" /> uploading...</h3>' +
-            '<h6>' + cur.key + '</h6>' +
+            '<h6>' + cur.key + ' <span id="upload_status"></span></h6>' +
             '<p id="queue_size">';
           if (Uploader.queue.length > 0) {
             status += Uploader.queue.length + ' remaining in queue.'

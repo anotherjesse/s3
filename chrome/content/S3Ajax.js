@@ -73,6 +73,7 @@ S3Ajax = {
 				 content_type: params.content_type,
 				 meta:         params.meta,
 				 acl:          params.acl,
+                                 listener:     params.listener,
 				 load:         cb,
 				 error:        err_cb
 			       });
@@ -179,8 +180,7 @@ S3Ajax = {
 	  var domain = "s3.amazonaws.com";
 	  var path = kwArgs.resource;
 	  var resource = kwArgs.resource;
-	}
-	else {
+	} else {
 	  if (kwArgs.bucket.match(this.SUBDOMAINABLE)) {
 	    var domain = kwArgs.bucket+'.s3.amazonaws.com';
 	    var path = '/' + (kwArgs.key || '');
@@ -279,6 +279,11 @@ S3Ajax = {
         // Perform the HTTP request.
         var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1']
 		    .createInstance(Components.interfaces.nsIXMLHttpRequest);
+        if (kwArgs.listener) {
+          req.onuploadprogress = function(event) {
+            kwArgs.listener(event.position, event.totalSize);
+          };
+        }
         req.open(kwArgs.method, url, true);
         for (var k in hdrs) req.setRequestHeader(k, hdrs[k]);
         req.onreadystatechange = function() {
