@@ -10,7 +10,11 @@
 
 */
 
-Components.utils.import("resource://s3/auth.js");
+var Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+
+Cu.import("resource://s3/auth.js");
 const PR_UINT32_MAX = 0xffffffff;
 
 S3Ajax = {
