@@ -144,7 +144,14 @@
           // TODO: if this fails, we should do our own lookup ... instead of just defaulting to text/plain
         } catch(e) {};
         var upload_status = document.getElementById('upload_status');
+        var realStart = -1;
         params.listener = function(position, total) {
+          // HACK: firefox doesn't seem to reset the position to 0
+          // between requests, so we take the value of the first callback
+          // as approximately 0
+          if (realStart < 0) { realStart = position; }
+          position = position - realStart;
+
           upload_status.innerHTML = (Math.floor(1000 * position / total)/10) + "%";
         }
         S3Ajax.put(bucket, key, file, params, cb,
