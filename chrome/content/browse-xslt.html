@@ -13,200 +13,32 @@
      License.
 -->
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="application/x-javascript">
+      // HACK: because we are inside the evil.html iframe
+      document.write("<base href='s3://" + window.top.location.host + "/' target='_top' />");
+    </script>
+
     <link rel="stylesheet" href="chrome://s3/skin/style.css" />
     <link rel="stylesheet" href="chrome://s3/content/vendor/humanmsg.css" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
     <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/dnd.js"></script>
+    <script type="application/x-javascript" src="chrome://s3/content/uploader.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/vendor/jquery-1.2.3.min.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/vendor/jquery.blockUI.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/vendor/jquery.easing.js"></script>
     <script type="application/x-javascript" src="chrome://s3/content/vendor/humanmsg.js"></script>
-
-
-
-    <script type="application/x-javascript">
-
-      document.write("<base href='s3://" + window.top.location.host + "/' target='_top' />");
-
-      Components.utils.import("resource://s3/auth.js");
-
-      var Cc = Components.classes;
-      var Ci = Components.interfaces;
-
-      const mimeSVC = Cc['@mozilla.org/mime;1']
-                        .getService(Ci.nsIMIMEService);
-
-      var bucket, prefix;
-      var xslt = new XSLTProcessor();
-
-      var dropListener = {
-        handleEvent: function(event) {
-          nsDragAndDrop.drop(event, dnd);
-        }
-      }
-
-      function deleteKey(node) {
-        var key = node.getAttribute('key');
-        if (confirm('Are you sure you want to delete:\n' + key)) {
-          fm.delete( escape(key), node );
-        }
-      }
-
-      var fm = {
-        init: function() {
-          document.addEventListener('dragdrop', dropListener, true);
-          document.title = window.location.href;
-          
-          $('.upload').click(function() {
-            fm.upload();
-            return false;
-          })
-
-          var creds = s3_auth.get();
-          if (creds) {
-            S3Ajax.KEY_ID = creds.key;
-            S3Ajax.SECRET_KEY = creds.secret;
-            document.body.removeAttribute("unauth");
-          } 
-          else {
-            // if the keys aren't set proceed without them
-            // S3Ajax will do anonymous calls
-            document.body.setAttribute("unauth", true);
-          }
-
-          var req = new XMLHttpRequest();
-          req.open("GET", "chrome://s3/content/keys.xsl", false);
-          req.send(null);
-
-          xslt.importStylesheet(req.responseXML);
-
-          bucket = window.top.location.host;
-          prefix = unescape(window.top.location.pathname.slice(1));
-          $('#location').html("<a href='s3://'>s3</a>://<a href='s3://"+bucket+"'>"+bucket+"</a>/"+prefix)
-          fm.listKeys();
-        },
-
-        listKeys: function() {
-          $('#active').addClass('busy')
-          S3Ajax.listKeys(bucket,
-            {prefix: prefix, delimiter: '/'},
-            function (req) {
-              var keylist = $('#keylist')[0];
-              if (keylist) {
-                keylist.parentNode.removeChild(keylist);
-              }
-              var fragment = xslt.transformToFragment(req.responseXML, document);
-              $('#active')[0].appendChild(fragment);
-
-              $('#active').removeClass('busy');
-            }, function(req) {
-              $('#active').removeClass('busy');
-              humanMsg.displayMsg('Listing in <strong>' + bucket + '</strong>: ' +
-                req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
-            });
-        },
-
-        delete: function(key, element) {
-          S3Ajax.deleteKey( bucket, key, function() {
-            $(element).remove();
-          }, function(req) {
-            humanMsg.displayMsg('Deletion in <strong>' + bucket + '</strong>: ' +
-              req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
-          });
-        },
-
-        upload: function() {
-          var picker = Components.classes["@mozilla.org/filepicker;1"]
-            .createInstance(Components.interfaces.nsIFilePicker);
-
-          picker.init(window, 'Choose file(s) to upload to S3', Components.interfaces.nsIFilePicker.modeOpenMultiple);
-
-          if (picker.show() == Components.interfaces.nsIFilePicker.returnOK) {
-            var enum = picker.files;
-            while (enum.hasMoreElements()) {
-              var file = enum.getNext();
-              file.QueryInterface(Components.interfaces.nsIFile);
-              Uploader.add(bucket, file);
-            }
-          }
-        }
-      }
-
-      S3Ajax.upload = function(bucket, key, file, cb) {
-        var params = {};
-        try {
-          params.content_type = mimeSVC.getTypeFromFile(file);
-          // TODO: if this fails, we should do our own lookup ... instead of just defaulting to text/plain
-        } catch(e) {};
-        var upload_status = document.getElementById('upload_status');
-        var realStart = -1;
-        params.listener = function(position, total) {
-          // HACK: firefox doesn't seem to reset the position to 0
-          // between requests, so we take the value of the first callback
-          // as approximately 0
-          if (realStart < 0) { realStart = position; }
-          position = position - realStart;
-
-          upload_status.innerHTML = (Math.floor(1000 * position / total)/10) + "%";
-        }
-        S3Ajax.put(bucket, key, file, params, cb,
-          function(req) {
-            humanMsg.displayMsg('Upload to <strong>' + bucket + '</strong>: ' +
-              req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent);
-            cb();
-          });
-      }
-
-      var Uploader = {
-        working: false,
-        queue: [],
-        add: function(bucket, file) {
-          var key = escape(prefix + file.leafName);
-          Uploader.queue.push({bucket: bucket, key: key, file: file});
-          $('#queue_size').html(Uploader.queue.length + ' remaining in queue.');
-          if (!Uploader.working) {
-            Uploader.upload();
-          }
-        },
-        upload: function() {
-          Uploader.working = true;
-          var cur = Uploader.queue.shift();
-          var status = '<h3><img src="chrome://s3/skin/spinner.gif" /> uploading...</h3>' +
-            '<h6>' + cur.key + ' <span id="upload_status"></span></h6>' +
-            '<p id="queue_size">';
-          if (Uploader.queue.length > 0) {
-            status += Uploader.queue.length + ' remaining in queue.'
-          }
-          status += '</p>'
-          $.blockUI(status);
-          S3Ajax.upload(cur.bucket, cur.key, cur.file, Uploader.uploadComplete);
-        },
-        uploadComplete: function() {
-          if (Uploader.queue.length > 0) {
-            Uploader.upload();
-          }
-          else {
-            Uploader.working = false;
-            $.unblockUI();
-            fm.listKeys();
-          }
-        }
-      }
-      
-      $(fm.init);
-    </script>
+    <script type="application/x-javascript" src="chrome://s3/content/browse-xslt.js"></script>
   </head>
   <body>
     <h2 id="location"></h2>
     <div class="upload_box">
       <a href="#" class="upload">Upload</a>
     </div>
-
     <div id="active"></div>
   </body>
 </html>

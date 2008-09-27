@@ -9,6 +9,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
+
 var dnd = {
   onDragOver: function(aEvent, aFlavor, aSession) {},
   onDragEnter: function(aEvent, aSession) {},
@@ -27,7 +28,7 @@ var dnd = {
           var file = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
           file.initWithPath( aDropData.dataList[c].dataList[0].data.path );
-          Uploader.add(bucket, file);
+          Uploader.add(file);
           break;
         case "text/x-moz-url":
           var url = aDropData.dataList[c].dataList[0].data;
@@ -55,3 +56,13 @@ var dnd = {
     return flavors;
   }
 }
+
+var dropListener = {
+  handleEvent: function(event) {
+    nsDragAndDrop.drop(event, dnd);
+  }
+}
+
+$(function() {
+  document.addEventListener('dragdrop', dropListener, true);
+});
