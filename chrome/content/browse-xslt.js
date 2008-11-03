@@ -6,6 +6,8 @@ var Ci = Components.interfaces;
 const mimeSVC = Cc['@mozilla.org/mime;1']
                   .getService(Ci.nsIMIMEService);
 
+var $ = function(x) { return document.getElementById(x) }
+
 var bucket, prefix;
 var xslt = new XSLTProcessor();
 
@@ -18,23 +20,17 @@ function deleteKey(node) {
 
 var fm = {
   init: function() {
-    document.title = window.location.href;
-    
-    $('.upload').click(function() {
-      fm.upload();
-      return false;
-    })
 
     var creds = s3_auth.get();
     if (creds) {
       S3Ajax.KEY_ID = creds.key;
       S3Ajax.SECRET_KEY = creds.secret;
-      document.body.removeAttribute("unauth");
-    } 
+//      window.removeAttribute("unauth");
+    }
     else {
       // if the keys aren't set proceed without them
       // S3Ajax will do anonymous calls
-      document.body.setAttribute("unauth", true);
+//      document.body.setAttribute("unauth", true);
     }
 
     var req = new XMLHttpRequest();
@@ -45,25 +41,31 @@ var fm = {
 
     bucket = window.top.location.host;
     prefix = unescape(window.top.location.pathname.slice(1));
-    $('#location').html("<a href='s3://'>s3</a>://<a href='s3://"+bucket+"'>"+bucket+"</a>/"+prefix)
+
+    var bucketLabel = document.createElement('label');
+    bucketLabel.setAttribute('value', window.location.host);
+    bucketLabel.setAttribute('class', 'text-link s3');
+    bucketLabel.setAttribute('href', '/');
+    $('location').appendChild(bucketLabel);
+
     fm.listKeys();
   },
 
   listKeys: function() {
-    $('#active').addClass('busy')
+    $('active').className = 'busy';
     S3Ajax.listKeys(bucket,
       {prefix: prefix, delimiter: '/'},
       function (req) {
-        var keylist = $('#keylist')[0];
+        var keylist = $('keylist');
         if (keylist) {
           keylist.parentNode.removeChild(keylist);
         }
         var fragment = xslt.transformToFragment(req.responseXML, document);
-        $('#active')[0].appendChild(fragment);
+        $('active').appendChild(fragment);
 
-        $('#active').removeClass('busy');
+        $('active').className = null;
       }, function(req) {
-        $('#active').removeClass('busy');
+        $('active').removeClass('busy');
         humanMsg.displayMsg('Listing in <strong>' + bucket + '</strong>: ' +
           req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
       });
@@ -95,4 +97,4 @@ var fm = {
   }
 }
 
-$(fm.init);
+window.onload = fm.init

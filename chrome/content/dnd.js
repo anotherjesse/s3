@@ -63,6 +63,4 @@ var dropListener = {
   }
 }
 
-$(function() {
-  document.addEventListener('dragdrop', dropListener, true);
-});
+window.addEventListener('dragdrop', dropListener, true);

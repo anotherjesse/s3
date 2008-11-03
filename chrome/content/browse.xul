@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!--
+     Copyright Jesse Andrews, 2005-2008
+     http://overstimulate.com
+
+     This file may be used under the terms of of the
+     GNU General Public License Version 2 or later (the "GPL"),
+     http://www.gnu.org/licenses/gpl.html
+
+     Software distributed under the License is distributed on an "AS IS" basis,
+     WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+     for the specific language governing rights and limitations under the
+     License.
+-->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://s3/skin/style.css" type="text/css"?>
+
+<page xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/x-javascript" src="chrome://browser/content/utilityOverlay.js"/>
+  <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"></script>
+  <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"></script>
+  <script type="application/x-javascript" src="chrome://s3/content/dnd.js"></script>
+  <script type="application/x-javascript" src="chrome://s3/content/uploader.js"></script>
+  <script type="application/x-javascript" src="chrome://s3/content/browse-xslt.js"></script>
+
+  <hbox id="header">
+    <hbox id="location">
+      <label value="s3://" class="text-link s3" href="s3://" />
+    </hbox>
+    <spacer flex="1" />
+    <button label="upload" id="upload" onclick="fm.upload()" />
+  </hbox>
+
+  <vbox id="active" />
+
+</page>

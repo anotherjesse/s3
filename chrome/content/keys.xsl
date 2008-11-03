@@ -14,37 +14,24 @@
 -->
 
 <xsl:stylesheet version="1.0"
-  xmlns:S3="http://s3.amazonaws.com/doc/2006-03-01/"
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                xmlns:S3="http://s3.amazonaws.com/doc/2006-03-01/"
+                xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <xsl:template match="/">
-  <table cellspacing="0" id="keylist">
-    <thead>
-      <tr>
-        <th align="left">Key</th>
-        <th align="left">Last Modified</th>
-        <th align="left">Size</th>
-        <th align="left" class="delete_button" width="80">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <xsl:for-each select="S3:ListBucketResult/S3:CommonPrefixes">
-        <tr class="s3dir">
-          <td><a><xsl:attribute name="href">/<xsl:value-of select="S3:Prefix"/></xsl:attribute><xsl:value-of select="S3:Prefix"/></a></td>
-          <td colspan="3"></td>
-        </tr>
-      </xsl:for-each>
-      <xsl:for-each select="S3:ListBucketResult/S3:Contents">
-        <tr>
-          <xsl:attribute name="key"><xsl:value-of select="S3:Key"/></xsl:attribute>
-          <td><a><xsl:attribute name="href">/<xsl:value-of select="S3:Key"/></xsl:attribute><xsl:value-of select="S3:Key"/></a></td>
-          <td><xsl:value-of select="S3:LastModified"/></td>
-          <td><xsl:value-of select="S3:Size"/></td>
-          <td class="actions"><a href="#" class="delete" onclick="deleteKey(this.parentNode.parentNode); return false">delete</a></td>
-        </tr>
-      </xsl:for-each>
-    </tbody>
-  </table>
+  <xsl:for-each select="S3:ListBucketResult/S3:CommonPrefixes">
+    <label class="text-link s3">
+      <xsl:attribute name="value"><xsl:value-of select="S3:Prefix"/></xsl:attribute>
+      <xsl:attribute name="href">/<xsl:value-of select="S3:Prefix"/></xsl:attribute>
+    </label>
+  </xsl:for-each>
+  <xsl:for-each select="S3:ListBucketResult/S3:Contents">
+    <label class="text-link s3">
+      <xsl:attribute name="value"><xsl:value-of select="S3:Key"/></xsl:attribute>
+      <xsl:attribute name="href">/<xsl:value-of select="S3:Key"/></xsl:attribute>
+    </label>
+
+  </xsl:for-each>
 </xsl:template>
 
 </xsl:stylesheet>

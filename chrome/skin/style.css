@@ -12,7 +12,7 @@ table {
   -moz-border-radius: 10px;
   border: 1px solid #ddd;
   padding: 10px;
-  margin: 20px 0;
+  margin: 10px;
   min-height: 100px;
 }
 
@@ -26,21 +26,6 @@ table {
 
 #keylist tr:hover td {
   background-color:#f8f8f8;
-}
-
-.upload_label {
-  font-weight: bold;
-}
-
-.upload_box {
-  position: absolute;
-  top: 20px;
-  padding: 10px;
-  right: 20px;
-}
-
-.upload_box input {
-  font-weight: bold;
 }
 
 tr .delete {
@@ -62,17 +47,35 @@ tr:hover .delete {
   color: #f00;
 }
 
-.upload {
-  text-decoration: none;
-  background: #fff url(arrow_up.png) no-repeat center left;
-  padding: 2px 4px 2px 20px;
-  border: 1px solid #888;
-  font-size: 18px;
-  color: #888;
+#upload {
+  list-style-image: url("chrome://s3/skin/arrow_up.png");
+  padding: 2px;
+  font-size: 16px;
+  margin-right: 10px;
 }
 
-.upload:hover {
-  border-color: #000;
+#upload:hover {
   color: #080;
 }
 
+#header
+{
+  margin-top: 10px
+}
+
+label.text-link.s3
+{
+  -moz-binding:  url("chrome://s3/content/s3.xml#s3-link");
+  -moz-user-focus: normal;
+}
+
+#location
+{
+  padding-left: 10px
+}
+
+#location label
+{
+  margin: 7px 0;
+  font-size: 1.5em
+}
