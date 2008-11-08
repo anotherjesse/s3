@@ -21,6 +21,10 @@ function deleteKey(node) {
   }
 }
 
+function saveAs() {
+  alert('FIXME: implement me');
+}
+
 function copyHTTP() {
   var key = document.popupNode.getAttribute('href').substring(1);
   gClipboardHelper.copyString(S3Ajax.httpFor(bucket, key));

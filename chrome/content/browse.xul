@@ -28,7 +28,9 @@
 
   <menupopup id="test">
     <menuitem label="Copy HTTP" accesskey="c" onclick="copyHTTP()" />
+    <menuitem label="Save As" accesskey="s" onclick="saveAs()" />
     <menuitem label="Properties" accesskey="p" onclick="showProperties()" />
+    <menuseparator />
     <menuitem label="Delete" accesskey="d" onclick="showDelete()" />
   </menupopup>
 
