@@ -26,11 +26,10 @@
     </label>
   </xsl:for-each>
   <xsl:for-each select="S3:ListBucketResult/S3:Contents">
-    <label class="text-link s3">
+    <label class="text-link s3" context="test">
       <xsl:attribute name="value"><xsl:value-of select="S3:Key"/></xsl:attribute>
       <xsl:attribute name="href">/<xsl:value-of select="S3:Key"/></xsl:attribute>
     </label>
-
   </xsl:for-each>
 </xsl:template>
 

@@ -12,10 +12,14 @@ var bucket, prefix;
 var xslt = new XSLTProcessor();
 
 function deleteKey(node) {
-  var key = node.getAttribute('key');
+  var key = node.getAttribute('href').substring(1);
   if (confirm('Are you sure you want to delete:\n' + key)) {
     fm.delete( escape(key), node );
   }
+}
+
+function showDelete() {
+  deleteKey(document.popupNode);
 }
 
 var fm = {
@@ -25,12 +29,6 @@ var fm = {
     if (creds) {
       S3Ajax.KEY_ID = creds.key;
       S3Ajax.SECRET_KEY = creds.secret;
-//      window.removeAttribute("unauth");
-    }
-    else {
-      // if the keys aren't set proceed without them
-      // S3Ajax will do anonymous calls
-//      document.body.setAttribute("unauth", true);
     }
 
     var req = new XMLHttpRequest();
@@ -73,10 +71,9 @@ var fm = {
 
   delete: function(key, element) {
     S3Ajax.deleteKey( bucket, key, function() {
-      $(element).remove();
+      element.parentNode.removeChild(element);
     }, function(req) {
-      humanMsg.displayMsg('Deletion in <strong>' + bucket + '</strong>: ' +
-        req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
+      alert(req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent);
     });
   },
 
@@ -97,4 +94,4 @@ var fm = {
   }
 }
 
-window.onload = fm.init
+window.onload = fm.init;

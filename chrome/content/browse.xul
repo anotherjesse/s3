@@ -26,6 +26,11 @@
   <script type="application/x-javascript" src="chrome://s3/content/uploader.js"></script>
   <script type="application/x-javascript" src="chrome://s3/content/browse-xslt.js"></script>
 
+  <menupopup id="test">
+    <menuitem label="Properties" accesskey="p" onclick="showProperties()" />
+    <menuitem label="Delete" accesskey="d" onclick="showDelete()" />
+  </menupopup>
+
   <hbox id="header">
     <hbox id="location">
       <label value="s3://" class="text-link s3" href="s3://" />
