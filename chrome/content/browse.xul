@@ -27,6 +27,7 @@
   <script type="application/x-javascript" src="chrome://s3/content/browse.js"></script>
 
   <menupopup id="test">
+    <menuitem label="Copy HTTP" accesskey="c" onclick="copyHTTP()" />
     <menuitem label="Properties" accesskey="p" onclick="showProperties()" />
     <menuitem label="Delete" accesskey="d" onclick="showDelete()" />
   </menupopup>

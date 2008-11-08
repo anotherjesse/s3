@@ -47,6 +47,18 @@ S3Ajax = {
                            });
   },
 
+  httpFor: function(bucket, key) {
+    if (bucket.match(this.SUBDOMAINABLE)) {
+      var domain = kwArgs.bucket+'.s3.amazonaws.com';
+      var path = '/' + (kwArgs.key || '');
+    } else {
+      var domain = 's3.amazonaws.com';
+      var path = '/' + bucket + '/' + key;
+    }
+
+    return 'http://' + domain + path;
+  },
+
   /**
     Head the meta of a key in a bucket.
   */

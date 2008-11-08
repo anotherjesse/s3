@@ -6,6 +6,9 @@ var Ci = Components.interfaces;
 const mimeSVC = Cc['@mozilla.org/mime;1']
                   .getService(Ci.nsIMIMEService);
 
+const gClipboardHelper = Cc["@mozilla.org/widget/clipboardhelper;1"]
+                           .getService(Ci.nsIClipboardHelper);
+
 var $ = function(x) { return document.getElementById(x) }
 
 var bucket, prefix;
@@ -16,6 +19,11 @@ function deleteKey(node) {
   if (confirm('Are you sure you want to delete:\n' + key)) {
     fm.delete( escape(key), node );
   }
+}
+
+function copyHTTP() {
+  var key = document.popupNode.getAttribute('href').substring(1);
+  gClipboardHelper.copyString(S3Ajax.httpFor(bucket, key));
 }
 
 function showDelete() {
