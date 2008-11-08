@@ -49,8 +49,8 @@ S3Ajax = {
 
   httpFor: function(bucket, key) {
     if (bucket.match(this.SUBDOMAINABLE)) {
-      var domain = kwArgs.bucket+'.s3.amazonaws.com';
-      var path = '/' + (kwArgs.key || '');
+      var domain = bucket+'.s3.amazonaws.com';
+      var path = '/' + (key || '');
     } else {
       var domain = 's3.amazonaws.com';
       var path = '/' + bucket + '/' + key;
