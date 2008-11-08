@@ -24,7 +24,7 @@
   <script type="application/x-javascript" src="chrome://s3/content/S3Ajax.js"></script>
   <script type="application/x-javascript" src="chrome://s3/content/dnd.js"></script>
   <script type="application/x-javascript" src="chrome://s3/content/uploader.js"></script>
-  <script type="application/x-javascript" src="chrome://s3/content/browse-xslt.js"></script>
+  <script type="application/x-javascript" src="chrome://s3/content/browse.js"></script>
 
   <menupopup id="test">
     <menuitem label="Properties" accesskey="p" onclick="showProperties()" />
