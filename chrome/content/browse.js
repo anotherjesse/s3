@@ -32,6 +32,7 @@ function copyHTTP() {
 
 function copySIGNED() {
   var key = document.popupNode.getAttribute('href').substring(1);
+  key = encodeURIComponent(key);
   gClipboardHelper.copyString(S3Ajax.signedURL(bucket, key));
 }
 
@@ -80,9 +81,8 @@ var fm = {
 
         $('active').className = null;
       }, function(req) {
-        $('active').removeClass('busy');
-        humanMsg.displayMsg('Listing in <strong>' + bucket + '</strong>: ' +
-          req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent)
+        $('active').className = null;
+        alert(req.responseXML.getElementsByTagName('Message')[0].childNodes[0].textContent);
       });
   },
 
