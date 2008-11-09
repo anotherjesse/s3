@@ -79,3 +79,9 @@ label.text-link.s3
   margin: 7px 0;
   font-size: 1.5em
 }
+
+#active
+{
+  overflow: auto;
+  max-height: 500px; /* FIXME */
+}
