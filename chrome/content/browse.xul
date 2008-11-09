@@ -27,8 +27,9 @@
   <script type="application/x-javascript" src="chrome://s3/content/browse.js"></script>
 
   <menupopup id="test">
-    <menuitem label="Copy HTTP" accesskey="c" onclick="copyHTTP()" />
-    <menuitem label="Save As" accesskey="s" onclick="saveAs()" />
+    <menuitem label="Copy Public URL" accesskey="c" onclick="copyHTTP()" />
+    <menuitem label="Copy Signed URL (5 minutes)" accesskey="s" onclick="copySIGNED()" />
+    <menuitem label="Save As" accesskey="a" onclick="saveAs()" />
     <menuitem label="Properties" accesskey="p" onclick="showProperties()" />
     <menuseparator />
     <menuitem label="Delete" accesskey="d" onclick="showDelete()" />

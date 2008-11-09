@@ -30,6 +30,11 @@ function copyHTTP() {
   gClipboardHelper.copyString(S3Ajax.httpFor(bucket, key));
 }
 
+function copySIGNED() {
+  var key = document.popupNode.getAttribute('href').substring(1);
+  gClipboardHelper.copyString(S3Ajax.signedURL(bucket, key));
+}
+
 function showDelete() {
   deleteKey(document.popupNode);
 }
