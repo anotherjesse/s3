@@ -26,7 +26,7 @@ S3Ajax.upload = function(bucket, key, file, cb) {
     position = position - realStart;
 
     upload_status.innerHTML = (Math.floor(1000 * position / total)/10) + "%";
-  }
+  };
   S3Ajax.put(bucket, key, file, params, cb,
     function(req) {
       humanMsg.displayMsg('Upload to <strong>' + bucket + '</strong>: ' +
@@ -53,9 +53,9 @@ var Uploader = {
       '<h6>' + cur.key + ' <span id="upload_status"></span></h6>' +
       '<p id="queue_size">';
     if (Uploader.queue.length > 0) {
-      status += Uploader.queue.length + ' remaining in queue.'
+      status += Uploader.queue.length + ' remaining in queue.';
     }
-    status += '</p>'
+    status += '</p>';
     $.blockUI(status);
     S3Ajax.upload(bucket, cur.key, cur.file, Uploader.uploadComplete);
   },
