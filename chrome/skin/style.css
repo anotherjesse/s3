@@ -7,7 +7,7 @@ table {
   width: 100%;
 }
 
-#active {
+#uploads, #active {
   background: #fff;
   -moz-border-radius: 10px;
   border: 1px solid #ddd;

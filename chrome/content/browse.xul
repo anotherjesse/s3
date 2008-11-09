@@ -45,4 +45,25 @@
 
   <vbox id="active" />
 
+  <spacer flex="1" />
+
+  <vbox id="uploads" hidden="true">
+    <hbox>
+      <vbox>
+        <image src="chrome://s3/skin/big-spinner.gif" />
+        <spacer flex="1" />
+      </vbox>
+      <vbox>
+        <hbox>
+          <label id="status" value="Uploading" />
+          <progressmeter
+             id="uploadstatus"
+             mode="determined"
+             value="0"/>
+        </hbox>
+        <label id="queue"  value="6 of 5" />
+      </vbox>
+    </hbox>
+  </vbox>
+
 </page>

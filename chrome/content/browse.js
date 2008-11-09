@@ -72,7 +72,7 @@ var fm = {
     S3Ajax.listKeys(bucket,
       {prefix: prefix, delimiter: '/'},
       function (req) {
-        var keylist = $('keylist');
+        var keylist = $('keys');
         if (keylist) {
           keylist.parentNode.removeChild(keylist);
         }

@@ -18,20 +18,22 @@
                 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<xsl:template match="/">
-  <xsl:for-each select="S3:ListBucketResult/S3:CommonPrefixes">
-    <label class="text-link s3">
-      <xsl:attribute name="value"><xsl:value-of select="S3:Prefix"/></xsl:attribute>
-      <xsl:attribute name="href">/<xsl:value-of select="S3:Prefix"/></xsl:attribute>
-    </label>
-  </xsl:for-each>
-  <xsl:for-each select="S3:ListBucketResult/S3:Contents">
-    <label class="text-link s3" context="test">
-      <xsl:attribute name="value"><xsl:value-of select="S3:Key"/></xsl:attribute>
-      <xsl:attribute name="href">/<xsl:value-of select="S3:Key"/></xsl:attribute>
-    </label>
-  </xsl:for-each>
-</xsl:template>
+  <xsl:template match="/">
+    <vbox id="keys">
+      <xsl:for-each select="S3:ListBucketResult/S3:CommonPrefixes">
+        <label class="text-link s3">
+          <xsl:attribute name="value"><xsl:value-of select="S3:Prefix"/></xsl:attribute>
+          <xsl:attribute name="href">/<xsl:value-of select="S3:Prefix"/></xsl:attribute>
+        </label>
+      </xsl:for-each>
+      <xsl:for-each select="S3:ListBucketResult/S3:Contents">
+        <label class="text-link s3" context="test">
+          <xsl:attribute name="value"><xsl:value-of select="S3:Key"/></xsl:attribute>
+          <xsl:attribute name="href">/<xsl:value-of select="S3:Key"/></xsl:attribute>
+        </label>
+      </xsl:for-each>
+    </vbox>
+  </xsl:template>
 
 </xsl:stylesheet>
 
