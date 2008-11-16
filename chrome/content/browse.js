@@ -9,7 +9,7 @@ const mimeSVC = Cc['@mozilla.org/mime;1']
 const gClipboardHelper = Cc["@mozilla.org/widget/clipboardhelper;1"]
                            .getService(Ci.nsIClipboardHelper);
 
-var $ = function(x) { return document.getElementById(x) }
+var $ = function(x) { return document.getElementById(x); };
 
 var bucket, prefix;
 var xslt = new XSLTProcessor();
@@ -101,14 +101,14 @@ var fm = {
     picker.init(window, 'Choose file(s) to upload to S3', Ci.nsIFilePicker.modeOpenMultiple);
 
     if (picker.show() == Ci.nsIFilePicker.returnOK) {
-      var enum = picker.files;
-      while (enum.hasMoreElements()) {
-        var file = enum.getNext();
+      var enumerator = picker.files;
+      while (enumerator.hasMoreElements()) {
+        var file = enumerator.getNext();
         file.QueryInterface(Ci.nsIFile);
         Uploader.add(file);
       }
     }
   }
-}
+};
 
 window.onload = fm.init;
