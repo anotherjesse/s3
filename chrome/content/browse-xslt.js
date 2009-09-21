@@ -25,6 +25,7 @@ var fm = {
       return false;
     })
 
+
     var creds = s3_auth.get();
     if (creds) {
       S3Ajax.KEY_ID = creds.key;
@@ -46,7 +47,21 @@ var fm = {
     bucket = window.top.location.host;
     prefix = unescape(window.top.location.pathname.slice(1));
     $('#location').html("<a href='s3://'>s3</a>://<a href='s3://"+bucket+"'>"+bucket+"</a>/"+prefix)
-    fm.listKeys();
+    if (prefix != '') {
+      S3Ajax.head(bucket, escape(prefix), function() { fm.display(); },
+                                  function() { fm.listKeys(); })
+    }
+    else {
+      fm.listKeys();
+    }
+  },
+
+  display: function() {
+    var iframe = document.createElement('iframe');
+    iframe.setAttribute("src", 'http://s3.amazonaws.com/' + bucket + '/' + prefix);
+    iframe.setAttribute("style", 'width: 100%; height: 100%');
+    // iframe.setAttribute("src", S3Ajax.signedURL(bucket, prefix));
+    $('#active')[0].appendChild(iframe);
   },
 
   listKeys: function() {
