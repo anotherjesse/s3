@@ -43,9 +43,7 @@
     <button label="upload" id="upload" onclick="fm.upload()" />
   </hbox>
 
-  <vbox id="active" />
-
-  <spacer flex="1" />
+  <vbox id="active" flex="1" />
 
   <vbox id="uploads" hidden="true">
     <hbox>

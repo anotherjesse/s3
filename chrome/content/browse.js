@@ -77,6 +77,7 @@ var fm = {
   display: function() {
     var iframe = document.createElement('iframe');
     iframe.setAttribute("src", 'http://s3.amazonaws.com/' + bucket + '/' + prefix);
+    iframe.setAttribute("flex", '1');
     // iframe.setAttribute("src", S3Ajax.signedURL(bucket, prefix));
     $('active').appendChild(iframe);
   },
