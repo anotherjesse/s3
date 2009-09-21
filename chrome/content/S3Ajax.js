@@ -200,6 +200,18 @@ S3Ajax = {
     });
   },
 
+  signedURL: function(bucket, key) {
+    var domain = 's3.amazonaws.com';
+    var expires = Math.floor(new Date().valueOf()/1000) + 300;
+    var s = "GET\n\n\n" + expires + "\n/" + bucket + '/' + key;
+    var sig = hmacSHA1(s, this.SECRET_KEY);
+    return "http://" + domain + '/' + bucket + '/' + key +
+      '?AWSAccessKeyId=' + this.KEY_ID +
+      '&Expires=' + expires +
+      '&Signature=' + sig;
+  },
+
+
   /**
     Perform an authenticated S3 HTTP query.
   */

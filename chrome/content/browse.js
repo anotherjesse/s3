@@ -43,6 +43,7 @@ function showDelete() {
 var fm = {
   init: function() {
 
+
     var creds = s3_auth.get();
     if (creds) {
       S3Ajax.KEY_ID = creds.key;
@@ -64,7 +65,20 @@ var fm = {
     bucketLabel.setAttribute('href', '/');
     $('location').appendChild(bucketLabel);
 
-    fm.listKeys();
+    if (prefix != '') {
+      S3Ajax.head(bucket, escape(prefix), function() { fm.display(); },
+                                  function() { fm.listKeys(); })
+    }
+    else {
+      fm.listKeys();
+    }
+  },
+
+  display: function() {
+    var iframe = document.createElement('iframe');
+    iframe.setAttribute("src", 'http://s3.amazonaws.com/' + bucket + '/' + prefix);
+    // iframe.setAttribute("src", S3Ajax.signedURL(bucket, prefix));
+    $('active').appendChild(iframe);
   },
 
   listKeys: function() {

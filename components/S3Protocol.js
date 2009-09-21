@@ -40,19 +40,11 @@ S3Handler.prototype = {
     var real = aURI.spec.split('#')[0].split('?')[0];
     var bucket = real.split('/')[2];
 
-    var channel;
     if (bucket == '') {
-      channel = ios.newChannel("chrome://s3/content/accounts.html", null, null);
+      return ios.newChannel("chrome://s3/content/accounts.html", null, null);
     } else {
-      var key = real.slice(6 + bucket.length);
-
-      if (key == '' || key[key.length-1] == '/') {
-        channel = ios.newChannel("chrome://s3/content/browse.xul", null, null);
-      } else {
-        channel = new S3Channel(aURI);
-      }
+      return ios.newChannel("chrome://s3/content/browse.xul", null, null);
     }
-    return channel;
   },
 
   newURI: function S3H_newURI(aSpec, aOriginCharset, aBaseURI) {
