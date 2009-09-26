@@ -24,4 +24,19 @@
             onclick="checkForMiddleClick(this, event);"
             label="Open S3"/>
   </menupopup>
+
+  <menupopup id="viewSidebarMenu">
+    <menuitem observes="viewS3Sidebar" label="S3 Sidebar" />
+  </menupopup>
+  
+  <broadcasterset id="mainBroadcasterSet"> 
+    <broadcaster id="viewS3Sidebar" 
+                 label="S3 Sidebar"
+                 autoCheck="false"
+                 type="checkbox"
+                 group="sidebar"
+                 sidebarurl="chrome://s3/content/sidebar.html"
+                 sidebartitle="S3 Sidebar"
+                 oncommand="toggleSidebar('viewS3Sidebar');" />
+  </broadcasterset>
 </overlay>
