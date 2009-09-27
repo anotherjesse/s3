@@ -22,12 +22,12 @@
     <ul class="jqueryFileTree">
       <xsl:for-each select="S3:ListBucketResult/S3:CommonPrefixes">
         <li class="directory">
-          <a href="#">
+          <span>
             <xsl:attribute name="rel"><xsl:value-of select="S3:Prefix"/></xsl:attribute>
             <xsl:call-template name="getFileName">
               <xsl:with-param name="file" select="S3:Prefix"/>
             </xsl:call-template>
-          </a>
+          </span>
         </li>
       </xsl:for-each>
       <xsl:for-each select="S3:ListBucketResult/S3:Contents">
@@ -39,12 +39,12 @@
             </xsl:call-template>
           </xsl:attribute>
 
-          <a href="#">
+          <span>
             <xsl:attribute name="rel"><xsl:value-of select="S3:Key"/></xsl:attribute>
             <xsl:call-template name="getFileName">
               <xsl:with-param name="file" select="S3:Key"/>
             </xsl:call-template>
-          </a>
+          </span>
         </li>
       </xsl:for-each>
     </ul>

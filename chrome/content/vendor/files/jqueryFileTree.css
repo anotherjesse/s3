@@ -14,14 +14,15 @@ UL.jqueryFileTree LI {
   white-space: nowrap;
 }
 
-UL.jqueryFileTree A {
+UL.jqueryFileTree SPAN {
   color: #333;
+  cursor: pointer;
   text-decoration: none;
   display: block;
   padding: 0px 2px;
 }
 
-UL.jqueryFileTree A:hover {
+UL.jqueryFileTree SPAN:hover {
   background: #BDF;
 }
 
