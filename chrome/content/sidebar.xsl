@@ -21,7 +21,7 @@
   <xsl:template match="/">
     <ul class="jqueryFileTree">
       <xsl:for-each select="S3:ListBucketResult/S3:CommonPrefixes">
-        <li class="directory collapsed">
+        <li class="directory">
           <a href="#">
             <xsl:attribute name="rel"><xsl:value-of select="S3:Prefix"/></xsl:attribute>
             <xsl:call-template name="getFileName">

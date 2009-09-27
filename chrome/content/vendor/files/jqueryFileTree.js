@@ -46,31 +46,27 @@ if (jQuery) (function($){
       // Defaults
       if (!o) o = {};
       if (o.root == undefined) o.root = '';
-      if (o.expandSpeed == undefined) o.expandSpeed= 500;
-      if (o.collapseSpeed == undefined) o.collapseSpeed= 500;
-      if (o.expandEasing == undefined) o.expandEasing = null;
-      if (o.collapseEasing == undefined) o.collapseEasing = null;
       if (o.multiFolder == undefined) o.multiFolder = true;
       if (o.loadMessage == undefined) o.loadMessage = 'Loading...';
 
       $(this).each( function() {
         function showTree(c, t) {
-                   c.addClass('wait');
-                     $(".jqueryFileTree.start").remove();
-                     S3Ajax.listKeys(o.bucket, {prefix: t, delimiter: '/'},
-                                       function(req) {
-                                         //alert('loaded tree: ' + req.responseText)
-                                         c.find('.start').html('');
-                                         var fragment = xslt.transformToFragment(req.responseXML, document);
-                                         c.removeClass('wait').append(fragment);
-                                         c.find('UL:hidden').show();
-                                         bindTree(c);
-                                       }, function(req) {
-                                         alert('error');
-                                       });
+          c.addClass('wait');
+          $(".jqueryFileTree.start").remove();
+          S3Ajax.listKeys(o.bucket, {prefix: t, delimiter: '/'},
+            function(req) {
+              c.find('.start').html('');
+              var fragment = xslt.transformToFragment(req.responseXML, document);
+              c.removeClass('wait').append(fragment);
+              c.find('UL:hidden').show();
+              bindTree(c);
+            }, function(req) {
+              alert('error');
+            });
         }
 
         function bindTree(t) {
+          return
           t.find('li a').bind('click', function() {
             if( $(this).parent().hasClass('directory') ) {
               if( $(this).parent().hasClass('collapsed') ) {
